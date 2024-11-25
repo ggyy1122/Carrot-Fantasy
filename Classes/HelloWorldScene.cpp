@@ -23,8 +23,10 @@
  ****************************************************************************/
 
 #include "HelloWorldScene.h"
-
 USING_NS_CC;
+using namespace ui;
+
+static cocos2d::Size designResolutionSize = cocos2d::Size(960, 640);
 
 Scene* HelloWorld::createScene()
 {
@@ -52,7 +54,7 @@ bool HelloWorld::init()
     Vec2 origin = Director::getInstance()->getVisibleOrigin();
 
     /////////////////////////////
-    // 2. add a menu item with "X" image, which is clicked to quit the program
+    // 2. 添加带有“X”图像的菜单项，单击该菜单项退出程序
     //    you may modify it.
 
     // add a "close" icon to exit the progress. it's an autorelease object
@@ -82,10 +84,10 @@ bool HelloWorld::init()
     /////////////////////////////
     // 3. add your codes below...
 
-    // add a label shows "Hello World"
+    // add a label shows "Hello World"  加标签
     // create and initialize a label
 
-    auto label = Label::createWithTTF("Hello World", "fonts/Marker Felt.ttf", 24);
+    auto label = Label::createWithTTF("11111", "fonts/Marker Felt.ttf", 24);
     if (label == nullptr)
     {
         problemLoading("'fonts/Marker Felt.ttf'");
@@ -100,22 +102,97 @@ bool HelloWorld::init()
         this->addChild(label, 1);
     }
 
-    // add "HelloWorld" splash screen"
-    auto sprite = Sprite::create("HelloWorld.png");
+
+    Size screenSize = Director::getInstance()->getWinSize();
+
+    // 设置设计分辨率
+    auto glview = Director::getInstance()->getOpenGLView();
+    if (glview) {
+        glview->setDesignResolutionSize(designResolutionSize.width, designResolutionSize.height, ResolutionPolicy::NO_BORDER);
+    }
+
+
+
+
+    
+    // 加背景
+    auto sprite = Sprite::create("map/map1.png");
+    float scaleX = screenSize.width / sprite->getContentSize().width;
+    float scaleY = screenSize.height / sprite->getContentSize().height;
     if (sprite == nullptr)
     {
-        problemLoading("'HelloWorld.png'");
+        problemLoading("'map/map1.png'");
     }
     else
     {
+
+        
+
+        sprite->setScaleX(scaleX);
+        sprite->setScaleY(scaleY);
+
         // position the sprite on the center of the screen
         sprite->setPosition(Vec2(visibleSize.width/2 + origin.x, visibleSize.height/2 + origin.y));
-
         // add the sprite as a child to this layer
         this->addChild(sprite, 0);
     }
+
+    //放女孩
+    auto girl = Sprite::create("Carrot/Carrot_5.png");
+    if (girl == nullptr)
+    {
+        problemLoading("'Carrot/Carrot_5.png'");
+    }
+    else
+    {
+        girl->setPosition(Vec2(1390 * scaleX, 758 * scaleY));
+        girl->setScale(1.5);
+        this->addChild(girl, 0);
+    }
+
+
+    //放大叔
+    auto dashu = Sprite::create("Monsters/Monster_1.png");
+    if (dashu == nullptr)
+    {
+        problemLoading("'Monsters/Monster_1.png'");
+    }
+    else
+    {
+        dashu->setPosition(Vec2(241 * scaleX, 758 * scaleY));
+        dashu->setScale(0.3);
+        this->addChild(dashu, 0);
+    }
+
+
+    Vector<FiniteTimeAction*> moveActions;
+    auto a1 = MoveTo::create(1, Vec2(241 * scaleX, 344 * scaleY));
+    auto a2 = MoveTo::create(1, Vec2(600 * scaleX, 344 * scaleY));
+    auto a3 = MoveTo::create(1, Vec2(600 * scaleX, 479 * scaleY));
+    auto a4 = MoveTo::create(1, Vec2(1000 * scaleX, 479 * scaleY));
+    auto a5 = MoveTo::create(1, Vec2(1000 * scaleX, 344 * scaleY));
+    auto a6 = MoveTo::create(1, Vec2(1380 * scaleX, 344 * scaleY));
+    auto a7 = MoveTo::create(1, Vec2(1380 * scaleX, 758 * scaleY));
+    auto seq = Sequence::create(a1,a2,a3,a4,a5,a6,a7,nullptr);
+    dashu->runAction(seq);
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
     return true;
 }
+
 
 
 void HelloWorld::menuCloseCallback(Ref* pSender)
