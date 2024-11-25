@@ -110,9 +110,11 @@ bool AppDelegate::applicationDidFinishLaunching() {
 
     register_all_packages();
 
+
+   
     Music a;
     //œ»‘§º”‘ÿ
-    a.preloadSoundEffect("CarrotGuardRes/Sounds/bgm.mp3");
+    a.preloadSoundEffect("Music/bgm.mp3");
 
     // create a scene. it's an autorelease object
     auto scene = MenuScene::createScene();
