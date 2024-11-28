@@ -26,7 +26,6 @@
 #include "MenuScene.h"
 #include "music.h"
 
-
 // #define USE_AUDIO_ENGINE 1
 
 #if USE_AUDIO_ENGINE
@@ -35,7 +34,7 @@ using namespace cocos2d::experimental;
 #endif
 
 USING_NS_CC;
-
+Music a;
 //分辨率大小
 static cocos2d::Size designResolutionSize = cocos2d::Size(960, 640);
 static cocos2d::Size smallResolutionSize = cocos2d::Size(480, 320);
@@ -109,13 +108,8 @@ bool AppDelegate::applicationDidFinishLaunching() {
     }
 
     register_all_packages();
-
-
-   
-    Music a;
     //先预加载
     a.preloadSoundEffect("Music/bgm.mp3");
-
     // create a scene. it's an autorelease object
     auto scene = MenuScene::createScene();
     // run

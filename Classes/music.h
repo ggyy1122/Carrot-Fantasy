@@ -7,6 +7,7 @@ USING_NS_CC;
 class Music {
 private:
 	int music_play=1;  //音乐总开关，默认开
+	int soundEffectID;
 public:
 	Music() {};
 	~Music() {};
@@ -16,9 +17,12 @@ public:
 	int is_play() { return music_play; };  //返回音乐开关
 	void set_music(int option) { music_play = option; };  //设置音乐开关
 	void background_music() {   //背景音乐
-		if(music_play)
-			AudioEngine::play2d("Music/bgm.mp3", true, 0.5f);
+		if (music_play)
+			soundEffectID = AudioEngine::play2d("Music/bgm.mp3", true, 0.5f);
+		else
+			AudioEngine::pause(soundEffectID);
 	}
+
 	void button_music(){        //按钮音乐
 		if(music_play)
 		AudioEngine::play2d("Music/button.mp3", false, 0.5f);
