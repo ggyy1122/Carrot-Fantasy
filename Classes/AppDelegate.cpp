@@ -32,7 +32,20 @@
 #include "audio/include/AudioEngine.h"
 using namespace cocos2d::experimental;
 #endif
-
+#define DEBUG_MODE 1
+#ifdef _WIN32
+#include <windows.h>
+#include <iostream>
+void createConsole() {
+    AllocConsole(); // 创建控制台窗口
+    FILE* stream;
+    freopen_s(&stream, "CONOUT$", "w", stdout); // 将标准输出重定向到控制台
+    freopen_s(&stream, "CONOUT$", "w", stderr); // 将标准错误重定向到控制台
+    std::cout.clear();
+    std::clog.clear();
+    std::cerr.clear();
+}
+#endif
 USING_NS_CC;
 Music a;
 //分辨率大小
@@ -110,6 +123,10 @@ bool AppDelegate::applicationDidFinishLaunching() {
     register_all_packages();
     //先预加载
     a.preloadSoundEffect("Music/bgm.mp3");
+    //调试模式
+#ifdef _WIN32
+    createConsole();
+#endif 
     // create a scene. it's an autorelease object
     auto scene = MenuScene::createScene();
     // run
