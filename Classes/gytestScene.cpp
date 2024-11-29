@@ -22,7 +22,7 @@ void gytestScene::adjustTileMapToFitScreen() {
     // 获取屏幕大小
     auto screenSize = Director::getInstance()->getVisibleSize();
     // 加载地图
-    auto tileMap = TMXTiledMap::create("map/map3.tmx");
+    auto tileMap = TMXTiledMap::create("map/map1.tmx");
     if (tileMap) {
         // 获取瓦片地图的原始尺寸
         auto tileMapSize = tileMap->getContentSize();
@@ -39,7 +39,7 @@ void gytestScene::adjustTileMapToFitScreen() {
         this->addChild(tileMap, 1);
     }
     else {
-        CCLOG("Failed to load map2.tmx.");
+        CCLOG("Failed to load map1.tmx.");
     }
 }
 // 初始化方法
