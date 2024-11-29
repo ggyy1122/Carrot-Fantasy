@@ -1,23 +1,14 @@
 #pragma once
-/*
-测试用场景
-*/
 
-#ifndef __TEST_H__
-#define __TEST_H__
-
+#include "BaseLevelScene.h"  // 包含基类头文件
 #include "cocos2d.h"
-USING_NS_CC;
-
-class gytestScene : public Layer {
+class gytestScene : public BaseLevelScene {  // 修改为继承自 BaseLevelScene
 public:
-	static Scene* createScene();
-	virtual bool init();
+    static Scene*createScene();            //创建场景的静态方法
+    virtual bool init() override;          // 初始化方法，重写自 BaseLevelScene
+    void TotestScene(Ref* pSender);        // 场景跳转的函数
+    void adjustTileMapToFitScreen();       // 调整 TileMap 适配屏幕的函数
 
-	void TotestScene(Ref* pSender);
-	void adjustTileMapToFitScreen();
-	// implement the "static create()" method manually
-	CREATE_FUNC(gytestScene);
+    CREATE_FUNC(gytestScene);  // 自动生成 create 方法的宏
 };
 
-#endif __TEST_H__
