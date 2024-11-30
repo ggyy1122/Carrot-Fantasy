@@ -1,35 +1,25 @@
 #pragma once
-#ifndef __BASE_LEVEL_SCENE_H__
-#define __BASE_LEVEL_SCENE_H__
 #include "cocos2d.h"
-
 USING_NS_CC;
 
-//创建一个关卡基类
-//注:基类只提供基础功能，子类负责场景的创建和管理，所以不再基类中提供场景创建的方法
-
-
-
-//关卡ui部分的按钮参数
-// 返回按钮的Z轴层级
-#define BACK_BUTTON_ZORDER 2
-
-
-class BaseLevelScene : public Scene {
+class BaseLevelScene : public cocos2d::Scene {
 public:
-  
+    static cocos2d::Scene* createScene(int level);  // 创建场景时传入关卡编号
+    virtual bool init();                            // 默认的 init() 方法
 
-    // 初始化函数，重写父类的初始化方法
-    virtual bool init() override;
-
-    // 创建场景的宏
     CREATE_FUNC(BaseLevelScene);
 
-    // 添加返回按钮的方法
-    void addBackButton();
+protected:
+    void loadMap(int level);                                // 加载地图的函数
+    void addMouseListener();                                // 添加鼠标监听器
+    void handleMouseDown(EventMouse* event);                //鼠标点击时间判断是否种植
+    void handlePlant(const Vec2& position) ;               // 种植处理
+    TMXTiledMap* tileMap = nullptr;                         // 地图对象
+    TMXLayer* plantableLayer = nullptr;                     // plantable 层
+    Vec2 convertToTileCoord(const Vec2& screenPosition);    //将鼠标坐标转换瓦片坐标
+    void drawGrid();                                        //画网格线
+    cocos2d::Size tileSize;                                 //每个瓦片的大小
 
 private:
-    // 处理返回按钮点击事件
-    void onBackButtonClicked(Ref* pSender);
+    static const std::vector<std::string> mapFiles;  // 存储地图文件的路径
 };
-#endif // __BASE_LEVEL_SCENE_H__

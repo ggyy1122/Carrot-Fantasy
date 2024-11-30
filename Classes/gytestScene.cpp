@@ -7,9 +7,9 @@ using namespace ui;
 // 创建场景
 Scene* gytestScene::createScene()
 {
-    auto scene = Scene::create();  // 创建场景
+    auto scene = Scene::create();        // 创建场景
     auto layer = gytestScene::create();  // 创建 gytestScene 层
-    scene->addChild(layer);  // 将层添加到场景中
+    scene->addChild(layer);              // 将层添加到场景中
     return scene;
 }
 
@@ -56,7 +56,7 @@ bool gytestScene::init()
     auto origin = Director::getInstance()->getVisibleOrigin();
 
     // 这里可以直接调用父类中的返回按钮函数
-    addBackButton();
+    //addBackButton();
 
     return true;
 }
