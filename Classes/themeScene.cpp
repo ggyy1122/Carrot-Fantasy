@@ -1,9 +1,10 @@
 #include"advantureScene.h"
 #include"themeScene.h"
 #include"music.h"
-#include"game1scene.h"
 #include "ui/CocosGUI.h"
-#include"gytestScene.h"
+#include"BaseLevelScene.h"
+#include "json/document.h"
+#include "json/rapidjson.h"
 extern Music a;
 USING_NS_CC;
 using namespace ui;
