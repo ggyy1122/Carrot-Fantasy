@@ -1,0 +1,9 @@
+{
+  "pig": {
+    "spriteFrameName": "pig.png",
+    "health": 100,
+    "speed": 5000,
+    "damage": 1,
+    "reward": 50
+  }
+}
