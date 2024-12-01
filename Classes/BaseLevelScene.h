@@ -17,6 +17,14 @@ private:
     std::map<int,std::vector<cocos2d::Vec2>>pathsCache;     //存储已经加载过的关卡的网格路径
     std::map<int, std::vector<cocos2d::Vec2>>ScreenPaths;   //存储已经加载过的关卡的屏幕路径
     int levelId;                                            //关卡编号
+
+    std::vector<Sprite*>remove_table;//remove时借用
+    Sprite* curr_cell;//
+    std::vector<std::string>buy_tower;//存放炮塔的购买图
+    std::vector<int>index_table;//记录本关用到的炮塔的序号
+    int cell_flag;//
+    int money;//钱
+    Vec2 last_position;//记录上一次的位置
 public:
     static cocos2d::Scene* createScene(int level);          // 创建场景时传入关卡编号
     virtual bool init();                                    // 默认的 init() 方法

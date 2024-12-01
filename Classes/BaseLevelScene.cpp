@@ -4,7 +4,22 @@
 #include"Monster.h"
 #include "json/document.h"
 #include "json/rapidjson.h"
+#include"Tower.h"
 #define DEBUG_MODE
+
+#define CELL_SIZE 64
+
+std::string Tower::tower_table[TOWER_NUM][3] = { {"Towers/bottle0.png","Towers/bottle1.png","Towers/bottle2.png"},{"Towers/windmill0.png","Towers/windmill1.png","Towers/windmill2.png"} };
+std::string Tower::base_table[TOWER_NUM] = { "Towers/bottlebase.png" ,"Towers/windmillbase.png" };
+Vec2 Tower::anchorpoint_table[TOWER_NUM][2] = { {Vec2(0.5,0.5),Vec2(0.4,0.46)},{Vec2(0.5,0.7),Vec2(0.5,0.35)} };
+
+const int Bottle::build_cost = 160;
+const int Bottle::up_cost1 = 220;
+const int Bottle::up_cost2 = 280;
+int Bottle::range_table[3] = { 100,200,300 };
+int Bottle::demage_table[3] = { 100,200,300 };
+
+
 
 // 定义关卡地图文件路径数组
 const std::vector<std::string> BaseLevelScene::mapFiles = {
@@ -38,6 +53,12 @@ bool BaseLevelScene::initWithLevel(int level)
     plantsLayer = Layer::create();  // 创建一个新的图层，用于存放植物
     this->addChild(plantsLayer, 10); // 将植物图层添加到场景，zOrder为3，确保它位于其他层之上
     addMouseListener();  // 添加鼠标监听
+
+    cell_flag = 1;
+    buy_tower.push_back("Towers/affordbottle.png");
+    buy_tower.push_back("Towers/affordwindmill.png");
+    index_table.push_back(0);
+    index_table.push_back(1);
     return true;
 }
 
@@ -233,6 +254,21 @@ void BaseLevelScene::handlePlant(const Vec2& position) {
 
     // 判断该瓦片是否可种植
     auto tileGID = tileMap->getLayer("plantable")->getTileGIDAt(tileCoord);
+    if (!cell_flag) {
+        auto location = Vec2(position.x, Director::getInstance()->getVisibleSize().height - position.y);
+        int size = remove_table.size();
+        if ((location.x > last_position.x - CELL_SIZE * size / 2 && location.x < last_position.x + CELL_SIZE * size / 2)
+            && (location.y > last_position.y + CELL_SIZE / 2 && location.y < last_position.y +  3*CELL_SIZE / 2)) {
+            int index = index_table[(location.x - last_position.x + CELL_SIZE * size / 2) / CELL_SIZE];
+            Tower a(index);
+            a.build(this, last_position);
+        }
+        this->removeChild(curr_cell);
+        for (int i = 0; i < remove_table.size(); i++) this->removeChild(remove_table[i]);
+        remove_table.clear();
+        cell_flag = 1;
+        return;
+    }
     if (tileGID != 0) {
         CCLOG("Tile at (%f, %f) is plantable.", tileCoord.x, tileCoord.y);
         // 这里实现种植逻辑
@@ -250,21 +286,34 @@ void BaseLevelScene::handlePlant(const Vec2& position) {
         CCLOG("Screen Position: (%f, %f)", mapPos.x, mapPos.y);
 
         // 创建植物精灵，假设植物图片是 "plant.png"
-        auto plant = Sprite::create("Towers/TFan/TFan_1.png");
-        if (plant) {
-            // 设置植物的位置，使其位置与瓦片对齐
-            plant->setPosition(mapPos);
-            CCLOG("mapPos: (%f, %f)", mapPos.x, mapPos.y);
-            // 调整植物大小（如果需要）
-            plant->setScale(2.0f);  // 假设将植物大小缩小一半，调整大小
+        //auto plant = Sprite::create("Towers/TFan/TFan_1.png");
+        //if (plant) {
+        //    // 设置植物的位置，使其位置与瓦片对齐
+        //    plant->setPosition(mapPos);
+        //    CCLOG("mapPos: (%f, %f)", mapPos.x, mapPos.y);
+        //    // 调整植物大小（如果需要）
+        //    plant->setScale(2.0f);  // 假设将植物大小缩小一半，调整大小
 
-            // 将植物添加到植物图层
-            plantsLayer->addChild(plant);
+        //    // 将植物添加到植物图层
+        //    plantsLayer->addChild(plant);
 
-            CCLOG("Planted at (%f, %f)", tileCoord.x, tileCoord.y);
-        }
-        else {
-            CCLOG("Failed to create plant.");
+        //    CCLOG("Planted at (%f, %f)", tileCoord.x, tileCoord.y);
+        //}
+        //else {
+        //    CCLOG("Failed to create plant.");
+        //}
+        cell_flag = 0;
+        auto location = mapPos;
+        last_position = location;
+        auto cell = Sprite::create("Towers/cell.png");
+        cell->setScale((float)64 / 200);
+        cell->setPosition(location);
+        this->addChild(cell); curr_cell = cell;
+        for (int i = 0, size = buy_tower.size(); i < size; i++) {
+            auto tower_graph = Sprite::create(buy_tower[i]);
+            tower_graph->setScale((float)64 / 79);
+            tower_graph->setPosition(Vec2(location.x - CELL_SIZE * (size - 1) / 2 + CELL_SIZE * i, location.y + CELL_SIZE));
+            this->addChild(tower_graph); remove_table.push_back(tower_graph);
         }
     }
  
