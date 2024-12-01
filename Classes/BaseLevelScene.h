@@ -14,7 +14,8 @@ private:
     TMXLayer* plantableLayer = nullptr;                     // plantable 层
     static const std::vector<std::string> mapFiles;         // 存储地图文件的路径
     cocos2d::Size tileSize;                                 //每个瓦片的大小
-    std::map<int,std::vector<cocos2d::Vec2>>pathsCache;          //存储已经加载过的关卡的路径
+    std::map<int,std::vector<cocos2d::Vec2>>pathsCache;     //存储已经加载过的关卡的网格路径
+    std::map<int, std::vector<cocos2d::Vec2>>ScreenPaths;   //存储已经加载过的关卡的屏幕路径
     int levelId;                                            //关卡编号
 public:
     static cocos2d::Scene* createScene(int level);          // 创建场景时传入关卡编号
@@ -32,5 +33,7 @@ public:
     void loadMonsterConfig();                                //加载怪物配置
     void moveMonsterAlongPath(Monster* monster, const std::vector<cocos2d::Vec2>& path);   //怪物路径移动
     Vec2 gridToScreenCenter(const Vec2& gridPoint);         //将网格坐标转成屏幕坐标的工具函数
+    void  loadMonsters();                                    //加载怪物精灵帧
+    void placeMonsters();                                    //根据关卡防止怪兽
 
 };

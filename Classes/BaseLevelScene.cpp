@@ -21,8 +21,6 @@ Scene* BaseLevelScene::createScene(int level) {
     {
         return scene;
     }
-    //scene->init();                          // 调用默认的 init 方法
-   // scene->loadMap();                  // 加载对应关卡的地图
     return scene;
 }
 bool BaseLevelScene::initWithLevel(int level)
@@ -32,10 +30,9 @@ bool BaseLevelScene::initWithLevel(int level)
         return false;
     }
     this->levelId=level;                   //存储关卡编号
-    this->loadMap();                  // 加载对应关卡的地图
-    this->loadMonsterConfig();             //加载怪物配置
-    //scheduleUpdate();                      //启动更新逻辑
-    // 其他初始化内容（如 UI 等）
+    this->loadMap();                       // 加载对应关卡的地图
+    this->placeMonsters ();                //放置怪兽
+    //scheduleUpdate();                    //启动更新逻辑
   
     // 1. 创建植物图层
     plantsLayer = Layer::create();  // 创建一个新的图层，用于存放植物
@@ -52,6 +49,43 @@ bool BaseLevelScene::init() {
     return true;
 }
 
+
+/**************************************************
+ *****************怪物相关*************************
+ **************************************************/
+//加载怪物精灵帧
+void  BaseLevelScene::loadMonsters()
+{
+    SpriteFrameCache::getInstance()->addSpriteFramesWithFile("Monsters/pig.plist");
+    if (!SpriteFrameCache::getInstance()->getSpriteFrameByName("pig.png")) {
+        CCLOG("Failed to load SpriteFrame 'pig.png'.");
+    }
+}
+//根据关卡放置怪物
+void  BaseLevelScene::placeMonsters()
+{ 
+    std::string monsterName = "pig";  // 使用的怪物名称
+    if (loadPathForLevel(levelId, "paths.json")) {
+        auto& path = pathsCache[levelId];
+        // 输出路径点到日志
+        CCLOG("Path for level %d:", levelId);
+        for (const auto& point : path) {
+            CCLOG("Point: (%f, %f)", point.x, point.y);
+        }
+    }
+    // 调用怪物类的静态创建方法
+    auto pigMonster = Monster::create(monsterName, levelId, ScreenPaths[levelId]);
+    if (!pigMonster) {
+        CCLOG("Failed to create monster.");
+        return;
+    }
+    // 添加怪物到场景中
+    this->addChild(pigMonster, 3);
+
+}
+/**************************************************
+ *****************地图相关*************************
+ **************************************************/
 // 加载地图的函数
 void BaseLevelScene::loadMap() {
     if (levelId <= 0 || levelId > mapFiles.size()) {
@@ -93,7 +127,78 @@ void BaseLevelScene::loadMap() {
         CCLOG("Failed to load map: %s", mapFiles[levelId - 1].c_str());
     }
 }
+// 从 JSON 文件按需加载某个关卡的路径到pathsCache并同时存储其对应的屏幕坐标
+bool BaseLevelScene::loadPathForLevel(int levelId, const std::string& filePath)
+{
+    // 如果已经加载过该关卡的路径，则直接返回
+    if (pathsCache.find(levelId) != pathsCache.end()) {
+        return true;
+    }
 
+    // 从文件中读取 JSON 数据
+    std::string fileContent = cocos2d::FileUtils::getInstance()->getStringFromFile(filePath);
+    if (fileContent.empty()) { // 检查文件是否读取成功
+        CCLOG("Failed to load JSON file: %s", filePath.c_str());
+        return false;
+    }
+
+    rapidjson::Document document;
+    document.Parse(fileContent.c_str());
+
+    // 检查 JSON 格式是否有效
+    if (document.HasParseError() || !document.IsObject()) {
+        CCLOG("Failed to parse JSON or invalid format: %s", filePath.c_str());
+        return false;
+    }
+
+    // 遍历 JSON 对象，提取指定关卡的路径
+    for (auto& level : document.GetObject()) {
+        int levelIdInFile = std::stoi(level.name.GetString()); // 获取文件中的关卡编号
+
+        if (levelIdInFile == levelId) { // 匹配关卡编号
+            if (!level.value.IsArray()) { // 检查路径数据是否是数组
+                CCLOG("Path data for level %d is not an array.", levelId);
+                return false;
+            }
+
+            const auto& points = level.value.GetArray(); // 路径点数组
+            std::vector<cocos2d::Vec2> path;
+
+            // 使用数组迭代器遍历
+            for (rapidjson::Value::ConstValueIterator it = points.Begin(); it != points.End(); ++it) {
+                if (!it->IsArray() || it->Size() != 2) { // 检查点的格式
+                    CCLOG("Invalid point format in level %d.", levelId);
+                    continue;
+                }
+
+                float x = (*it)[0].GetFloat();
+                float y = (*it)[1].GetFloat();
+                path.emplace_back(x, y); // 转换为 Vec2 并存入路径
+            }
+
+            if (path.empty()) { // 检查路径是否为空
+                CCLOG("No valid points found for level %d.", levelId);
+                return false;
+            }
+
+            pathsCache[levelId] = path; // 缓存路径数据
+            // 遍历网格路径点
+            for (const auto& point : pathsCache[levelId]) {
+                CCLOG("Grid Point: (%f, %f)", point.x, point.y);  // 输出网格坐标
+                Vec2 screenCenter = gridToScreenCenter(point);
+                ScreenPaths[levelId].emplace_back(screenCenter);  // 存储中心点屏幕坐标
+                CCLOG("Center Screen Point: (%f, %f)", screenCenter.x, screenCenter.y);  // 输出屏幕坐标
+            }
+            return true; // 加载成功
+        }
+    }
+
+    CCLOG("Path for level %d not found in file: %s", levelId, filePath.c_str());
+    return false; // 未找到该关卡路径
+}
+/**************************************************
+ *****************炮塔相关*************************
+ **************************************************/
 //开启鼠标监听
 void BaseLevelScene::addMouseListener() {
     auto listener = EventListenerMouse::create();
@@ -176,68 +281,10 @@ void BaseLevelScene::plantAt(const cocos2d::Vec2& tileCoord) {
     plant->setPosition(plantPos);
     plantsLayer->addChild(plant);
 }
-// 从 JSON 文件按需加载某个关卡的路径
-bool BaseLevelScene::loadPathForLevel(int levelId, const std::string& filePath)
-{
-    // 如果已经加载过该关卡的路径，则直接返回
-    if (pathsCache.find(levelId) != pathsCache.end()) {
-        return true;
-    }
 
-    // 从文件中读取 JSON 数据
-    std::string fileContent = cocos2d::FileUtils::getInstance()->getStringFromFile(filePath);
-    if (fileContent.empty()) { // 检查文件是否读取成功
-        CCLOG("Failed to load JSON file: %s", filePath.c_str());
-        return false;
-    }
-
-    rapidjson::Document document;
-    document.Parse(fileContent.c_str());
-
-    // 检查 JSON 格式是否有效
-    if (document.HasParseError() || !document.IsObject()) {
-        CCLOG("Failed to parse JSON or invalid format: %s", filePath.c_str());
-        return false;
-    }
-
-    // 遍历 JSON 对象，提取指定关卡的路径
-    for (auto& level : document.GetObject()) {
-        int levelIdInFile = std::stoi(level.name.GetString()); // 获取文件中的关卡编号
-
-        if (levelIdInFile == levelId) { // 匹配关卡编号
-            if (!level.value.IsArray()) { // 检查路径数据是否是数组
-                CCLOG("Path data for level %d is not an array.", levelId);
-                return false;
-            }
-
-            const auto& points = level.value.GetArray(); // 路径点数组
-            std::vector<cocos2d::Vec2> path;
-
-            // 使用数组迭代器遍历
-            for (rapidjson::Value::ConstValueIterator it = points.Begin(); it != points.End(); ++it) {
-                if (!it->IsArray() || it->Size() != 2) { // 检查点的格式
-                    CCLOG("Invalid point format in level %d.", levelId);
-                    continue;
-                }
-
-                float x = (*it)[0].GetFloat();
-                float y = (*it)[1].GetFloat();
-                path.emplace_back(x, y); // 转换为 Vec2 并存入路径
-            }
-
-            if (path.empty()) { // 检查路径是否为空
-                CCLOG("No valid points found for level %d.", levelId);
-                return false;
-            }
-
-            pathsCache[levelId] = path; // 缓存路径数据
-            return true; // 加载成功
-        }
-    }
-
-    CCLOG("Path for level %d not found in file: %s", levelId, filePath.c_str());
-    return false; // 未找到该关卡路径
-}
+/**************************************************
+ *****************工具函数*************************
+ **************************************************/
 //画网格线
 #ifdef DEBUG_MODE
 void BaseLevelScene::drawGrid() {
@@ -260,6 +307,8 @@ void BaseLevelScene::drawGrid() {
         drawNode->drawLine(Vec2(0, y), Vec2(mapSize.width, y), Color4F::WHITE);
     }
 }
+#endif // DEBUG_MODE
+
 //瓦格坐标转地图坐标的工具函数
 Vec2 BaseLevelScene::gridToScreenCenter(const Vec2& gridPoint) {
     // 从 tileMap 获取地图高度（网格数量）
@@ -269,58 +318,3 @@ Vec2 BaseLevelScene::gridToScreenCenter(const Vec2& gridPoint) {
     float screenY = (mapHeight - gridPoint.y - 1) * tileSize.height + tileSize.height / 2;
     return Vec2(screenX, screenY);
 }
-//加载怪物配置
-void BaseLevelScene::loadMonsterConfig() {
-    SpriteFrameCache::getInstance()->addSpriteFramesWithFile("Monsters/pig.plist");
-    if (!SpriteFrameCache::getInstance()->getSpriteFrameByName("pig.png")) {
-        CCLOG("Failed to load SpriteFrame 'pig.png'.");
-        return;
-    }
-
-    // 示例：开始路径跟随逻辑
-    if (loadPathForLevel(levelId, "paths.json")) {
-        auto& path = pathsCache[levelId];
-        // 输出路径点到日志
-        CCLOG("Path for level %d:", levelId);
-        for (const auto& point : path) {
-            CCLOG("Point: (%f, %f)", point.x, point.y);
-        }
-        //转换为屏幕坐标
-         std::vector<Vec2> screenPath;  // 存储屏幕坐标路径
-         // 遍历网格路径点
-         for (const auto& point : pathsCache[levelId]) {
-             CCLOG("Grid Point: (%f, %f)", point.x, point.y);  // 输出网格坐标
-             Vec2 screenCenter = gridToScreenCenter(point);
-             screenPath.emplace_back(screenCenter);  // 存储中心点屏幕坐标
-             CCLOG("Center Screen Point: (%f, %f)", screenCenter.x, screenCenter.y);  // 输出屏幕坐标
-         }
-         auto pig = Monster::create(pigConfig);
-         pig->setPosition(screenPath[0]);
-        this->addChild(pig, 2);
-         // 使用中心屏幕坐标路径移动怪物
-         moveMonsterAlongPath(pig, screenPath);
-    }
-}
-//怪兽的移动逻辑
-void BaseLevelScene::moveMonsterAlongPath(Monster* monster, const std::vector<cocos2d::Vec2>& path) {
-    if (!monster || path.empty()) {
-        CCLOG("Invalid monster or path is empty.");
-        return;
-    }
-
-    // 创建一个数组存储所有的动作
-    cocos2d::Vector<cocos2d::FiniteTimeAction*> actions;
-
-    // 遍历路径点，添加移动动作
-    for (size_t i = 1; i < path.size(); ++i) { // 从第二个点开始，因为怪物已在第一个点
-        auto moveTo = cocos2d::MoveTo::create(1.0f, path[i]); // 1.0f 表示移动时间，可以调整
-        actions.pushBack(moveTo);
-    }
-
-    // 动作序列：路径点移动 + 回调（移动完成的逻辑）
-    auto sequence = cocos2d::Sequence::create(actions);
-
-    // 运行动作
-    monster->runAction(sequence);
-}
-#endif // DEBUG_MODE

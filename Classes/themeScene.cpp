@@ -148,7 +148,7 @@ bool themescene::init() {
 					
 
 						// 创建并切换到第一关
-						auto scene = BaseLevelScene::createScene(1);  // 传入1表示加载第一关
+						auto scene = BaseLevelScene::createScene(currentIndex+1);  // 传入1表示加载第一关
 						Director::getInstance()->replaceScene(scene);
 						// 不载入存档，tmp=0
 						//int tmp = 0;

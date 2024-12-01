@@ -1,7 +1,9 @@
 #pragma once
 
 #include <string>
-
+#include "cocos2d.h"
+#include "json/document.h"
+#include "json/rapidjson.h"
 struct MonsterConfig {
     std::string spriteFrameName;  // 怪物图片资源
     int health;                   // 生命值
@@ -10,6 +12,7 @@ struct MonsterConfig {
     int reward;                   // 击杀奖励
 };
 
-// 声明各个怪物的配置,只是声明，没有定义
-extern MonsterConfig pigConfig;
-extern MonsterConfig wolfConfig;
+class MonsterManager {
+public:
+    static MonsterConfig getMonsterConfigByName(const std::string& monsterName) ;
+};
