@@ -17,6 +17,14 @@ private:
     std::map<int,std::vector<cocos2d::Vec2>>pathsCache;     //存储已经加载过的关卡的网格路径
     std::map<int, std::vector<cocos2d::Vec2>>ScreenPaths;   //存储已经加载过的关卡的屏幕路径
     int levelId;                                            //关卡编号
+
+    int current_level;         //当前关卡，便于重新开始
+    Label* m_lable;            //显示当前金钱
+    int money=400;
+    bool isDoubleSpeed = false; // 初始化为false，表示游戏初始不是二倍速状态
+    bool isPaused = false; // 初始化为false，表示游戏初始不是暂停状态
+    Scheduler* scheduler = Director::getInstance()->getScheduler();
+
 public:
     static cocos2d::Scene* createScene(int level);          // 创建场景时传入关卡编号
     virtual bool init();                                    // 默认的 init() 方法
@@ -35,5 +43,10 @@ public:
     Vec2 gridToScreenCenter(const Vec2& gridPoint);         //将网格坐标转成屏幕坐标的工具函数
     void  loadMonsters();                                    //加载怪物精灵帧
     void placeMonsters();                                    //根据关卡防止怪兽
+
+    void updatemoney(int add);           //更新money，add为变化量
+    void doublespeed(Ref* pSender);
+    void pause_all(Ref* pSender);
+    void menu_all(Ref* pSender);
 
 };

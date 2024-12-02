@@ -4,8 +4,17 @@
 #include"Monster.h"
 #include "json/document.h"
 #include "json/rapidjson.h"
+#include "ui/CocosGUI.h"
+#include"music.h"
+#include"themeScene.h"
+using namespace ui;
 #define DEBUG_MODE
-
+extern Music a;
+static void problemLoading(const char* filename)
+{
+    printf("Error while loading: %s\n", filename);
+    printf("Depending on how you compiled you might have to add 'Resources/' in front of filenames in BaseLevelScene.cpp\n");
+}
 // 定义关卡地图文件路径数组
 const std::vector<std::string> BaseLevelScene::mapFiles = {
     "map/map1.tmx",  // 关卡 1
@@ -14,6 +23,115 @@ const std::vector<std::string> BaseLevelScene::mapFiles = {
     // 可以继续添加其他关卡的地图文件路径
 };
 
+void BaseLevelScene::updatemoney(int add) {
+    money+=add;
+    std::string text = std::to_string(money); // 将数字转换为字符串
+    m_lable->setString(text);
+}
+void BaseLevelScene::doublespeed(Ref* pSender) {
+    isDoubleSpeed = !isDoubleSpeed; // 切换二倍速状态
+    a.button_music();
+    MenuItemImage* button = static_cast<MenuItemImage*>(pSender);
+    if (isDoubleSpeed) {
+        button->setNormalImage(Sprite::create("CarrotGuardRes/UI/doubleSpeed.png"));
+        button->setSelectedImage(Sprite::create("CarrotGuardRes/UI/doubleSpeed.png"));
+        scheduler->setTimeScale(2.0f); //实现加速效果
+    }
+    else {
+        button->setNormalImage(Sprite::create("CarrotGuardRes/UI/normalSpeed.png"));
+        button->setSelectedImage(Sprite::create("CarrotGuardRes/UI/normalSpeed.png"));
+        scheduler->setTimeScale(1.0f); //实现减速效果
+    }
+}
+
+void BaseLevelScene::pause_all(Ref* pSender) {
+    isPaused = !isPaused; // 切换暂停状态
+    a.button_music();
+    MenuItemImage* button = static_cast<MenuItemImage*>(pSender);
+    if (isPaused) {//暂停状态
+        button->setNormalImage(Sprite::create("CarrotGuardRes/UI/continueButton.png"));
+        button->setSelectedImage(Sprite::create("CarrotGuardRes/UI/continueButton.png"));
+        // 添加顶部暂停标识
+        auto pauseTop = Sprite::create("CarrotGuardRes/UI/pausing.png");
+        pauseTop->setName("pauseTop");
+        pauseTop->setPosition(450, 610);
+        pauseTop->setScale(2.0f);
+        this->addChild(pauseTop, 10);
+        Director::getInstance()->pause();
+    }
+    else {//恢复
+        button->setNormalImage(Sprite::create("CarrotGuardRes/UI/pauseButton.png"));
+        button->setSelectedImage(Sprite::create("CarrotGuardRes/UI/pauseButton.png"));
+        //移除暂停标识
+        this->removeChildByName("pauseTop");
+        Director::getInstance()->resume();
+    }
+}
+void BaseLevelScene::menu_all(Ref* pSender) {
+    a.button_music();
+    Director::getInstance()->pause();
+    auto visibleSize = Director::getInstance()->getVisibleSize();//分辨率大小
+    Vec2 origin = Director::getInstance()->getVisibleOrigin();
+    Size screenSize = Director::getInstance()->getWinSize();    //获取屏幕大小
+    //创建灰色遮罩层
+    auto menuLayer = LayerColor::create(Color4B(0, 0, 0, 150));
+    menuLayer->setPosition(Vec2::ZERO);
+    this->addChild(menuLayer, 10);
+    auto listener = EventListenerTouchOneByOne::create();
+    listener->setSwallowTouches(true);
+    listener->onTouchBegan = [menuLayer](Touch* touch, Event* event) {
+        return true;
+        };
+    Director::getInstance()->getEventDispatcher()->addEventListenerWithSceneGraphPriority(listener, menuLayer);
+    //添加暂停菜单背景
+    auto menuBackground = Sprite::create("CarrotGuardRes/UI/gameMenu.png");
+    menuBackground->setPosition(Vec2(visibleSize.width / 2 + origin.x, visibleSize.height / 2 + origin.y));
+    menuBackground->setScale(1.5f);
+    menuLayer->addChild(menuBackground, 0);
+    auto menu = Menu::create();
+    menu->setPosition(Vec2::ZERO);
+    menuLayer->addChild(menu, 1);
+    //添加暂停菜单上相关功能按钮
+    auto continueButton = MenuItemImage::create("CarrotGuardRes/UI/continueNormal.png", "CarrotGuardRes/UI/continueSelected.png");
+    continueButton->setPosition(Vec2(screenSize.width * 0.495, screenSize.height * 0.649));
+    continueButton->setScale(1.5);
+    auto restartButton = MenuItemImage::create("CarrotGuardRes/UI/restartNormal.png", "CarrotGuardRes/UI/restartSelected.png");
+    restartButton->setPosition(Vec2(screenSize.width * 0.495, screenSize.height * 0.51));
+    restartButton->setScale(1.5);
+    auto chooseButton = MenuItemImage::create("CarrotGuardRes/UI/chooseLevelNormal.png", "CarrotGuardRes/UI/chooseLevelSelected.png");
+    chooseButton->setPosition(Vec2(screenSize.width * 0.495, screenSize.height * 0.375));
+    chooseButton->setScale(1.5);
+    // 继续游戏选项
+    continueButton->setCallback([this, menuLayer](Ref* psender) {
+        a.button_music();
+        this->removeChild(menuLayer);
+        // 判断在点击菜单按钮之前是否点击过暂停按钮，防止出现bug
+        if (isPaused==0) {
+            Director::getInstance()->resume();
+        }
+        });
+
+    //重新开始游戏选项
+    restartButton->setCallback([this, menuLayer](Ref* psender) {
+        a.button_music();
+        this->removeChild(menuLayer);
+        auto scene = BaseLevelScene::createScene(current_level);  
+        Director::getInstance()->replaceScene(scene);
+        Director::getInstance()->resume();
+        });
+
+    //选择关卡选项
+    chooseButton->setCallback([this, menuLayer](Ref* psender) {
+        a.button_music();
+        this->removeChild(menuLayer);
+        auto themeScene = themescene::createScene();
+        Director::getInstance()->replaceScene(themeScene);
+        Director::getInstance()->resume();
+        });
+    menu->addChild(continueButton, 1);
+    menu->addChild(chooseButton, 1);
+    menu->addChild(restartButton, 1);
+}
 // 创建场景时传入关卡编号
 Scene* BaseLevelScene::createScene(int level) {
     auto scene = BaseLevelScene::create();  // 创建 BaseLevelScene
@@ -29,6 +147,54 @@ bool BaseLevelScene::initWithLevel(int level)
     {
         return false;
     }
+    current_level = level;
+    //加money
+    m_lable = Label::createWithTTF("400", "fonts/arial.ttf", 27);
+    m_lable->setPosition(Vec2(160, 610));
+    this->addChild(m_lable, 3);
+    //添加返回按钮
+    auto menu = Menu::create();
+    menu->setPosition(Vec2::ZERO);
+    this->addChild(menu, 1);
+    //倍数
+    auto doubleSpeedButton = MenuItemImage::create("CarrotGuardRes/UI/normalSpeed.png", "CarrotGuardRes/UI/doubleSpeed.png", CC_CALLBACK_1(BaseLevelScene::doublespeed, this));
+    if (doubleSpeedButton == nullptr)
+    {
+        problemLoading("'normalSpeed.png' and 'doubleSpeed.png'");
+    }
+    else
+    {
+        doubleSpeedButton->setPosition(670, 610);
+        doubleSpeedButton->setScale(1);
+        menu->addChild(doubleSpeedButton);
+    }
+    //暂停
+    auto pauseSpeedButton = MenuItemImage::create("CarrotGuardRes/UI/pauseButton.png", "CarrotGuardRes/UI/continueButton.png", CC_CALLBACK_1(BaseLevelScene::pause_all, this));
+    if (pauseSpeedButton == nullptr)
+    {
+        problemLoading("'pauseButton.png' and 'continueButton.png'");
+    }
+    else
+    {
+        pauseSpeedButton->setPosition(770,610);
+        pauseSpeedButton->setScale(1);
+        menu->addChild(pauseSpeedButton);
+    }
+    //菜单
+    auto menuButton = MenuItemImage::create("CarrotGuardRes/UI/gameMenuNormal.png", "CarrotGuardRes/UI/gameMenuSelected.png", CC_CALLBACK_1(BaseLevelScene::menu_all, this));
+    if (menuButton == nullptr)
+    {
+        problemLoading("'gameMenuNormal.png' and 'gameMenuSelected'");
+    }
+    else
+    {
+        menuButton->setPosition(870, 610);
+        menuButton->setScale(1);
+        menu->addChild(menuButton);
+    }
+
+ 
+
     this->levelId=level;                   //存储关卡编号
     this->loadMap();                       // 加载对应关卡的地图
     this->placeMonsters ();                //放置怪兽
