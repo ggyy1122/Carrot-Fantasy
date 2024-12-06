@@ -1,5 +1,6 @@
 #include"Monster.h"
 #include"MonsterConfigs.h"
+
 // 初始化怪物
 
 bool Monster::initWithPath(const std::string& monsterName, int levelId, const std::vector<Vec2>& path) {
@@ -57,7 +58,7 @@ void Monster::moveAlongPath(const std::vector<Vec2>& path) {
     for (size_t i = 1; i < path.size(); ++i) { 
         // 从第二个点开始，因为怪物已在第一个点
         distance=path[i-1].distance(path[i]);//计算两点之间的距离
-        moveTime=distance/speed;
+        moveTime=distance/(speed);
         // 打印移动时间
         CCLOG("Moving from (%f, %f) to (%f, %f), Distance: %f, MoveTime: %f seconds",
             path[i - 1].x, path[i - 1].y, path[i].x, path[i].y, distance, moveTime);
