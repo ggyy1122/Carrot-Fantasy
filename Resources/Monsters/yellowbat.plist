@@ -4,33 +4,33 @@
     <dict>
         <key>frames</key>
         <dict>
-            <key>pig_0.png</key>
+            <key>yellowbat_0.png</key>
             <dict>
                 <key>aliases</key>
                 <array/>
                 <key>spriteOffset</key>
                 <string>{0,0}</string>
                 <key>spriteSize</key>
-                <string>{58,75}</string>
+                <string>{98,62}</string>
                 <key>spriteSourceSize</key>
-                <string>{58,75}</string>
+                <string>{98,62}</string>
                 <key>textureRect</key>
-                <string>{{0,0},{58,75}}</string>
+                <string>{{0,0},{98,62}}</string>
                 <key>textureRotated</key>
                 <false/>
             </dict>
-            <key>pig_1.png</key>
+            <key>yellowbat_1.png</key>
             <dict>
                 <key>aliases</key>
                 <array/>
                 <key>spriteOffset</key>
                 <string>{0,0}</string>
                 <key>spriteSize</key>
-                <string>{66,66}</string>
+                <string>{99,72}</string>
                 <key>spriteSourceSize</key>
-                <string>{66,66}</string>
+                <string>{99,72}</string>
                 <key>textureRect</key>
-                <string>{{58,0},{66,66}}</string>
+                <string>{{0,62},{99,72}}</string>
                 <key>textureRotated</key>
                 <false/>
             </dict>
@@ -44,13 +44,13 @@
             <key>premultiplyAlpha</key>
             <false/>
             <key>realTextureFileName</key>
-            <string>pig.png</string>
+            <string>yellowbat.png</string>
             <key>size</key>
-            <string>{124,75}</string>
+            <string>{99,134}</string>
             <key>smartupdate</key>
-            <string>$TexturePacker:SmartUpdate:08768048c3cdc4cbcbc30ba3b5d050e4:504ddcd6c2d08f97139766e356c937fd:cc7484018991b35fd066a21f6d8a9d46$</string>
+            <string>$TexturePacker:SmartUpdate:cd91f849526fad109e327beca7975e89:b4e32881b1f828cc35ec7b6ed0b80038:c39d7b2a266331e7f3fda15194d747d2$</string>
             <key>textureFileName</key>
-            <string>pig.png</string>
+            <string>yellowbat.png</string>
         </dict>
     </dict>
 </plist>
