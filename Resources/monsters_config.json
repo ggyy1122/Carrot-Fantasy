@@ -1,9 +1,24 @@
 {
   "pig": {
-    "spriteFrameName": "pig.png",
+    "spriteFrameName": "pig_0.png",
     "health": 100,
-    "speed": 5000,
+    "speed": 70,
+    "damage": 1,
+    "reward": 50
+  },
+  "yellowbat": {
+    "spriteFrameName": "yellow_bat_0.png",
+    "health": 100,
+    "speed": 150,
+    "damage": 1,
+    "reward": 50
+  },
+"blue": {
+    "spriteFrameName": "blue_0.png",
+    "health": 200,
+    "speed": 80,
     "damage": 1,
     "reward": 50
   }
+
 }
