@@ -4,8 +4,21 @@
 #include "Monster.h"
 #include<vector>
 #include<map>
+#include<string>
 #include"BaseLevelScene.h"
+#include<array>
 USING_NS_CC;
+
+//怪兽波的信息
+struct WaveConfig {
+    int wave;
+    std::string monsterName;
+    int count;
+    std::vector<Vec2> path;
+    std::array<float, 2> spawnInterval;  // 生成间隔的范围 [0.0, 2.0] 之类
+};
+
+
 
 class GameManager {
 private:
@@ -13,6 +26,7 @@ private:
     BaseLevelScene* currentScene;            // 当前绑定的场景
     GameManager() : currentScene(nullptr) {} // 私有化构造函数，防止外部实例化
     std::vector<Monster*> monsters;          // 怪物列表
+
     int playerMoney;                         // 玩家金钱
     int playerHealth;                        // 玩家生命值
     float gameSpeed;                         // 游戏速度
@@ -23,7 +37,9 @@ private:
     GameManager(Scene* scene);               // 私有构造函数
     void cleanup();                          // 清理所有资源
     int levelId;                             //关卡编号
-
+    std::vector<WaveConfig> waveConfigs;     //存储怪兽波
+   int waveIndex=0;
+   int numOfLiveMonster = 0;
 public:
     // 禁用拷贝和赋值
     GameManager(const GameManager&) = delete;
@@ -53,11 +69,13 @@ public:
     void updateMonsterPosition(Monster* monster, float deltaTime);
     void spawnMonster(const Vec2& startPos, const Vec2& targetPos, float speed, int health);
     void update(float deltaTime);
+    void produceMonsterWave(const WaveConfig& waveConfig);
+    void startMonsterWaves();
     // 加载怪物资源
     void loadMonsterResources();
     // 根据关卡放置怪物
-    void placeMonsters(int levelId);
-
+    void produceMonsters(const std::string monsterName);
+    void loadMonsterWaveConfig(const std::string& filename, const std::string& levelName);
     // 怪物更新
     void updateMonsters(float deltaTime);
     // 清理怪物

@@ -11,11 +11,10 @@ USING_NS_CC;
 class BaseLevelScene : public cocos2d::Scene {
 
 private:
-    cocos2d::TMXTiledMap* tileMap = nullptr;                // 地图对象
     cocos2d::Node* plantsLayer;                              //植物图层
     TMXLayer* plantableLayer = nullptr;                     // plantable 层
     static const std::vector<std::string> mapFiles;         // 存储地图文件的路径
-    cocos2d::Size tileSize;                                 //每个瓦片的大小
+   
     std::map<int, std::vector<cocos2d::Vec2>>pathsCache;     //存储已经加载过的关卡的网格路径
     std::map<int, std::vector<cocos2d::Vec2>>ScreenPaths;   //存储已经加载过的关卡的屏幕路径
     int levelId;                                            //关卡编号
@@ -32,8 +31,12 @@ private:
     int cell_flag;//
     Vec2 last_position;//记录上一次的位置
 public:
+    virtual void update(float deltaTime) override;
+    cocos2d::TMXTiledMap* tileMap = nullptr;                // 地图对象
+    cocos2d::Size tileSize;                                 //每个瓦片的大小
     static cocos2d::Scene* createScene(int level);          // 创建场景时传入关卡编号
     virtual bool init();                                    // 默认的 init() 方法
+    void initUI();                                          //初始化ui
     bool initWithLevel(int level);                          //重写的init函数
     CREATE_FUNC(BaseLevelScene);
     void loadMap();                                         // 加载地图的函数
