@@ -2,6 +2,15 @@
 #include<vector>
 #include "json/document.h"
 #include "json/rapidjson.h"
+#include "json/writer.h"
+#include "json/stringbuffer.h"
+
+#include<fstream>
+#include"cocos2d.h"
+#include <sstream>
+#include "json/document.h"
+
+USING_NS_CC;
 
 //静态成员变量的定义和初始化
 GameManager* GameManager::instance = nullptr;
@@ -38,11 +47,19 @@ void GameManager::initLevel(int level)
     path.clear();
     screenPath.clear();
     monsters.clear();
+    //初始化路径
     initPath();
-    // 1. 先加载波次的配置
-    loadMonsterWaveConfig("MonsterWaves.json", "level"+std::to_string(level));
-    // 2. 启动波次生成逻辑
+    //初始化怪兽
+    
+    loadGameData("MonsterData_save_10s.json");
     startMonsterWaves();
+    
+    /*
+    loadMonsterWaveConfig("MonsterWaves.json", "level"+std::to_string(level));
+    startMonsterWaves();
+    */
+    
+
 }
 //读取关卡路径
 bool GameManager::loadPathForLevel(int levelId, const std::string& filePath)
@@ -140,6 +157,96 @@ void GameManager::initPath()
     }
 
 }
+//根据存档初始化
+void GameManager::loadGameData(const std::string& fileName) {
+    waveConfigs.clear();
+    WaveConfig waveConfig;
+    // 1. 构造文件路径（可写路径）
+    std::string filePath = cocos2d::FileUtils::getInstance()->getWritablePath() + fileName;
+    CCLOG("正在加载存档文件: %s", filePath.c_str());
+
+    // 2. 读取文件内容
+    std::ifstream ifs(filePath);
+    if (!ifs.is_open()) {
+        CCLOG("无法打开存档文件：%s", filePath.c_str());
+        return;
+    }
+
+    std::stringstream buffer;
+    buffer << ifs.rdbuf();  // 读取文件内容到字符串
+    std::string fileContent = buffer.str();
+    ifs.close();
+    CCLOG("文件内容: %s", fileContent.c_str());
+
+    // 3. 使用 RapidJSON 解析 JSON
+    rapidjson::Document document;
+    if (document.Parse(fileContent.c_str()).HasParseError()) {
+        CCLOG("JSON 解析错误");
+        return;
+    }
+
+    // 4. 读取第一部分: livemonsters
+    if (document.HasMember("livemonsters") && document["livemonsters"].IsArray()) {
+        const rapidjson::Value& livingMonsters = document["livemonsters"];
+        for (rapidjson::SizeType i = 0; i < livingMonsters.Size(); ++i) {
+            const rapidjson::Value& monsterData = livingMonsters[i];
+            if (monsterData.IsObject()) {
+                std::string monsterName = monsterData["monsterName"].GetString();
+                int pathIndex = monsterData["pathIndex"].GetInt();
+                int health = monsterData["health"].GetInt();
+                //重新创建怪兽
+                produceMonsters(monsterName, pathIndex,health);
+                CCLOG("readMonsters: name=%s, pathIndex=%d, health=%d", monsterName.c_str(), pathIndex, health);
+            }
+        }
+    }
+
+    // 5. 读取第二部分: currentWave
+    if (document.HasMember("currentWave") && document["currentWave"].IsObject()) {
+        const rapidjson::Value& currentWave = document["currentWave"];
+        std::string monsterName = currentWave["monsterName"].GetString();
+        int count = currentWave["count"].GetInt();
+            // 获取怪物名称
+            waveConfig.monsterName = monsterName;
+            // 获取怪物数量
+            waveConfig.count = count;
+            // 添加波配置
+            waveConfigs.push_back(waveConfig);
+            CCLOG("currentWave: name=%s, count=%d", monsterName.c_str(), count);
+    }
+
+    // 6. 读取第三部分: waveIndex
+    if (document.HasMember("waveIndex") && document["waveIndex"].IsInt()) {
+        int waveIndex = document["waveIndex"].GetInt();
+        CCLOG("currentIndex: %d", waveIndex);
+        // 你可以在这里设置当前的波索引
+        this->waveIndex = waveIndex;
+    }
+
+    // 7. 读取第四部分: upcomingWaves
+    if (document.HasMember("upcomingWaves") && document["upcomingWaves"].IsArray()) {
+        const rapidjson::Value& upcomingWaves = document["upcomingWaves"];
+        for (rapidjson::SizeType i = 0; i < upcomingWaves.Size(); ++i) {
+            const rapidjson::Value& waveData = upcomingWaves[i];
+            if (waveData.IsObject()) {
+                std::string monsterName = waveData["monsterName"].GetString();
+                int count = waveData["count"].GetInt();
+                // 获取怪物名称
+                waveConfig.monsterName = monsterName;
+                // 获取怪物数量
+                waveConfig.count = count;
+                // 添加波配置
+                waveConfigs.push_back(waveConfig);
+                CCLOG("upComingWave: name=%s, count=%d", monsterName.c_str(), count);
+            }
+        }
+    }
+
+    CCLOG("Read All Data!");
+}
+
+
+
 
 //怪兽波的数据配置
 void GameManager::loadMonsterWaveConfig(const std::string& filename, const std::string& levelName) {
@@ -176,23 +283,18 @@ void GameManager::loadMonsterWaveConfig(const std::string& filename, const std::
             waveConfig.spawnInterval[0] = spawnInterval[0].GetFloat();
             waveConfig.spawnInterval[1] = spawnInterval[1].GetFloat();
 
-            // 获取路径数据
-            const rapidjson::Value& path = wave["path"];
-            for (rapidjson::SizeType j = 0; j < path.Size(); ++j) {
-                Vec2 point(path[j][0].GetFloat(), path[j][1].GetFloat());
-                waveConfig.path.push_back(point);
-            }
+           
 
             // 添加波配置
             waveConfigs.push_back(waveConfig);
             // 打印波的配置信息
-            CCLOG("Wave %d - Monster: %s, Count: %d, Spawn Interval: %.2f - %.2f, Path Size: %d",
+            CCLOG("Wave %d - Monster: %s, Count: %d, Spawn Interval: %.2f - %.2f",
                 waveConfigs.size(),
                 waveConfig.monsterName.c_str(),
                 waveConfig.count,
                 waveConfig.spawnInterval[0],
-                waveConfig.spawnInterval[1],
-                waveConfig.path.size());
+                waveConfig.spawnInterval[1]
+                );
         }
     }
     else {
@@ -209,15 +311,15 @@ void GameManager::produceMonsterWave(const WaveConfig& waveConfig) {
 
         // 延迟生成怪物，注意延迟的时长是相对于当前时间的
         cocos2d::Director::getInstance()->getScheduler()->schedule([=](float) {
-            produceMonsters(waveConfig.monsterName);
+            produceMonsters(waveConfig.monsterName,0);
             }, this, 0, 0,delay, false, "produceMonster" + std::to_string(i));
     }
 }
 //生成怪兽波
 void GameManager::startMonsterWaves() {
-    waveIndex = 0; // 初始化波次索引
+    CCLOG("Starting wave %d", waveIndex);
     produceMonsterWave(waveConfigs[waveIndex]); // 生成当前波的怪物
-    ++waveIndex; // 进入下一波
+    //++waveIndex; // 进入下一波
     cocos2d::Director::getInstance()->getScheduler()->schedule([this](float) {
         if (waveIndex >= waveConfigs.size()) {
             CCLOG("All waves are complete.");
@@ -225,10 +327,11 @@ void GameManager::startMonsterWaves() {
             return;
         }
 
-        CCLOG("Starting wave %d", waveIndex + 1);
-        produceMonsterWave(waveConfigs[waveIndex]); // 生成当前波的怪物
         ++waveIndex; // 进入下一波
-        }, this, 12.0f, false, "startWave"); // 每隔 12 秒调度一次
+        CCLOG("Starting wave %d", waveIndex);
+        produceMonsterWave(waveConfigs[waveIndex]); // 生成当前波的怪物
+        
+        }, this, 9.0f, false, "startWave"); // 每隔 10 秒调度一次
 }
 //加载怪兽图像资源
 void GameManager::loadMonsterResources() {
@@ -254,16 +357,52 @@ void GameManager::loadMonsterResources() {
         CCLOG("Failed to load SpriteFrame 'blue_1.png'.");
     }
 }
+//入场特效
+void GameManager::playSpawnEffect(const cocos2d::Vec2& spawnPosition) {
+    // 1. 创建一个临时的动画精灵 (不依附于怪物)
+    auto spawnEffect = cocos2d::Sprite::create("Monsters/monster_start_1.png"); // 动画的第一帧
+    spawnEffect->setPosition(spawnPosition); // 动画显示在生成位置
+    currentScene->addChild(spawnEffect); // 把动画精灵加到场景
+
+    // 2. 加载动画的帧
+    cocos2d::Vector<cocos2d::SpriteFrame*> frames;
+    frames.pushBack(cocos2d::SpriteFrame::create("Monsters/monster_start_1.png", cocos2d::Rect(0, 0, 64, 64)));
+    frames.pushBack(cocos2d::SpriteFrame::create("Monsters/monster_start_2.png", cocos2d::Rect(0, 0, 64, 64)));
+
+    // 3. 生成 2 帧的动画 (0.2s 每帧)
+    auto animation = cocos2d::Animation::createWithSpriteFrames(frames, 0.2f);
+    auto animate = cocos2d::Animate::create(animation);
+
+    // 4. 循环播放 2 次
+    auto repeatAnimation = cocos2d::Repeat::create(animate, 2);
+
+    // 5. 动画播放完成后，移除这个临时动画精灵
+    auto removeEffect = cocos2d::CallFunc::create([spawnEffect]() {
+        spawnEffect->removeFromParent(); // 移除动画精灵
+        });
+
+    // 6. 动画序列 (播放动画 + 移除)
+    spawnEffect->setScale(1.5f); // 放大动画
+    auto sequence = cocos2d::Sequence::create(repeatAnimation, removeEffect, nullptr);
+    spawnEffect->runAction(sequence); // 运行动画
+}
 //单个怪兽生产函数
-void GameManager::produceMonsters(const std::string monsterName) {
+void GameManager::produceMonsters(const std::string monsterName,const int startIndex,int health) {
+
+    if(startIndex==0)
+   playSpawnEffect(screenPath[0]);
     // 创建怪物并添加到场景
-    auto Monster = Monster::create(monsterName,screenPath);
+    auto Monster = Monster::create(monsterName,screenPath, startIndex);
     if (!Monster) {
         CCLOG("Failed to create monster.");
         return;
     }
     monsters.push_back(Monster); // 保存到怪物列表 
     currentScene->addChild(Monster);
+    if(health!=-1)
+    {
+        Monster->setHealth(health);
+    }
     numOfLiveMonster++;
 }
 //逐帧更新怪物的状态
@@ -277,6 +416,82 @@ void GameManager::updateMonsters(float deltaTime) {
 
 
 
+
+//怪兽数据存档函数
+void GameManager::saveMonstersDataToJson(const std::string& fileName) {
+    // 创建 JSON 文档对象
+    rapidjson::Document document;
+    document.SetObject();
+    // 获取当前波的索引
+    int currentWaveIndex = getCurrentWaveIndex();
+    // 1. 保存活着的怪物
+    rapidjson::Value livingMonsters(rapidjson::kArrayType);
+    for (auto* monster : monsters) {
+        if (monster->checkLive()) {  // 判断怪物是否活着
+            rapidjson::Value monsterData(rapidjson::kObjectType);
+
+            // monsterName
+            monsterData.AddMember("monsterName", rapidjson::Value(monster->getMonsterName().c_str(), document.GetAllocator()), document.GetAllocator());
+
+            // pathIndex
+            monsterData.AddMember("pathIndex", monster->getPathIndex(), document.GetAllocator());
+
+            // health
+            monsterData.AddMember("health", monster->getHealth(), document.GetAllocator());
+
+            // 将怪物数据添加到数组中
+            livingMonsters.PushBack(monsterData, document.GetAllocator());
+        }
+    }
+    document.AddMember("livemonsters", livingMonsters, document.GetAllocator());
+
+    // 2. 保存当前波信息
+    // 计算当前波剩余的怪物数量
+    int totalMonstersCount = 0;
+    for (int i = 0; i <= currentWaveIndex; ++i) {
+        totalMonstersCount += waveConfigs[i].count;
+    }
+    int remainingCount = totalMonstersCount - monsters.size();
+    rapidjson::Value currentWave(rapidjson::kObjectType);
+    currentWave.AddMember("monsterName", rapidjson::Value(waveConfigs[currentWaveIndex].monsterName.c_str(), document.GetAllocator()), document.GetAllocator());
+    currentWave.AddMember("count", remainingCount, document.GetAllocator());
+    document.AddMember("currentWave", currentWave, document.GetAllocator());
+    //3.保存当前波的编号
+    document.AddMember("waveIndex", currentWaveIndex, document.GetAllocator()); // 存入当前波索引
+    // 4. 保存接下来的波信息
+    rapidjson::Value upcomingWaves(rapidjson::kArrayType);
+    for (size_t i = currentWaveIndex + 1; i < waveConfigs.size(); ++i) {
+        rapidjson::Value waveData(rapidjson::kObjectType);
+        waveData.AddMember("monsterName", rapidjson::Value(waveConfigs[i].monsterName.c_str(), document.GetAllocator()), document.GetAllocator());
+        waveData.AddMember("count", waveConfigs[i].count, document.GetAllocator());
+
+        // 将每波的数据添加到数组中
+        upcomingWaves.PushBack(waveData, document.GetAllocator());
+    }
+    document.AddMember("upcomingWaves", upcomingWaves, document.GetAllocator());
+
+    // 获取可写路径
+    std::string writablePath = FileUtils::getInstance()->getWritablePath();  // 获取可写路径
+
+    // 构造文件路径
+    std::string filePath = writablePath + fileName;
+
+    // 将结果写入到指定文件路径
+    rapidjson::StringBuffer buffer;
+    rapidjson::Writer<rapidjson::StringBuffer> writer(buffer);
+    document.Accept(writer);
+
+    // 写入文件
+    std::ofstream ofs(filePath);  // 使用可写路径
+    if (ofs.is_open()) {
+        ofs << buffer.GetString();
+        ofs.close();
+        CCLOG("存档成功：%s", filePath.c_str());
+    }
+    else {
+        CCLOG("存档失败：%s", filePath.c_str());
+    }
+}
 
 //瓦格坐标转地图坐标的工具函数
 Vec2 GameManager::gridToScreenCenter(const Vec2& gridPoint) {

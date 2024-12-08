@@ -26,6 +26,7 @@ int Bottle::demage_table[3] = { 100,200,300 };
 
 
 extern Music a;
+GameManager* manager;
 static void problemLoading(const char* filename)
 {
     printf("Error while loading: %s\n", filename);
@@ -208,8 +209,18 @@ void BaseLevelScene::initUI()
     }
 }
 void BaseLevelScene::update(float deltaTime) {
-    // 调用 GameManager 来更新所有怪物的位置
-    GameManager::getInstance()->updateMonsters(deltaTime);
+    static float elapsedTime = 0.0f;  // 累积时间
+    static bool hasSaved = false;     // 标志位，确保只存档一次
+
+    // 累积时间
+    elapsedTime += deltaTime;
+
+    // 如果已经达到10秒，并且还没有存档过
+    if (elapsedTime >= 10.0f && !hasSaved) {
+       // manager->saveMonstersDataToJson("MonsterData_save_10s.json");
+        // 标记为已经存档
+        hasSaved = true;
+    }
 }
 bool BaseLevelScene::initWithLevel(int level)
 {
@@ -221,12 +232,11 @@ bool BaseLevelScene::initWithLevel(int level)
     this->levelId = level;                   //存储关卡编号
     this->loadMap();                       // 加载对应关卡的地图
     // 初始化 GameManager 并绑定当前场景
-    GameManager* manager = GameManager::getInstance(this);
+    manager = GameManager::getInstance(this);
     //初始化关卡编号
     manager->initLevel(level);
     // 加载怪物资源
-   manager->loadMonsterResources();
-    // 
+    manager->loadMonsterResources();
 
     this->scheduleUpdate();                    //启动更新逻辑
     // 1. 创建植物图层
@@ -249,9 +259,6 @@ bool BaseLevelScene::init() {
     }
     return true;
 }
-
-
-
 /**************************************************
  *****************地图相关*************************
  **************************************************/
@@ -385,15 +392,6 @@ void BaseLevelScene::handlePlant(const Vec2& position) {
     }
 
 }
-//种植操作
-void BaseLevelScene::plantAt(const cocos2d::Vec2& tileCoord) {
-    auto plant = cocos2d::Sprite::create("plant.png");
-    auto plantPos = tileMap->getLayer("map")->getPositionAt(tileCoord);
-    plant->setPosition(plantPos);
-    plantsLayer->addChild(plant);
-}
-
-
 /**************************************************
  *****************工具函数*************************
  **************************************************/

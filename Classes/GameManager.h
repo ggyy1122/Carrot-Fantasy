@@ -14,8 +14,7 @@ struct WaveConfig {
     int wave;
     std::string monsterName;
     int count;
-    std::vector<Vec2> path;
-    std::array<float, 2> spawnInterval;  // 生成间隔的范围 [0.0, 2.0] 之类
+    std::array<float, 2> spawnInterval={1,2};  // 生成间隔的范围 [0.0, 2.0] 之类
 };
 
 
@@ -32,8 +31,8 @@ private:
     float gameSpeed;                         // 游戏速度
     std::map<int, std::vector<cocos2d::Vec2>>pathsCache;     //存储已经加载过的关卡的网格路径
     std::map<int, std::vector<cocos2d::Vec2>>ScreenPaths;   //存储已经加载过的关卡的屏幕路径
-    std::vector<cocos2d::Vec2> path;               //当前屏幕路径
-    std::vector<cocos2d::Vec2> screenPath;               //当前屏幕路径
+    std::vector<cocos2d::Vec2> path;               //当前屏幕网格路径
+    std::vector<cocos2d::Vec2> screenPath;         //当前屏幕路径
     GameManager(Scene* scene);               // 私有构造函数
     void cleanup();                          // 清理所有资源
     int levelId;                             //关卡编号
@@ -66,6 +65,7 @@ public:
     void modifyPlayerHealth(int amount); // 修改生命值
 
     // 怪物管理
+    void playSpawnEffect(const cocos2d::Vec2& spawnPosition);
     void updateMonsterPosition(Monster* monster, float deltaTime);
     void spawnMonster(const Vec2& startPos, const Vec2& targetPos, float speed, int health);
     void update(float deltaTime);
@@ -74,20 +74,21 @@ public:
     // 加载怪物资源
     void loadMonsterResources();
     // 根据关卡放置怪物
-    void produceMonsters(const std::string monsterName);
+    void produceMonsters(const std::string monsterName,const int startIndex,int health=-1);
     void loadMonsterWaveConfig(const std::string& filename, const std::string& levelName);
     // 怪物更新
     void updateMonsters(float deltaTime);
     // 清理怪物
     void cleanupMonsters();
-
+    int getCurrentWaveIndex() const{return waveIndex;}
     // 游戏速度控制
     void setGameSpeed(float speed);
     float getGameSpeed() const;
 
     // 资源管理
     void preloadResources();
-
+    void loadGameData(const std::string& fileName);
+    void saveMonstersDataToJson(const std::string& fileName);
     Vec2 gridToScreenCenter(const Vec2& gridPoint);
     bool loadPathForLevel(int levelId, const std::string& filePath);
 };

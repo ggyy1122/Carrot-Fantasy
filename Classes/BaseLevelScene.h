@@ -6,6 +6,7 @@
 #include<map>
 #include<vector>
 #include<Monster.h>
+
 USING_NS_CC;
 
 class BaseLevelScene : public cocos2d::Scene {
@@ -14,9 +15,6 @@ private:
     cocos2d::Node* plantsLayer;                              //植物图层
     TMXLayer* plantableLayer = nullptr;                     // plantable 层
     static const std::vector<std::string> mapFiles;         // 存储地图文件的路径
-   
-    std::map<int, std::vector<cocos2d::Vec2>>pathsCache;     //存储已经加载过的关卡的网格路径
-    std::map<int, std::vector<cocos2d::Vec2>>ScreenPaths;   //存储已经加载过的关卡的屏幕路径
     int levelId;                                            //关卡编号
     
     Label* m_lable;            //显示当前金钱
