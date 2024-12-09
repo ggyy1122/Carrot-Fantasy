@@ -4,33 +4,33 @@
     <dict>
         <key>frames</key>
         <dict>
-            <key>pig_0.png</key>
+            <key>blue_0.png</key>
             <dict>
                 <key>aliases</key>
                 <array/>
                 <key>spriteOffset</key>
                 <string>{0,0}</string>
                 <key>spriteSize</key>
-                <string>{58,75}</string>
+                <string>{99,104}</string>
                 <key>spriteSourceSize</key>
-                <string>{58,75}</string>
+                <string>{99,104}</string>
                 <key>textureRect</key>
-                <string>{{0,0},{58,75}}</string>
+                <string>{{0,0},{99,104}}</string>
                 <key>textureRotated</key>
                 <false/>
             </dict>
-            <key>pig_1.png</key>
+            <key>blue_1.png</key>
             <dict>
                 <key>aliases</key>
                 <array/>
                 <key>spriteOffset</key>
                 <string>{0,0}</string>
                 <key>spriteSize</key>
-                <string>{66,66}</string>
+                <string>{99,104}</string>
                 <key>spriteSourceSize</key>
-                <string>{66,66}</string>
+                <string>{99,104}</string>
                 <key>textureRect</key>
-                <string>{{58,0},{66,66}}</string>
+                <string>{{99,0},{99,104}}</string>
                 <key>textureRotated</key>
                 <false/>
             </dict>
@@ -44,13 +44,13 @@
             <key>premultiplyAlpha</key>
             <false/>
             <key>realTextureFileName</key>
-            <string>pig.png</string>
+            <string>blue.png</string>
             <key>size</key>
-            <string>{124,75}</string>
+            <string>{198,104}</string>
             <key>smartupdate</key>
-            <string>$TexturePacker:SmartUpdate:08768048c3cdc4cbcbc30ba3b5d050e4:504ddcd6c2d08f97139766e356c937fd:cc7484018991b35fd066a21f6d8a9d46$</string>
+            <string>$TexturePacker:SmartUpdate:c43057438b351c9e78e3e4e8e867cb54:97a76d064ef0c9c62ff26bd205c80f88:06e17f1fdf634a552aa2320423342f7a$</string>
             <key>textureFileName</key>
-            <string>pig.png</string>
+            <string>blue.png</string>
         </dict>
     </dict>
 </plist>

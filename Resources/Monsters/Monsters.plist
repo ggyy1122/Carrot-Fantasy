@@ -9,28 +9,28 @@
                 <key>aliases</key>
                 <array/>
                 <key>spriteOffset</key>
-                <string>{0,6}</string>
+                <string>{0,0}</string>
                 <key>spriteSize</key>
-                <string>{86,87}</string>
+                <string>{95,98}</string>
                 <key>spriteSourceSize</key>
-                <string>{86,99}</string>
+                <string>{95,98}</string>
                 <key>textureRect</key>
-                <string>{{92,1},{86,87}}</string>
+                <string>{{0,335},{95,98}}</string>
                 <key>textureRotated</key>
-                <true/>
+                <false/>
             </dict>
-            <key>Monster_2.png</key>
+            <key>Monster_2 .png</key>
             <dict>
                 <key>aliases</key>
                 <array/>
                 <key>spriteOffset</key>
-                <string>{0,7}</string>
+                <string>{0,0}</string>
                 <key>spriteSize</key>
-                <string>{89,83}</string>
+                <string>{99,114}</string>
                 <key>spriteSourceSize</key>
-                <string>{89,99}</string>
+                <string>{99,114}</string>
                 <key>textureRect</key>
-                <string>{{1,1},{89,83}}</string>
+                <string>{{0,495},{99,114}}</string>
                 <key>textureRotated</key>
                 <false/>
             </dict>
@@ -39,13 +39,118 @@
                 <key>aliases</key>
                 <array/>
                 <key>spriteOffset</key>
-                <string>{-13,0}</string>
+                <string>{0,0}</string>
                 <key>spriteSize</key>
-                <string>{71,84}</string>
+                <string>{90,98}</string>
                 <key>spriteSourceSize</key>
-                <string>{99,84}</string>
+                <string>{90,98}</string>
                 <key>textureRect</key>
-                <string>{{181,1},{71,84}}</string>
+                <string>{{0,237},{90,98}}</string>
+                <key>textureRotated</key>
+                <false/>
+            </dict>
+            <key>bird.png</key>
+            <dict>
+                <key>aliases</key>
+                <array/>
+                <key>spriteOffset</key>
+                <string>{0,0}</string>
+                <key>spriteSize</key>
+                <string>{56,65}</string>
+                <key>spriteSourceSize</key>
+                <string>{56,65}</string>
+                <key>textureRect</key>
+                <string>{{0,0},{56,65}}</string>
+                <key>textureRotated</key>
+                <false/>
+            </dict>
+            <key>monster_4.png</key>
+            <dict>
+                <key>aliases</key>
+                <array/>
+                <key>spriteOffset</key>
+                <string>{0,0}</string>
+                <key>spriteSize</key>
+                <string>{85,96}</string>
+                <key>spriteSourceSize</key>
+                <string>{85,96}</string>
+                <key>textureRect</key>
+                <string>{{0,141},{85,96}}</string>
+                <key>textureRotated</key>
+                <false/>
+            </dict>
+            <key>monster_5.png</key>
+            <dict>
+                <key>aliases</key>
+                <array/>
+                <key>spriteOffset</key>
+                <string>{0,0}</string>
+                <key>spriteSize</key>
+                <string>{99,104}</string>
+                <key>spriteSourceSize</key>
+                <string>{99,104}</string>
+                <key>textureRect</key>
+                <string>{{0,609},{99,104}}</string>
+                <key>textureRotated</key>
+                <false/>
+            </dict>
+            <key>pig_1.png</key>
+            <dict>
+                <key>aliases</key>
+                <array/>
+                <key>spriteOffset</key>
+                <string>{0,0}</string>
+                <key>spriteSize</key>
+                <string>{58,75}</string>
+                <key>spriteSourceSize</key>
+                <string>{58,75}</string>
+                <key>textureRect</key>
+                <string>{{56,0},{58,75}}</string>
+                <key>textureRotated</key>
+                <false/>
+            </dict>
+            <key>pig_2.png</key>
+            <dict>
+                <key>aliases</key>
+                <array/>
+                <key>spriteOffset</key>
+                <string>{0,0}</string>
+                <key>spriteSize</key>
+                <string>{66,66}</string>
+                <key>spriteSourceSize</key>
+                <string>{66,66}</string>
+                <key>textureRect</key>
+                <string>{{0,75},{66,66}}</string>
+                <key>textureRotated</key>
+                <false/>
+            </dict>
+            <key>yellow_bat_1.png</key>
+            <dict>
+                <key>aliases</key>
+                <array/>
+                <key>spriteOffset</key>
+                <string>{0,0}</string>
+                <key>spriteSize</key>
+                <string>{98,62}</string>
+                <key>spriteSourceSize</key>
+                <string>{98,62}</string>
+                <key>textureRect</key>
+                <string>{{0,433},{98,62}}</string>
+                <key>textureRotated</key>
+                <false/>
+            </dict>
+            <key>yellow_bat_2.png</key>
+            <dict>
+                <key>aliases</key>
+                <array/>
+                <key>spriteOffset</key>
+                <string>{0,0}</string>
+                <key>spriteSize</key>
+                <string>{99,72}</string>
+                <key>spriteSourceSize</key>
+                <string>{99,72}</string>
+                <key>textureRect</key>
+                <string>{{0,713},{99,72}}</string>
                 <key>textureRotated</key>
                 <false/>
             </dict>
@@ -61,9 +166,9 @@
             <key>realTextureFileName</key>
             <string>Monsters.png</string>
             <key>size</key>
-            <string>{253,88}</string>
+            <string>{114,785}</string>
             <key>smartupdate</key>
-            <string>$TexturePacker:SmartUpdate:ee71ae4f648d816b47b9e55b8edc31fe:07bab42f7721d931264d50386232072c:8dc5df745210d588f59bd7f4bfa0c6a4$</string>
+            <string>$TexturePacker:SmartUpdate:653cb886d6757ddea669e3ec4225d503:f56aa1a8f1847639663fdb9321753d3c:8dc5df745210d588f59bd7f4bfa0c6a4$</string>
             <key>textureFileName</key>
             <string>Monsters.png</string>
         </dict>

@@ -121,12 +121,17 @@ bool AppDelegate::applicationDidFinishLaunching() {
     }
 
     register_all_packages();
+    auto fileUtils = cocos2d::FileUtils::getInstance();
+    std::vector<std::string> searchPaths;
+    searchPaths.push_back("data");  // 将 data 文件夹添加到资源搜索路径
+    fileUtils->setSearchPaths(searchPaths);
     //先预加载
     a.preloadSoundEffect("Music/bgm.mp3");
     //调试模式
 #ifdef _WIN32
     createConsole();
 #endif 
+
     // create a scene. it's an autorelease object
     auto scene = MenuScene::createScene();
     // run

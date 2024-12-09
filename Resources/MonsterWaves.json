@@ -1,0 +1,36 @@
+{
+    "level1": [
+        {
+            "wave": 0,
+            "monsterName": "pig",
+            "count": 5,
+            "spawnInterval": [0.6, 1.3]
+         },
+        {
+            "wave": 1,
+            "monsterName": "yellowbat",
+            "count": 3,
+            "spawnInterval": [0.6, 1.4]
+       
+        },
+        {
+            "wave": 2,
+            "monsterName": "blue",
+            "count": 3,
+            "spawnInterval": [0.6, 1.5]
+              },
+        {
+            "wave": 3,
+            "monsterName": "pig",
+            "count": 3,
+            "spawnInterval": [1.0, 2.0]
+         },
+        {
+            "wave": 4,
+            "monsterName": "yellowbat",
+            "count": 6,
+            "spawnInterval": [1.0, 2.0]
+          
+        }
+    ]
+}

@@ -127,9 +127,9 @@ bool MenuScene::init() {
 	}
 	else
 	{
-		float x = visibleSize.width * 0.2;
+		float x = visibleSize.width * 0.125;
 		float y = visibleSize.height * 0.15;
-		advanture->setScale(1.5f * scaleX);
+		advanture->setScale(0.9*1.5f * scaleX);
 		advanture->setPosition(Vec2(x, y));
 		menu->addChild(advanture);
 	}
@@ -144,9 +144,9 @@ bool MenuScene::init() {
 	}
 	else
 	{
-		float x = visibleSize.width * 0.5;
+		float x = visibleSize.width * 0.375;
 		float y = visibleSize.height * 0.14;
-		boss->setScale(scaleX);
+		boss->setScale(0.9*scaleX);
 		boss->setPosition(Vec2(x, y));
 		menu->addChild(boss);
 	}
@@ -157,16 +157,36 @@ bool MenuScene::init() {
 		see->getContentSize().width <= 0 ||
 		see->getContentSize().height <= 0)
 	{
-		problemLoading("'CarrotGuardRes/UI/WitnessButtonNormal.png'and 'CarrotGuardRes/UI/WitnessButtonSelected.png'");
+		problemLoading("'CarrotGuardRes/UI/NetButtonNormal.png'and 'CarrotGuardRes/UI/NetButtonSelected.png'");
 	}
 	else
 	{
-		float x = visibleSize.width * 0.8;
+		float x = visibleSize.width * 0.625;
 		float y = visibleSize.height * 0.15;
-		see->setScale(1.5 * scaleX);
+		see->setScale(0.9*1.5 * scaleX);
 		see->setPosition(Vec2(x, y));
 		menu->addChild(see);
 	}
+
+	//添加怪兽屋按钮
+	auto wu = MenuItemImage::create("CarrotGuardRes/UI/NetButtonNormal.png", "CarrotGuardRes/UI/NetButtonNormal.png", CC_CALLBACK_1(MenuScene::to_boss, this));
+	if (wu == nullptr ||
+		wu->getContentSize().width <= 0 ||
+		wu->getContentSize().height <= 0)
+	{
+		problemLoading("'CarrotGuardRes/UI/WitnessButtonNormal.png'and 'CarrotGuardRes/UI/WitnessButtonNormal.png'");
+	}
+	else
+	{
+		float x = visibleSize.width * 0.875;
+		float y = visibleSize.height * 0.15;
+		wu->setScale(0.9*scaleX);
+		wu->setPosition(Vec2(x, y));
+		menu->addChild(wu);
+	}
+
+
+
 
 	//设置界面按钮
 	auto set = MenuItemImage::create("CarrotGuardRes/UI/SettingNormal.png", "SettingSelected.png", CC_CALLBACK_1(MenuScene::to_SetScene, this));

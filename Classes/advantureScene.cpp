@@ -6,7 +6,8 @@
 extern Music a;
 USING_NS_CC;
 using namespace ui;
-
+bool level_is_win[3] = { false };
+bool is_newgame[3] = { false };
 static void problemLoading(const char* filename)
 {
     printf("Error while loading: %s\n", filename);

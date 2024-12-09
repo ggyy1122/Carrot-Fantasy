@@ -4,33 +4,33 @@
     <dict>
         <key>frames</key>
         <dict>
-            <key>pig_0.png</key>
+            <key>monster_start_1.png</key>
             <dict>
                 <key>aliases</key>
                 <array/>
                 <key>spriteOffset</key>
                 <string>{0,0}</string>
                 <key>spriteSize</key>
-                <string>{58,75}</string>
+                <string>{115,119}</string>
                 <key>spriteSourceSize</key>
-                <string>{58,75}</string>
+                <string>{115,119}</string>
                 <key>textureRect</key>
-                <string>{{0,0},{58,75}}</string>
+                <string>{{0,0},{115,119}}</string>
                 <key>textureRotated</key>
                 <false/>
             </dict>
-            <key>pig_1.png</key>
+            <key>monster_start_2.png</key>
             <dict>
                 <key>aliases</key>
                 <array/>
                 <key>spriteOffset</key>
                 <string>{0,0}</string>
                 <key>spriteSize</key>
-                <string>{66,66}</string>
+                <string>{106,95}</string>
                 <key>spriteSourceSize</key>
-                <string>{66,66}</string>
+                <string>{106,95}</string>
                 <key>textureRect</key>
-                <string>{{58,0},{66,66}}</string>
+                <string>{{0,119},{106,95}}</string>
                 <key>textureRotated</key>
                 <false/>
             </dict>
@@ -44,13 +44,13 @@
             <key>premultiplyAlpha</key>
             <false/>
             <key>realTextureFileName</key>
-            <string>pig.png</string>
+            <string>monster_start.png</string>
             <key>size</key>
-            <string>{124,75}</string>
+            <string>{115,214}</string>
             <key>smartupdate</key>
-            <string>$TexturePacker:SmartUpdate:08768048c3cdc4cbcbc30ba3b5d050e4:504ddcd6c2d08f97139766e356c937fd:cc7484018991b35fd066a21f6d8a9d46$</string>
+            <string>$TexturePacker:SmartUpdate:e4093c6dbd2256a04c1a3076ff6703fc:45d79deafd2f59604a00125c7e63049a:183a719feb8abe73f97d80130e5baca4$</string>
             <key>textureFileName</key>
-            <string>pig.png</string>
+            <string>monster_start.png</string>
         </dict>
     </dict>
 </plist>
