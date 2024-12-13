@@ -6,8 +6,18 @@
 #include<map>
 #include<vector>
 #include<Monster.h>
+#include"Tower.h"
 
 USING_NS_CC;
+
+#define Y 9//y
+#define X 15//x
+
+struct Cell {//用来表示地图格子信息的结构体
+    char flag;//
+    int key;
+};
+
 
 class BaseLevelScene : public cocos2d::Scene {
 
@@ -18,20 +28,23 @@ private:
     int levelId;                                            //关卡编号
     
     Label* money_lable;            //显示当前金钱
-    int money = 400;
+    
     bool isDoubleSpeed = false; // 初始化为false，表示游戏初始不是二倍速状态
     bool isPaused = false; // 初始化为false，表示游戏初始不是暂停状态
     Scheduler* scheduler = Director::getInstance()->getScheduler();
     std::vector<Sprite*>remove_table;//remove时借用
     Sprite* curr_cell;//
-    std::vector<std::string>buy_tower;//存放炮塔的购买图
+    std::vector<std::string>buy_tower[2];//存放炮塔的购买图
     std::vector<int>index_table;//记录本关用到的炮塔的序号
     int cell_flag;//
     Vec2 last_position;//记录上一次的位置
 
-
+    std::map<int, Tower*> towers;//记录场上的塔的信息
+    Cell map_data[X][Y];//地图管理
 
 public:
+    int money = 1000;
+
     virtual void update(float deltaTime) override;
     cocos2d::TMXTiledMap* tileMap = nullptr;                // 地图对象
     cocos2d::Size tileSize;                                 //每个瓦片的大小
@@ -64,5 +77,11 @@ public:
     void Jineng1(Ref* pSender);   //萝卜血量加1
     void Jineng2(Ref* pSender);   //冰冻，怪兽减速，待实现
 
+    void PlantMenuAppear(Vec2 mapPos);//出现种植菜单
+    void PlantMenuGone(Vec2 position);//种植菜单消失
+    void InitMapData();//初始化地图信息
+
+    void UpMenuAppear(Vec2& position);//升级菜单出现
+    void UpMenuGone(Vec2& position);//升级菜单消失
 };
 #endif 

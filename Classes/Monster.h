@@ -4,10 +4,10 @@
 USING_NS_CC;
 class Monster : public cocos2d::Sprite {
 private:
-    int   health;                   // 生命值
+   
     float  speed;                  // 移动速度
     int   damage;                   // 攻击力
-    int   reward;                   // 击杀奖励
+  
     bool  isDead=false;             //是否死亡
     Vec2  endPos;                   //终止位置
     int startPosIndex;              //起始位置
@@ -15,7 +15,8 @@ private:
     int PathIndex=0;                //路径索引
    
 public:
-
+    int   reward;                   // 击杀奖励
+    int   health;                   // 生命值
 
     //静态创建方法，根据配置文件生成一个怪物对象
     static Monster* create(const std::string& monsterName,  const std::vector<Vec2>& path, int startIndex) {

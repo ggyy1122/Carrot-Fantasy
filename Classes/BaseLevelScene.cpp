@@ -13,17 +13,41 @@ using namespace ui;
 #define DEBUG_MODE
 
 #define CELL_SIZE 64
+const Color3B money_color(154, 101, 25);
 
-std::string Tower::tower_table[TOWER_NUM][3] = { {"Towers/bottle0.png","Towers/bottle1.png","Towers/bottle2.png"},{"Towers/windmill0.png","Towers/windmill1.png","Towers/windmill2.png"} };
+std::string Tower::tower_table[TOWER_NUM][3] = { {"Towers/bottle0.png","Towers/bottle1.png","Towers/bottle2.png"},
+    {"Towers/windmill0.png","Towers/windmill1.png","Towers/windmill2.png"} };
 std::string Tower::base_table[TOWER_NUM] = { "Towers/bottlebase.png" ,"Towers/windmillbase.png" };
 Vec2 Tower::anchorpoint_table[TOWER_NUM][2] = { {Vec2(0.5,0.5),Vec2(0.4,0.46)},{Vec2(0.5,0.7),Vec2(0.5,0.35)} };
 
-const int Bottle::build_cost = 160;
-const int Bottle::up_cost1 = 220;
-const int Bottle::up_cost2 = 280;
-int Bottle::range_table[3] = { 100,200,300 };
-int Bottle::demage_table[3] = { 100,200,300 };
+int Tower::build_cost[TOWER_NUM] = { 100,160 };
+int Tower::demage_table[TOWER_NUM][3] = { {20,35,50},{30,45,60} };
+int Tower::range_table[TOWER_NUM][3] = { {200,300,400},{400,500,600} };
 
+int Tower::up_cost[TOWER_NUM][2] = { {180,260},{220,260} };
+int Tower::sell_money[TOWER_NUM][3] = { {80,224,432},{128,304,512} };
+
+std::map<int, std::string> Tower::sale_graph = { {80,"Towers/sale_80.png"} ,{ 128,"Towers/sale_128.png" } ,
+    { 144,"Towers/sale_144.png" } ,{ 224,"Towers/sale_224.png" }, { 304,"Towers/sale_304.png" },
+    { 352,"Towers/sale_352.png" } ,{ 432,"Towers/sale_432.png" } ,{ 512,"Towers/sale_512.png" } ,
+{ 608,"Towers/sale_608.png" } };
+
+std::map<int, std::string> Tower::up_graph = { {180,"Towers/up_180.png"},{220,"Towers/up_220.png"},
+    {260,"Towers/up_260.png"},{320,"Towers/up_320.png"} };
+
+std::map<int, std::string> Tower::noup_graph = { {180,"Towers/noup_180.png"},{220,"Towers/noup_220.png"},
+    {260,"Towers/noup_260.png"},{320,"Towers/noup_320.png"} };
+
+Sprite* Tower::curr_sale;
+Sprite* Tower::curr_up;
+Sprite* Tower::curr_range;
+
+const float Bottle::speed = 800;
+
+float Tower::interval_table[TOWER_NUM] = { 0.8,0.8 };
+
+std::string Bottle::bottle_shell[3] = { "Towers/shell1-1.png","Towers/shell1-2.png" ,"Towers/shell1-3.png" };
+//游戏过程中不需要变动的量的初始化
 
 extern Music a;
 GameManager* manager;
@@ -241,7 +265,7 @@ Scene* BaseLevelScene::createScene(int level) {
 void BaseLevelScene::initUI()
 {
     //加money
-    money_lable = Label::createWithTTF("400", "fonts/arial.ttf", 27);
+    money_lable = Label::createWithTTF("1000", "fonts/arial.ttf", 27);
     money_lable->setPosition(Vec2(160, 610));
     this->addChild(money_lable, 3);
     //添加返回按钮
@@ -316,6 +340,16 @@ void BaseLevelScene::update(float deltaTime) {
     {
    // gameover(false);
     }
+    for (auto it = towers.begin(); it != towers.end(); it++) {
+
+        if (it->second->interval >= it->second->interval_table[it->second->GetIndex()]) {
+            /* Director::getInstance()->end();*/
+             /*return;*/
+            it->second->attack(this, GameManager::getInstance()->monsters);
+        }
+
+        it->second->interval += deltaTime;
+    }
 }
 //初始化关卡
 bool BaseLevelScene::initWithLevel(int level)
@@ -345,10 +379,11 @@ bool BaseLevelScene::initWithLevel(int level)
     addMouseListener();  // 添加鼠标监听
 
     cell_flag = 1;
-    buy_tower.push_back("Towers/affordbottle.png");
-    buy_tower.push_back("Towers/affordwindmill.png");
+    buy_tower[0].push_back("Towers/affordbottle.png"); buy_tower[1].push_back("Towers/unaffordbottle.png");
+    buy_tower[0].push_back("Towers/affordwindmill.png"); buy_tower[1].push_back("Towers/unaffordwindmill.png");
     index_table.push_back(0);
     index_table.push_back(1);
+    InitMapData();
     return true;
 }
 
@@ -441,21 +476,14 @@ void BaseLevelScene::handlePlant(const Vec2& position) {
 
     // 判断该瓦片是否可种植
     auto tileGID = tileMap->getLayer("plantable")->getTileGIDAt(tileCoord);
-    if (!cell_flag) {
-        auto location = Vec2(position.x, Director::getInstance()->getVisibleSize().height - position.y);
-        int size = remove_table.size();
-        if ((location.x > last_position.x - CELL_SIZE * size / 2 && location.x < last_position.x + CELL_SIZE * size / 2)
-            && (location.y > last_position.y + CELL_SIZE / 2 && location.y < last_position.y + 3 * CELL_SIZE / 2)) {
-            int index = index_table[(location.x - last_position.x + CELL_SIZE * size / 2) / CELL_SIZE];
-            Tower a(index);
-            a.build(this, last_position);
-        }
-        this->removeChild(curr_cell);
-        for (int i = 0; i < remove_table.size(); i++) this->removeChild(remove_table[i]);
-        remove_table.clear();
-        cell_flag = 1;
+
+    if (!cell_flag) {//如果已经出现种植或者升级菜单，则再次点击时判断是否进行种植或升级(删除)操作，并使菜单消失
+        if (map_data[int(last_position.x / CELL_SIZE)][int(last_position.y / CELL_SIZE)].flag)
+            PlantMenuGone(Vec2(position.x, Director::getInstance()->getVisibleSize().height - position.y));
+        else UpMenuGone(Vec2(position.x, Director::getInstance()->getVisibleSize().height - position.y));
         return;
     }
+
     if (tileGID != 0) {
         CCLOG("Tile at (%f, %f) is plantable.", tileCoord.x, tileCoord.y);
         // 这里实现种植逻辑
@@ -471,19 +499,11 @@ void BaseLevelScene::handlePlant(const Vec2& position) {
 
         // 输出屏幕坐标
         CCLOG("Screen Position: (%f, %f)", mapPos.x, mapPos.y);
-        cell_flag = 0;
-        auto location = mapPos;
-        last_position = location;
-        auto cell = Sprite::create("Towers/cell.png");
-        cell->setScale((float)64 / 200);
-        cell->setPosition(location);
-        this->addChild(cell); curr_cell = cell;
-        for (int i = 0, size = buy_tower.size(); i < size; i++) {
-            auto tower_graph = Sprite::create(buy_tower[i]);
-            tower_graph->setScale((float)64 / 79);
-            tower_graph->setPosition(Vec2(location.x - CELL_SIZE * (size - 1) / 2 + CELL_SIZE * i, location.y + CELL_SIZE));
-            this->addChild(tower_graph); remove_table.push_back(tower_graph);
-        }
+
+        //如果这地方没有塔，那么打开种植菜单，否则打开升级菜单
+        if (map_data[int(mapPos.x / CELL_SIZE)][int(mapPos.y / CELL_SIZE)].flag)
+            PlantMenuAppear(mapPos);
+        else UpMenuAppear(mapPos);
     }
 
     else
@@ -637,4 +657,78 @@ void BaseLevelScene::gameover(bool is_win) {
         Director::getInstance()->resume();
         });
     menu->addChild(chooseButton, 1);
+}
+
+
+
+void BaseLevelScene::PlantMenuAppear(Vec2 mapPos)
+{
+    cell_flag = 0;
+    auto location = mapPos;
+    last_position = location;
+    auto cell = Sprite::create("Towers/cell.png");
+    cell->setScale((float)64 / 200);
+    cell->setPosition(location);
+    this->addChild(cell); curr_cell = cell;
+    for (int i = 0, size = buy_tower[0].size(); i < size; i++) {
+        int tool = Tower::build_cost[index_table[i]] > money ? 1 : 0;
+        auto tower_graph = Sprite::create(buy_tower[tool][i]);
+        tower_graph->setScale((float)CELL_SIZE / tower_graph->getContentSize().width);
+        tower_graph->setPosition(Vec2(location.x - CELL_SIZE * (size - 1) / 2 + CELL_SIZE * i, location.y + CELL_SIZE));
+        this->addChild(tower_graph); remove_table.push_back(tower_graph);
+    }
+}
+
+void BaseLevelScene::PlantMenuGone(Vec2 position)
+{
+    auto location = position;
+    int size = remove_table.size();
+    if ((location.x > last_position.x - CELL_SIZE * size / 2 && location.x < last_position.x + CELL_SIZE * size / 2)
+        && (location.y > last_position.y + CELL_SIZE / 2 && location.y < last_position.y + 3 * CELL_SIZE / 2)) {
+        int index = index_table[(location.x - last_position.x + CELL_SIZE * size / 2) / CELL_SIZE];
+        if (money >= Tower::build_cost[index]) {
+            Tower* this_tower = createTower(index);
+            this_tower->build(this, last_position);
+            int x = int(last_position.x / CELL_SIZE), y = int(last_position.y / CELL_SIZE);
+            towers[map_data[x][y].key] = this_tower;
+            map_data[x][y].flag = 0;
+        }
+    }
+    this->removeChild(curr_cell); curr_cell->release();
+    for (int i = 0; i < remove_table.size(); i++) { this->removeChild(remove_table[i]); remove_table[i]->release(); }
+    remove_table.clear();
+    cell_flag = 1;
+}
+
+
+void BaseLevelScene::InitMapData()
+{
+    for (int i = 0; i < X; i++)
+        for (int j = 0; j < Y; j++) { map_data[i][j].flag = 1; map_data[i][j].key = j * X + i; }
+}
+
+void BaseLevelScene::UpMenuAppear(Vec2& position)
+{
+    last_position = position;
+    int key = map_data[int(position.x / CELL_SIZE)][int(position.y / CELL_SIZE)].key;
+    towers[key]->UpMenuAppear(this, position);
+    cell_flag = 0;
+}
+
+void BaseLevelScene::UpMenuGone(Vec2& position)
+{
+    int key = BaseLevelScene::map_data[int(last_position.x / CELL_SIZE)][int(last_position.y / CELL_SIZE)].key;
+    towers[key]->UpMenuGone(this);
+    if (position.x > last_position.x - CELL_SIZE / 2 && position.x < last_position.x + CELL_SIZE / 2 &&
+        position.y > last_position.y - 3 * CELL_SIZE / 2 && position.y < last_position.y - CELL_SIZE / 2) {
+        towers[key]->destroy(this);
+        delete towers[key];
+        towers.erase(key);
+        map_data[int(last_position.x / CELL_SIZE)][int(last_position.y / CELL_SIZE)].flag = 1;
+    }
+    else if (position.x > last_position.x - CELL_SIZE / 2 && position.x < last_position.x + CELL_SIZE / 2 &&
+        position.y > last_position.y + CELL_SIZE / 2 && position.y < last_position.y + 3 * CELL_SIZE / 2) {
+        towers[key]->update(this, last_position);
+    }
+    cell_flag = 1;
 }

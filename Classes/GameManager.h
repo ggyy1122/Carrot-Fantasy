@@ -23,8 +23,8 @@ class GameManager {
 private:
     static GameManager* instance;            // 单例指针
     BaseLevelScene* currentScene;            // 当前绑定的场景
-    GameManager() : currentScene(nullptr) {} // 私有化构造函数，防止外部实例化
-    std::vector<Monster*> monsters;          // 怪物列表
+    GameManager() : currentScene(nullptr),monsters(100) {} // 私有化构造函数，防止外部实例化
+    
 
     Carrot*carrot; // 将萝卜对象抽象成 Carrot 类
 
@@ -43,6 +43,8 @@ private:
     int waveIndex = 0;
    int NumOfDeadMonster = 0;
 public:
+    std::vector<Monster*> monsters;          // 怪物列表
+
     void onMonsterPathComplete(cocos2d::EventCustom* event);
     // 禁用拷贝和赋值
     GameManager(const GameManager&) = delete;
