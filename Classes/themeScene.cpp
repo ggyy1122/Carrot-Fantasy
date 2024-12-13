@@ -5,9 +5,9 @@
 #include"BaseLevelScene.h"
 #include "json/document.h"
 #include "json/rapidjson.h"
+extern Music a;
 extern bool level_is_win[3];//1通关了解锁第2关
 extern bool is_newgame[3];
-extern Music a;
 USING_NS_CC;
 using namespace ui;
 // 假设这里有一个全局变量或者成员变量来存储页面相关内容，比如是否可操作等状态标识
@@ -112,17 +112,6 @@ bool themescene::init() {
 		imageView->setPosition(Vec2(layout->getContentSize().width / 2, layout->getContentSize().height / 2));
 		imageView->setScale(2.0f);
 		layout->addChild(imageView, 1);
-		if ((i == 0 && level_is_win[0] == true) || (i == 1 && level_is_win[1] == true) || (i == 2 && level_is_win[2] == true)) {
-			ImageView* a = ImageView::create("CarrotGuardRes/UI/goldenCarrot.png");
-			a->setPosition(Vec2(layout->getContentSize().width / 2*1.45, layout->getContentSize().height / 2*0.65));
-			a->setScale(1.5f);
-			layout->addChild(a, 2);
-		}
-		if ((i == 1 && level_is_win[0] == false) || (i == 2 && level_is_win[1] == false)) {
-			ImageView* b = ImageView::create("CarrotGuardRes/UI/suo.png");
-			b->setPosition(Vec2(layout->getContentSize().width / 2*1.45, layout->getContentSize().height / 2*0.65));
-			layout->addChild(b, 2);
-		}
 		pageView->addPage(layout);
 	}
 
@@ -135,15 +124,14 @@ bool themescene::init() {
 			PageView* pageView = dynamic_cast<PageView*>(pSender);
 			clearRelatedButtons();
 			int currentIndex = pageView->getCurrentPageIndex();
-			if (currentIndex==0||(currentIndex == 1&&level_is_win[0] == true) || (currentIndex == 2 && level_is_win[1] == true)) {
+			if (currentIndex < 3) {
 				// 创建存档按钮
-				auto confirmButton = Button::create("CarrotGuardRes/UI/fileNormal.png", "CarrotGuardRes/UI/fileSelected.png");  
+				auto confirmButton = Button::create("CarrotGuardRes/UI/fileNormal.png", "CarrotGuardRes/UI/fileSelected.png");  // 替换成你的按钮图片
 				confirmButton->setName("confirmButton");
 				confirmButton->setPosition(Vec2(screenSize.width * 0.6, screenSize.height * 0.13));
 				confirmButton->addTouchEventListener([=](Ref* pSender, Widget::TouchEventType type) {
 					if (type == Widget::TouchEventType::ENDED) {
 						a.button_music();
-						is_newgame[currentIndex] = false;
 						// 载入存档，tmp=1
 						//int tmp = 1;
 						//auto gameScene = GameScene::createSceneWithLevel(currentIndex + 1, tmp);
@@ -153,14 +141,14 @@ bool themescene::init() {
 				this->addChild(confirmButton);
 
 				// 创建开始按钮
-				auto cancelButton = Button::create("CarrotGuardRes/UI/startNormal.png", "CarrotGuardRes/UI/startSelected.png");  
+				auto cancelButton = Button::create("CarrotGuardRes/UI/startNormal.png", "CarrotGuardRes/UI/startSelected.png");  // 替换成你的按钮图片
 				cancelButton->setName("cancelButton");
 				cancelButton->setPosition(Vec2(screenSize.width * 0.4, screenSize.height * 0.13));  // 调整位置
 				cancelButton->addTouchEventListener([=](Ref* pSender, Widget::TouchEventType type) {
 					if (type == Widget::TouchEventType::ENDED) {
 						a.button_music();
 					
-						is_newgame[currentIndex] = true;
+
 						// 创建并切换到第一关
 						auto scene = BaseLevelScene::createScene(currentIndex+1);  
 						Director::getInstance()->replaceScene(scene);
@@ -173,7 +161,7 @@ bool themescene::init() {
 				this->addChild(cancelButton);
 			}
 			else {
-				auto lockedButton = Button::create("CarrotGuardRes/UI/locked.png");  
+				auto lockedButton = Button::create("CarrotGuardRes/UI/locked.png");  // 替换成你的按钮图片
 				lockedButton->setName("lockedButton");
 				lockedButton->setPosition(Vec2(screenSize.width * 0.5, screenSize.height * 0.13));  // 调整位置
 				this->addChild(lockedButton);
@@ -181,7 +169,7 @@ bool themescene::init() {
 
 				auto visibleSize = Director::getInstance()->getVisibleSize();//分辨率大小
 				Vec2 origin = Director::getInstance()->getVisibleOrigin();
-				
+				//添加boss界面
 				auto boss1 = Sprite::create("CarrotGuardRes/UI/un_select2.png");
 				boss1->setTag(100);
 				if (boss1 == nullptr)
@@ -264,6 +252,3 @@ void themescene::know_Callback(Ref* pSender) {
 	// 从菜单中移除按钮
 	menu->removeChild((MenuItem*)pSender);
 }
-
-
-

@@ -8,8 +8,8 @@
 #include"music.h"
 #include"themeScene.h"
 #include"Tower.h"
+#include"GameManager.h"
 using namespace ui;
-
 #define DEBUG_MODE
 
 #define CELL_SIZE 64
@@ -26,21 +26,19 @@ int Bottle::demage_table[3] = { 100,200,300 };
 
 
 extern Music a;
+GameManager* manager;
+
 extern bool level_is_win[3];
 extern bool is_newgame[3];
-
 static void problemLoading(const char* filename)
 {
     printf("Error while loading: %s\n", filename);
     printf("Depending on how you compiled you might have to add 'Resources/' in front of filenames in BaseLevelScene.cpp\n");
 }
-bool BaseLevelScene::updatemoney(int add) {
-    if (money + add < 0)
-        return false;
+void BaseLevelScene::updatemoney(int add) {
     money += add;
     std::string text = std::to_string(money); // 将数字转换为字符串
-    m_lable->setString(text);
-    return true;
+    money_lable->setString(text);
 }
 void BaseLevelScene::doublespeed(Ref* pSender) {
     isDoubleSpeed = !isDoubleSpeed; // 切换二倍速状态
@@ -56,19 +54,6 @@ void BaseLevelScene::doublespeed(Ref* pSender) {
         button->setSelectedImage(Sprite::create("CarrotGuardRes/UI/normalSpeed.png"));
         scheduler->setTimeScale(1.0f); //实现减速效果
     }
-}
-void BaseLevelScene::changeHP(int change) {     //改变血量,change可正可负
-    a.carrotSound();
-    carrot_HP += change;
-    // 判断游戏是否结束
-    if (carrot_HP <= 0)
-        gameover(false);
-    else if (carrot_HP > 0 && carrot_HP <= 5) {
-        Carrot->setSpriteFrame(StringUtils::format("Carrot_%d.png", carrot_HP));
-        HP->setSpriteFrame(StringUtils::format("Health_%d.png", carrot_HP));
-    }
-    else
-        return;
 }
 void BaseLevelScene::pause_all(Ref* pSender) {
     isPaused = !isPaused; // 切换暂停状态
@@ -141,7 +126,7 @@ void BaseLevelScene::menu_all(Ref* pSender) {
     restartButton->setCallback([this, menuLayer](Ref* psender) {
         a.button_music();
         this->removeChild(menuLayer);
-        auto scene = BaseLevelScene::createScene(levelId);
+        auto scene = BaseLevelScene::createScene(levelId);   
         Director::getInstance()->replaceScene(scene);
         Director::getInstance()->resume();
         });
@@ -159,14 +144,81 @@ void BaseLevelScene::menu_all(Ref* pSender) {
     menu->addChild(restartButton, 1);
 }
 
-void BaseLevelScene::Jineng1(Ref* pSender) {
-    a.button_music();
-    if (carrot_HP < 5 && updatemoney(-100)) {
-        changeHP(1);
-    } 
-}
-void BaseLevelScene::Jineng2(Ref* pSender) {
-    a.button_music();
+//倒计时
+void BaseLevelScene::CountDown(std::function<void()> onComplete)
+{
+
+    auto countBackground = Sprite::create("CarrotGuardRes/UI/countBackground.png");
+    auto count1 = Sprite::create("CarrotGuardRes/UI/countOne.png");
+    auto count2 = Sprite::create("CarrotGuardRes/UI/countTwo.png");
+    auto count3 = Sprite::create("CarrotGuardRes/UI/countThree.png");
+    Label* count0 = Label::createWithSystemFont("GO", "Arial-BoldMT", 100);
+
+    countBackground->setPosition(480, 320);
+    count1->setPosition(480, 320);
+    count2->setPosition(480, 320);
+    count3->setPosition(480, 320);
+    count0->setPosition(480, 320);
+
+    countBackground->setVisible(false);
+    count1->setVisible(false);
+    count2->setVisible(false);
+    count3->setVisible(false);
+    count0->setVisible(false);
+
+    this->addChild(countBackground, 2);
+    this->addChild(count1, 2);
+    this->addChild(count2, 2);
+    this->addChild(count3, 2);
+    this->addChild(count0, 2);
+    // 设置倒数sequence动作
+    auto countdown = Sequence::create(
+        CallFunc::create([=] {
+            countBackground->setVisible(true);
+            count3->setVisible(true);
+            a.countSound();
+            }),
+        DelayTime::create(1),
+
+        CallFunc::create([=] {
+            this->removeChild(count3);
+            }),
+        CallFunc::create([=] {
+            count2->setVisible(true);
+            a.countSound();
+            }),
+        DelayTime::create(1),
+
+        CallFunc::create([=] {
+            this->removeChild(count2);
+            }),
+        CallFunc::create([=] {
+            count1->setVisible(true);
+            a.countSound();
+            }),
+        DelayTime::create(1),
+
+        CallFunc::create([=] {
+            this->removeChild(count1);
+            count0->setVisible(true);
+            a.countSound();
+            }),
+        DelayTime::create(1),
+
+        CallFunc::create([=] {
+            this->removeChild(count0);
+            this->removeChild(countBackground);
+
+            // 倒计时结束，触发回调
+            if (onComplete) {
+                onComplete();  // 执行回调函数
+            }
+            }),
+        nullptr  // Sequence结束
+    );
+
+    // 运行倒计时动作
+    this->runAction(countdown);
 }
 // 定义关卡地图文件路径数组
 const std::vector<std::string> BaseLevelScene::mapFiles = {
@@ -185,28 +237,13 @@ Scene* BaseLevelScene::createScene(int level) {
     }
     return scene;
 }
-bool BaseLevelScene::initWithLevel(int level)
+//初始化ui组件
+void BaseLevelScene::initUI()
 {
-    if (!Scene::init())
-    {
-        return false;
-    }
-    CountDown();
-    
-    // 1. 显示出现了多少波怪物
-    _curNumberLabel = Label::createWithSystemFont(StringUtils::format("%d", std::min(_currNum, _monsterWave)), "Arial", 32);
-    _curNumberLabel->setColor(Color3B::YELLOW);
-    _curNumberLabel->setPosition(960 * 0.45, 640 * 0.95);
-    this->addChild(_curNumberLabel, 2);
-    // 2. 一共有多少波怪物
-    _numberLabel = Label::createWithSystemFont(StringUtils::format("/%dtimes", _monsterWave), "Arial", 32);
-    _numberLabel->setColor(Color3B::YELLOW);
-    _numberLabel->setPosition(960 * 0.53, 640 * 0.95);
-    this->addChild(_numberLabel, 2);
     //加money
-    m_lable = Label::createWithTTF("400", "fonts/arial.ttf", 27);
-    m_lable->setPosition(Vec2(160, 610));
-    this->addChild(m_lable, 3);
+    money_lable = Label::createWithTTF("400", "fonts/arial.ttf", 27);
+    money_lable->setPosition(Vec2(160, 610));
+    this->addChild(money_lable, 3);
     //添加返回按钮
     auto menu = Menu::create();
     menu->setPosition(Vec2::ZERO);
@@ -247,22 +284,7 @@ bool BaseLevelScene::initWithLevel(int level)
         menuButton->setScale(1);
         menu->addChild(menuButton);
     }
-    this->levelId = level;                   //存储关卡编号
-    this->loadMap();                       // 加载对应关卡的地图
-    auto a = SpriteFrameCache::getInstance();
-    a->addSpriteFramesWithFile("CarrotGuardRes/Carrots.plist", "CarrotGuardRes/Carrots.png");
-    a->addSpriteFramesWithFile("CarrotGuardRes/Health.plist", "CarrotGuardRes/Health.png");
-    // 创建萝卜
-    Carrot = Sprite::createWithSpriteFrameName(StringUtils::format("Carrot_%d.png", carrot_HP));
-    Carrot->setScale(1.5);
-    Carrot->setPosition(dst1[levelId - 1]);
-    this->addChild(Carrot, 2);
-    // 创建血条
-    HP = Sprite::createWithSpriteFrameName(StringUtils::format("Health_%d.png", carrot_HP));
-    HP->setScale(1.5);
-    HP->setPosition(dst2[levelId - 1]);
-    this->addChild(HP, 2);
-
+    /*
     auto jineng1Button = MenuItemImage::create("Carrot/jineng1.png", "Carrot/jineng1.png", CC_CALLBACK_1(BaseLevelScene::Jineng1, this));
     if (jineng1Button == nullptr)
     {
@@ -285,25 +307,50 @@ bool BaseLevelScene::initWithLevel(int level)
         jineng2Button->setScale(2);
         menu->addChild(jineng2Button);
     }
-    auto delayaction = Sequence::create(DelayTime::create(4.0f), CallFunc::create([=] {
-        this->placeMonsters();                //放置怪兽
-        //scheduleUpdate();                    //启动更新逻辑
+    */
+}
+//更新
+void BaseLevelScene::update(float deltaTime) {
+    manager->update(deltaTime);
+    if(manager->CheckLose())
+    {
+   // gameover(false);
+    }
+}
+//初始化关卡
+bool BaseLevelScene::initWithLevel(int level)
+{
+    if (!Scene::init())
+    {
+        return false;
+    }
+    initUI();                                  //初始化ui
+    this->levelId = level;                     //存储关卡编号
+    this->loadMap();                           // 加载对应关卡的地图
+    manager = GameManager::getInstance(this);  // 初始化GameManager
+    manager->initLevel(level);                 //初始化怪兽 路径和存档等资源
+    // 调用倒计时函数并传递回调
+    CountDown([=] {
+              //计时结束后才能开始怪兽波
+        manager->startMonsterWaves();
+        });
+    this->scheduleUpdate();                    //启动更新逻辑
 
-        // 1. 创建植物图层
-        plantsLayer = Layer::create();  // 创建一个新的图层，用于存放植物
-        this->addChild(plantsLayer, 10); // 将植物图层添加到场景，zOrder为3，确保它位于其他层之上
-        addMouseListener();  // 添加鼠标监听
 
-        cell_flag = 1;
-        buy_tower.push_back("Towers/affordbottle.png");
-        buy_tower.push_back("Towers/affordwindmill.png");
-        index_table.push_back(0);
-        index_table.push_back(1);
-        }), nullptr);
-    this->runAction(delayaction);
+
+
+    // 1. 创建植物图层
+    plantsLayer = Layer::create();  // 创建一个新的图层，用于存放植物
+    this->addChild(plantsLayer, 10); // 将植物图层添加到场景，zOrder为3，确保它位于其他层之上
+    addMouseListener();  // 添加鼠标监听
+
+    cell_flag = 1;
+    buy_tower.push_back("Towers/affordbottle.png");
+    buy_tower.push_back("Towers/affordwindmill.png");
+    index_table.push_back(0);
+    index_table.push_back(1);
     return true;
 }
-
 
 // 默认的 init 方法
 bool BaseLevelScene::init() {
@@ -311,41 +358,6 @@ bool BaseLevelScene::init() {
         return false;
     }
     return true;
-}
-
-
-/**************************************************
- *****************怪物相关*************************
- **************************************************/
- //加载怪物精灵帧
-void  BaseLevelScene::loadMonsters()
-{
-    SpriteFrameCache::getInstance()->addSpriteFramesWithFile("Monsters/pig.plist");
-    if (!SpriteFrameCache::getInstance()->getSpriteFrameByName("pig.png")) {
-        CCLOG("Failed to load SpriteFrame 'pig.png'.");
-    }
-}
-//根据关卡放置怪物
-void  BaseLevelScene::placeMonsters()
-{
-    std::string monsterName = "pig";  // 使用的怪物名称
-    if (loadPathForLevel(levelId, "paths.json")) {
-        auto& path = pathsCache[levelId];
-        // 输出路径点到日志
-        CCLOG("Path for level %d:", levelId);
-        for (const auto& point : path) {
-            CCLOG("Point: (%f, %f)", point.x, point.y);
-        }
-    }
-    // 调用怪物类的静态创建方法
-    auto pigMonster = Monster::create(monsterName, levelId, ScreenPaths[levelId]);
-    if (!pigMonster) {
-        CCLOG("Failed to create monster.");
-        return;
-    }
-    // 添加怪物到场景中
-    this->addChild(pigMonster, 3);
-
 }
 /**************************************************
  *****************地图相关*************************
@@ -391,75 +403,7 @@ void BaseLevelScene::loadMap() {
         CCLOG("Failed to load map: %s", mapFiles[levelId - 1].c_str());
     }
 }
-// 从 JSON 文件按需加载某个关卡的路径到pathsCache并同时存储其对应的屏幕坐标
-bool BaseLevelScene::loadPathForLevel(int levelId, const std::string& filePath)
-{
-    // 如果已经加载过该关卡的路径，则直接返回
-    if (pathsCache.find(levelId) != pathsCache.end()) {
-        return true;
-    }
 
-    // 从文件中读取 JSON 数据
-    std::string fileContent = cocos2d::FileUtils::getInstance()->getStringFromFile(filePath);
-    if (fileContent.empty()) { // 检查文件是否读取成功
-        CCLOG("Failed to load JSON file: %s", filePath.c_str());
-        return false;
-    }
-
-    rapidjson::Document document;
-    document.Parse(fileContent.c_str());
-
-    // 检查 JSON 格式是否有效
-    if (document.HasParseError() || !document.IsObject()) {
-        CCLOG("Failed to parse JSON or invalid format: %s", filePath.c_str());
-        return false;
-    }
-
-    // 遍历 JSON 对象，提取指定关卡的路径
-    for (auto& level : document.GetObject()) {
-        int levelIdInFile = std::stoi(level.name.GetString()); // 获取文件中的关卡编号
-
-        if (levelIdInFile == levelId) { // 匹配关卡编号
-            if (!level.value.IsArray()) { // 检查路径数据是否是数组
-                CCLOG("Path data for level %d is not an array.", levelId);
-                return false;
-            }
-
-            const auto& points = level.value.GetArray(); // 路径点数组
-            std::vector<cocos2d::Vec2> path;
-
-            // 使用数组迭代器遍历
-            for (rapidjson::Value::ConstValueIterator it = points.Begin(); it != points.End(); ++it) {
-                if (!it->IsArray() || it->Size() != 2) { // 检查点的格式
-                    CCLOG("Invalid point format in level %d.", levelId);
-                    continue;
-                }
-
-                float x = (*it)[0].GetFloat();
-                float y = (*it)[1].GetFloat();
-                path.emplace_back(x, y); // 转换为 Vec2 并存入路径
-            }
-
-            if (path.empty()) { // 检查路径是否为空
-                CCLOG("No valid points found for level %d.", levelId);
-                return false;
-            }
-
-            pathsCache[levelId] = path; // 缓存路径数据
-            // 遍历网格路径点
-            for (const auto& point : pathsCache[levelId]) {
-                CCLOG("Grid Point: (%f, %f)", point.x, point.y);  // 输出网格坐标
-                Vec2 screenCenter = gridToScreenCenter(point);
-                ScreenPaths[levelId].emplace_back(screenCenter);  // 存储中心点屏幕坐标
-                CCLOG("Center Screen Point: (%f, %f)", screenCenter.x, screenCenter.y);  // 输出屏幕坐标
-            }
-            return true; // 加载成功
-        }
-    }
-
-    CCLOG("Path for level %d not found in file: %s", levelId, filePath.c_str());
-    return false; // 未找到该关卡路径
-}
 /**************************************************
  *****************炮塔相关*************************
  **************************************************/
@@ -548,15 +492,6 @@ void BaseLevelScene::handlePlant(const Vec2& position) {
     }
 
 }
-//种植操作
-void BaseLevelScene::plantAt(const cocos2d::Vec2& tileCoord) {
-    auto plant = cocos2d::Sprite::create("plant.png");
-    auto plantPos = tileMap->getLayer("map")->getPositionAt(tileCoord);
-    plant->setPosition(plantPos);
-    plantsLayer->addChild(plant);
-}
-
-
 /**************************************************
  *****************工具函数*************************
  **************************************************/
@@ -595,6 +530,9 @@ Vec2 BaseLevelScene::gridToScreenCenter(const Vec2& gridPoint) {
 }
 
 
+
+
+
 void BaseLevelScene::gameover(bool is_win) {
     Director::getInstance()->pause();
     // 设置灰色遮罩层
@@ -607,7 +545,7 @@ void BaseLevelScene::gameover(bool is_win) {
     menuLayer->addChild(menu, 1);
     // 游戏胜利
     if (is_win) {
-        level_is_win[levelId-1] = true;
+        level_is_win[levelId - 1] = true;
         //添加游戏获胜界面
         auto gameWinBackground = Sprite::create("CarrotGuardRes/UI/WinGame.png");
         gameWinBackground->setPosition(Vec2(480, 320));
@@ -619,15 +557,17 @@ void BaseLevelScene::gameover(bool is_win) {
         menuLayer->addChild(goldenCarrot, 0);
 
         // 胜利的相关提示语
+        /*
         _curNumberLabel = Label::createWithSystemFont(StringUtils::format("%d", _currNum > _monsterWave ? _monsterWave : _currNum), "Arial", 32);
         _curNumberLabel->setColor(Color3B::YELLOW);
         _curNumberLabel->setPosition(960 * 0.51, 640 * 0.54);
+        */
         Label* loseWordLeft = Label::createWithSystemFont("fought off", "Arial", 30);
         loseWordLeft->setPosition(960 * 0.36, 640 * 0.54);
         Label* loseWordRight = Label::createWithSystemFont("waves", "Arial", 30);
         loseWordRight->setPosition(960 * 0.60, 640 * 0.545);
 
-        this->addChild(_curNumberLabel, 10);
+        //this->addChild(_curNumberLabel, 10);
         this->addChild(loseWordLeft, 10);
         this->addChild(loseWordRight, 10);
         //继续游戏按钮
@@ -657,15 +597,17 @@ void BaseLevelScene::gameover(bool is_win) {
         menuLayer->addChild(gameLoseBackground, 0);
 
         // 游戏失败的相关提示语
+        /*
         _curNumberLabel = Label::createWithSystemFont(StringUtils::format("%d", _currNum - 1), "Arial", 32);// 暂时没搞currnum为什么会大1，所以先-1
         _curNumberLabel->setColor(Color3B::YELLOW);
-        _curNumberLabel->setPosition(960 * 0.51, 640 * 0.54);
+        _curNumberLabel->setPosition(960 * 0.51, 640 * 0.54);*/
         Label* loseWordLeft = Label::createWithSystemFont("fought off", "Arial", 30);
+       
         loseWordLeft->setPosition(960 * 0.36, 640 * 0.54);
         Label* loseWordRight = Label::createWithSystemFont("waves", "Arial", 30);
         loseWordRight->setPosition(960 * 0.60, 640 * 0.54);
 
-        this->addChild(_curNumberLabel, 10);
+        //this->addChild(_curNumberLabel, 10);
         this->addChild(loseWordLeft, 10);
         this->addChild(loseWordRight, 10);
         //重新游戏按钮
@@ -695,60 +637,4 @@ void BaseLevelScene::gameover(bool is_win) {
         Director::getInstance()->resume();
         });
     menu->addChild(chooseButton, 1);
-}
-
-void BaseLevelScene::CountDown()
-{
-   
-    auto countBackground = Sprite::create("CarrotGuardRes/UI/countBackground.png");
-    auto count1 = Sprite::create("CarrotGuardRes/UI/countOne.png");
-    auto count2 = Sprite::create("CarrotGuardRes/UI/countTwo.png");
-    auto count3 = Sprite::create("CarrotGuardRes/UI/countThree.png");
-    Label* count0 = Label::createWithSystemFont("GO", "Arial-BoldMT", 100);
-
-    countBackground->setPosition(480, 320);
-    count1->setPosition(480, 320);
-    count2->setPosition(480, 320);
-    count3->setPosition(480, 320);
-    count0->setPosition(480, 320);
-
-    countBackground->setVisible(false);
-    count1->setVisible(false);
-    count2->setVisible(false);
-    count3->setVisible(false);
-    count0->setVisible(false);
-
-    this->addChild(countBackground, 2);
-    this->addChild(count1, 2);
-    this->addChild(count2, 2);
-    this->addChild(count3, 2);
-    this->addChild(count0, 2);
-    // 设置倒数sequence动作
-    auto countdown = Sequence::create(CallFunc::create([=] {
-        countBackground->setVisible(true);
-        count3->setVisible(true);
-        a.countSound();
-        }), DelayTime::create(1), CallFunc::create([=] {
-            this->removeChild(count3);
-            }), CallFunc::create([=] {
-                count2->setVisible(true);
-                a.countSound();
-                }), DelayTime::create(1), CallFunc::create([=] {
-                    this->removeChild(count2);
-                    }), CallFunc::create([=] {
-                        count1->setVisible(true);
-                        a.countSound();
-                        }), DelayTime::create(1), CallFunc::create([=] {
-                            this->removeChild(count1);
-                            count0->setVisible(true);
-                            a.countSound();
-                            }), DelayTime::create(1), CallFunc::create([=] {
-                                this->removeChild(count0);
-                                this->removeChild(countBackground);
-                                // 游戏主循环
-                                scheduleUpdate();
-                                                
-                                }), NULL);
-
-    this->runAction(countdown);
 }

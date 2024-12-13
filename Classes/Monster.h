@@ -13,7 +13,10 @@ private:
     int startPosIndex;              //起始位置
     std::string name;               //怪兽名
     int PathIndex=0;                //路径索引
+   
 public:
+
+
     //静态创建方法，根据配置文件生成一个怪物对象
     static Monster* create(const std::string& monsterName,  const std::vector<Vec2>& path, int startIndex) {
         Monster* monster = new (std::nothrow) Monster();//使用new运算符分配内存，创建一个Monster对象
@@ -41,4 +44,6 @@ public:
     int getPathIndex()const{return PathIndex;};
     //设置怪物血量
     void setHealth(int health){this->health=health;};
+    //清理内存
+    void cleanUp(){this->removeFromParentAndCleanup(this);}
 };

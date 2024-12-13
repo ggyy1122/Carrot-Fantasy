@@ -85,15 +85,21 @@ void Monster::moveAlongPath(const std::vector<Vec2>& path) {
         actions.pushBack(moveTo);
         actions.pushBack(updatePathIndex); // 在移动到点后，更新 pathIndex
     }
-
-    // 在路径结束时调用的回调函数，调用 toDie
+    // 在路径完成时触发事件
     auto onPathComplete = cocos2d::CallFunc::create([this]() {
-        CCLOG("Monster %p has completed its path. Calling toDie().", this);
-        this->toDie(); // 在路径完成后调用 toDie()
+        CCLOG("Monster %p has completed its path.", this);
+
+        // 创建事件
+        cocos2d::EventCustom event("monster_path_complete");
+        // 将怪兽对象指针传递给事件
+        event.setUserData(this); 
+
+        // 获取事件分发器并分发事件
+        auto dispatcher = Director::getInstance()->getEventDispatcher();
+        dispatcher->dispatchEvent(&event);
         });
 
-    // 动作序列：路径点移动 + 回调（移动完成的逻辑）
-    actions.pushBack(onPathComplete); // 在最后添加回调
+    actions.pushBack(onPathComplete);
 
     // 创建动作序列
     auto sequence = cocos2d::Sequence::create(actions);
@@ -102,6 +108,7 @@ void Monster::moveAlongPath(const std::vector<Vec2>& path) {
     this->runAction(sequence);
 
 }
+//让怪物死亡
 void Monster::toDie()
 {
     CCLOG("Monster %p is dying.", this);
@@ -121,7 +128,7 @@ void Monster::toDie()
     this->getParent()->addChild(deathSprite);
     deathSprite->setPosition(this->getPosition());  // 设置死亡动画精灵位置与怪物相同
     deathSprite->setScale(1.5f);
-    // 4. 加载死亡动画的 4 张图片（假设你有 "dead_1.png", "dead_2.png", "dead_3.png", "dead_4.png"）
+    // 4. 加载死亡动画的 4 张图片
     cocos2d::Vector<cocos2d::SpriteFrame*> frames;
     for (int i = 1; i <= 4; ++i) {
         std::string frameName = "Monsters/dead_" + std::to_string(i) + ".png";

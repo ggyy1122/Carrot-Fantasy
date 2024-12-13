@@ -7,6 +7,7 @@
 #include<string>
 #include"BaseLevelScene.h"
 #include<array>
+#include"Carrot.h"
 USING_NS_CC;
 
 //怪兽波的信息
@@ -18,13 +19,15 @@ struct WaveConfig {
 };
 
 
-
 class GameManager {
 private:
     static GameManager* instance;            // 单例指针
     BaseLevelScene* currentScene;            // 当前绑定的场景
     GameManager() : currentScene(nullptr) {} // 私有化构造函数，防止外部实例化
     std::vector<Monster*> monsters;          // 怪物列表
+
+    Carrot*carrot; // 将萝卜对象抽象成 Carrot 类
+
 
     int playerMoney;                         // 玩家金钱
     int playerHealth;                        // 玩家生命值
@@ -37,9 +40,10 @@ private:
     void cleanup();                          // 清理所有资源
     int levelId;                             //关卡编号
     std::vector<WaveConfig> waveConfigs;     //存储怪兽波
-   int waveIndex=0;
-   int numOfLiveMonster = 0;
+    int waveIndex = 0;
+   int NumOfDeadMonster = 0;
 public:
+    void onMonsterPathComplete(cocos2d::EventCustom* event);
     // 禁用拷贝和赋值
     GameManager(const GameManager&) = delete;
     GameManager& operator=(const GameManager&) = delete;
@@ -66,7 +70,6 @@ public:
 
     // 怪物管理
     void playSpawnEffect(const cocos2d::Vec2& spawnPosition);
-    void updateMonsterPosition(Monster* monster, float deltaTime);
     void spawnMonster(const Vec2& startPos, const Vec2& targetPos, float speed, int health);
     void update(float deltaTime);
     void produceMonsterWave(const WaveConfig& waveConfig);
@@ -76,8 +79,6 @@ public:
     // 根据关卡放置怪物
     void produceMonsters(const std::string monsterName,const int startIndex,int health=-1);
     void loadMonsterWaveConfig(const std::string& filename, const std::string& levelName);
-    // 怪物更新
-    void updateMonsters(float deltaTime);
     // 清理怪物
     void cleanupMonsters();
     int getCurrentWaveIndex() const{return waveIndex;}
@@ -91,4 +92,10 @@ public:
     void saveMonstersDataToJson(const std::string& fileName);
     Vec2 gridToScreenCenter(const Vec2& gridPoint);
     bool loadPathForLevel(int levelId, const std::string& filePath);
+
+
+    void initCarrot();             //每关初始化萝卜
+    bool CheckLose();             //检查输状态
+    bool CheckWin();               //检查赢状态
+    void ClearMonsters();         //清除所有怪兽内存
 };
