@@ -4,7 +4,7 @@
 #include"music.h"
 #include "ui/CocosGUI.h"
 bool level_is_win[3] = { false };
-bool is_newgame[3] = { false };
+bool isNewGame[3] = { false };
 extern Music a;
 USING_NS_CC;
 using namespace ui;

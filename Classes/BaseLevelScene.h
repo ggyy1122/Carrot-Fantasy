@@ -27,7 +27,7 @@ private:
     static const std::vector<std::string> mapFiles;         // 存储地图文件的路径
     int levelId;                                            //关卡编号
     
-    Label* money_lable;            //显示当前金钱
+    Label* moneyLable;            //显示当前金钱
     
     bool isDoubleSpeed = false; // 初始化为false，表示游戏初始不是二倍速状态
     bool isPaused = false; // 初始化为false，表示游戏初始不是暂停状态
@@ -41,6 +41,8 @@ private:
 
     std::map<int, Tower*> towers;//记录场上的塔的信息
     Cell map_data[X][Y];//地图管理
+    Label* _numberLabel;                  // 显示怪物波数
+    Label* _curNumberLabel;               // 显示当前怪物波数
 
 public:
     int money = 1000;
@@ -65,17 +67,19 @@ public:
     void moveMonsterAlongPath(Monster* monster, const std::vector<cocos2d::Vec2>& path);   //怪物路径移动
     Vec2 gridToScreenCenter(const Vec2& gridPoint);         //将网格坐标转成屏幕坐标的工具函数
     void  loadMonsters();                                    //加载怪物精灵帧
-    //void placeMonsters();                                    //根据关卡防止怪兽
-    void updatemoney(int add);           //更新money，add为变化量
+    void updateMoney(int add);           //更新money，add为变化量
     void doublespeed(Ref* pSender);
     void pause_all(Ref* pSender);
     void menu_all(Ref* pSender);
-
+    void updateCurrentWaveLabe();
 
     void CountDown(std::function<void()> onComplete);             //倒计时
-    void gameover(bool is_win);   //结束游戏
+    void gameover(bool is_win,int currentWaveNum,int allWaveNum);   //结束游戏
     void Jineng1(Ref* pSender);   //萝卜血量加1
-    void Jineng2(Ref* pSender);   //冰冻，怪兽减速，待实现
+    void Jineng2(Ref* pSender);   //冰冻，怪兽停止
+    void Jineng3(Ref* pSender);   //炸弹，消灭所有怪兽
+    void Jineng4(Ref* pSender);   //植物攻速加倍
+    void Jineng5(Ref* pSender);   //怪兽减速
 
     void PlantMenuAppear(Vec2 mapPos);//出现种植菜单
     void PlantMenuGone(Vec2 position);//种植菜单消失
@@ -83,5 +87,7 @@ public:
 
     void UpMenuAppear(Vec2& position);//升级菜单出现
     void UpMenuGone(Vec2& position);//升级菜单消失
+
+    
 };
 #endif 

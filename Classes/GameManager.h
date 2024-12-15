@@ -21,83 +21,70 @@ struct WaveConfig {
 
 class GameManager {
 private:
-    static GameManager* instance;            // 单例指针
-    BaseLevelScene* currentScene;            // 当前绑定的场景
-    GameManager() : currentScene(nullptr),monsters(100) {} // 私有化构造函数，防止外部实例化
-    
-
-    Carrot*carrot; // 将萝卜对象抽象成 Carrot 类
-
-
-    int playerMoney;                         // 玩家金钱
-    int playerHealth;                        // 玩家生命值
-    float gameSpeed;                         // 游戏速度
+    //管理类相关
+    static GameManager* instance;                           // 单例指针
+    BaseLevelScene* currentScene;                           // 当前绑定的场景
+    GameManager() : currentScene(nullptr), monsters(100) {} // 私有化构造函数，防止外部实例化                                    // 私有化构造函数，防止外部实例化
+    GameManager(Scene* scene);                              // 私有构造函数
+    //萝卜相关
+    Carrot*carrot;                                          // Carrot对象
+    void initCarrot();                                      //每关初始化萝卜
+    //怪物
+    int AllMonsterNum=0;                                    // 怪物总数
+    std::vector<WaveConfig> waveConfigs;                    //存储怪兽波
+    int waveIndex = 0;                                      //当前波数
+    int AllWaveNum=0;
+    //路径
     std::map<int, std::vector<cocos2d::Vec2>>pathsCache;     //存储已经加载过的关卡的网格路径
-    std::map<int, std::vector<cocos2d::Vec2>>ScreenPaths;   //存储已经加载过的关卡的屏幕路径
-    std::vector<cocos2d::Vec2> path;               //当前屏幕网格路径
-    std::vector<cocos2d::Vec2> screenPath;         //当前屏幕路径
-    GameManager(Scene* scene);               // 私有构造函数
-    void cleanup();                          // 清理所有资源
-    int levelId;                             //关卡编号
-    std::vector<WaveConfig> waveConfigs;     //存储怪兽波
-    int waveIndex = 0;
-   int NumOfDeadMonster = 0;
+    std::map<int, std::vector<cocos2d::Vec2>>ScreenPaths;    //存储已经加载过的关卡的屏幕路径
+    std::vector<cocos2d::Vec2> path;                         //当前屏幕网格路径
+    std::vector<cocos2d::Vec2> screenPath;                   //当前屏幕路径
+    //关卡
+    int levelId;                                             //关卡编号
+    //事件监听器
+    cocos2d::EventListenerCustom* _listener;                 //用于检测怪兽到达终点的事件
 public:
-    std::vector<Monster*> monsters;          // 怪物列表
 
-    void onMonsterPathComplete(cocos2d::EventCustom* event);
-    // 禁用拷贝和赋值
-    GameManager(const GameManager&) = delete;
-    GameManager& operator=(const GameManager&) = delete;
-
-    // 单例获取函数
-    static GameManager* getInstance(BaseLevelScene* scene = nullptr);
-    void setScene(BaseLevelScene* scene);    //设置当前场景
-    // 获取当前场景
-    BaseLevelScene* getScene() const;
-    static void destroyInstance();
-
-    void initLevel(int level);               // 初始化关卡数据
-    void initPath();              // 初始化路径
-    int getCurrentLevel() const;             // 获取当前关卡编号
-
-    // 游戏状态管理
-    void setPlayerMoney(int money);
-    int getPlayerMoney() const;
-    void modifyPlayerMoney(int amount); // 修改金钱
-
-    void setPlayerHealth(int health);
-    int getPlayerHealth() const;
-    void modifyPlayerHealth(int amount); // 修改生命值
-
-    // 怪物管理
-    void playSpawnEffect(const cocos2d::Vec2& spawnPosition);
-    void spawnMonster(const Vec2& startPos, const Vec2& targetPos, float speed, int health);
+    std::vector<Monster*> monsters;                          // 怪物列表
+    void stopAllSchedulers();                                //停止manager的所有调度器
+    GameManager(const GameManager&) = delete;               
+    GameManager& operator=(const GameManager&) = delete;     // 禁用拷贝和赋值
+    static GameManager* getInstance(BaseLevelScene* scene = nullptr);// 单例获取函数
+    void setScene(BaseLevelScene* scene);                    //设置当前场景
+    BaseLevelScene* getScene() const;                        // 获取当前场景
+    static void destroyInstance();                           //释放实例
+    //更新
     void update(float deltaTime);
-    void produceMonsterWave(const WaveConfig& waveConfig);
-    void startMonsterWaves();
-    // 加载怪物资源
-    void loadMonsterResources();
-    // 根据关卡放置怪物
-    void produceMonsters(const std::string monsterName,const int startIndex,int health=-1);
-    void loadMonsterWaveConfig(const std::string& filename, const std::string& levelName);
-    // 清理怪物
-    void cleanupMonsters();
-    int getCurrentWaveIndex() const{return waveIndex;}
-    // 游戏速度控制
-    void setGameSpeed(float speed);
-    float getGameSpeed() const;
+    bool CheckLose();                                        //检查输状态
+    bool CheckWin();                                         //检查赢状态
+    //关卡
+    void initLevel(int level, bool ReadMode);                               // 初始化关卡数据
+    void initPath();                                         // 初始化路径
+    int getCurrentLevel() const;                             // 获取当前关卡编号
+    // 怪物管理
+    void playSpawnEffect(const cocos2d::Vec2& spawnPosition);//怪兽出场特效
+    void spawnMonster(const Vec2& startPos, const Vec2& targetPos, float speed, int health);
+    void produceMonsterWave(const WaveConfig& waveConfig);   //产生怪兽波
+    void startMonsterWaves();                                //开始怪兽波
+    void loadMonsterResources();                             //加载怪兽资源
+    void produceMonsters(const std::string monsterName,const int startIndex,int health=-1,bool pause=false);
+                                                             //根据关卡放置怪兽
+    void loadMonsterWaveConfig
+  (const std::string& filename, const std::string& levelName);//加载怪兽波配置
+    void ClearMonsters();                                     //清除所有怪兽内存
+    int getCurrentWaveIndex() const{return waveIndex;}        //获取当前怪兽波序号
+    int getAllWaveNum()const { return AllWaveNum; }     //获取总波数
+    int getCurrentWaveNum()const { return waveIndex; }          //获取现波数
 
-    // 资源管理
-    void preloadResources();
-    void loadGameData(const std::string& fileName);
-    void saveMonstersDataToJson(const std::string& fileName);
-    Vec2 gridToScreenCenter(const Vec2& gridPoint);
+  //读档存档相关
+    bool loadGameData(const std::string& fileName);          //加载初始游戏数据
     bool loadPathForLevel(int levelId, const std::string& filePath);
+                                                             //加载地图数据
+    void saveMonstersDataToJson(const std::string& fileName);//存储怪兽数据
+    Vec2 gridToScreenCenter(const Vec2& gridPoint);
+    void registerListener();                                 // 注册事件监听器
+    void removeListener() ;                                  // 移除事件监听器
+    void onMonsterPathComplete(cocos2d::EventCustom* event); // 事件回调
+    void Jineng1();
 
-
-    void initCarrot();             //每关初始化萝卜
-    bool CheckLose();             //检查输状态
-    bool CheckWin();               //检查赢状态
-    void ClearMonsters();         //清除所有怪兽内存
 };

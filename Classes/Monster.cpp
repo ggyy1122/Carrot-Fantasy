@@ -1,9 +1,11 @@
 #include"Monster.h"
 #include"MonsterConfigs.h"
-
+#include"music.h"
+extern Music a;
+int Monster::DeadCount=0;
 // 初始化怪物
 
-bool Monster::initWithPath(const std::string& monsterName, const std::vector<Vec2>& path, int startIndex) {
+bool Monster::initWithPath(const std::string& monsterName, const std::vector<Vec2>& path, int startIndex,bool pause) {
     // 加载精灵帧资源
     std::string plistPath = "Monsters/" + monsterName + ".plist";
     SpriteFrameCache::getInstance()->addSpriteFramesWithFile(plistPath);
@@ -24,11 +26,12 @@ bool Monster::initWithPath(const std::string& monsterName, const std::vector<Vec
     // 加载怪物配置
     MonsterConfig config = MonsterManager::getMonsterConfigByName(monsterName);
     this->startPosIndex=startIndex;
-    this->health = config.health;
+    this->maxHp=this->health = config.health;
     this->speed = config.speed;
     this->damage = config.damage;
     this->reward = config.reward;
     this->name= monsterName;
+    this->pause=pause;
     CCLOG("Monster Config - Sprite Frame: %s, Health: %d, Speed: %.2f, Damage: %d, Reward: %d",
         config.spriteFrameName.c_str(), config.health, config.speed, config.damage, config.reward);
 
@@ -44,8 +47,7 @@ bool Monster::initWithPath(const std::string& monsterName, const std::vector<Vec
 
     // 设置初始位置
     if (!path.empty()) {
-        this->setPosition(path[0]);
-        moveAlongPath(path);  // 启动路径移动逻辑
+        moveAlongPath(path); // 立即启动路径移动逻辑
     }
 
     return true;
@@ -104,13 +106,28 @@ void Monster::moveAlongPath(const std::vector<Vec2>& path) {
     // 创建动作序列
     auto sequence = cocos2d::Sequence::create(actions);
 
-    // 运行动作
+    if (pause) {
+        // 创建一个延迟3秒的动作
+        auto delay = DelayTime::create(3.0f);
+
+        // 将延迟动作和现有的动作序列结合起来
+        auto delayedSequence = Sequence::create(delay, sequence, nullptr);
+
+        // 执行新的序列动作（先延迟3秒，再执行原来的sequence）
+        this->runAction(delayedSequence);
+    }
+    else
+    {
     this->runAction(sequence);
+    }
 
 }
 //让怪物死亡
 void Monster::toDie()
 {
+    if(isDead)
+     return;
+    DeadCount++;
     CCLOG("Monster %p is dying.", this);
 
     // 1. 标记死亡并隐藏怪物
@@ -159,7 +176,7 @@ void Monster::toDie()
 
     // 8. 播放死亡动画，动画结束后清理临时精灵
     deathSprite->runAction(cocos2d::Sequence::create(animate, onDeathComplete, nullptr));
-
+    a.normalSound();
     // 9. 删除怪物本身
-    this->removeFromParent();
+   this->stopAllActions();
 }

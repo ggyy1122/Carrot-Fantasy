@@ -44,53 +44,48 @@ void GameManager::destroyInstance() {
         instance = nullptr;
     }
 }
+
+
 //初始化关卡数据
-void GameManager::initLevel(int level)
+void GameManager::initLevel(int level,bool initMode)
 {
     levelId=level;
     path.clear();
     screenPath.clear();
     monsters.clear();
-    NumOfDeadMonster=0;
     waveConfigs.clear();
     waveIndex=0;
     ClearMonsters();
+    AllMonsterNum=0;
+    Monster::DeadCount=0;
     //初始化路径
     initPath();
     //初始化怪兽图像资源
     loadMonsterResources();
     //初始化萝卜
     initCarrot();
-    auto _eventDispatcher = currentScene->getEventDispatcher();
     // 注册事件监听器
-    auto listener = EventListenerCustom::create("monster_path_complete", CC_CALLBACK_1(GameManager::onMonsterPathComplete, this));
-    _eventDispatcher->addEventListenerWithSceneGraphPriority(listener, currentScene);
-    //测试被咬效果
-    /*
-    currentScene->scheduleOnce([this](float dt) {
-        carrot->getDamage();
-        }, 2.0f, "pause_event");
-        */
-
-    //初始化怪兽
-    /*
-    loadGameData("MonsterData_save_10s.json");
-    startMonsterWaves();
-    */
+     registerListener();
     //加载怪兽数据资源
+     //如果不是初始模式,就读取初始数据
+     
+     if(!initMode)
+     {
     loadMonsterWaveConfig("MonsterWaves.json", "level"+std::to_string(level));
-    //开始怪兽波
-   // startMonsterWaves();
-    
-    
-
+     }
+     //否则，读存档数据
+     else
+     {
+        if (!loadGameData("level" + std::to_string(levelId) + "Monster.json"))
+        {
+            loadMonsterWaveConfig("MonsterWaves.json", "level" + std::to_string(level));
+        }
+     }
 }
 //逐帧更新状态
 void GameManager::update(float deltaTime) {
-    if(carrot->getHP()<0)
-    {
-     carrot->changeHP(5);
-    }
+    CCLOG("monsters size %d", monsters.size());
+    CCLOG("monsters DEAD NUM %d", Monster::DeadCount);
 }
 
 void GameManager::ClearMonsters()
@@ -210,7 +205,7 @@ void GameManager::initPath()
 
 }
 //根据存档初始化
-void GameManager::loadGameData(const std::string& fileName) {
+bool GameManager::loadGameData(const std::string& fileName) {
     waveConfigs.clear();
     WaveConfig waveConfig;
     // 1. 构造文件路径（可写路径）
@@ -221,7 +216,7 @@ void GameManager::loadGameData(const std::string& fileName) {
     std::ifstream ifs(filePath);
     if (!ifs.is_open()) {
         CCLOG("无法打开存档文件：%s", filePath.c_str());
-        return;
+        return false;
     }
 
     std::stringstream buffer;
@@ -234,7 +229,7 @@ void GameManager::loadGameData(const std::string& fileName) {
     rapidjson::Document document;
     if (document.Parse(fileContent.c_str()).HasParseError()) {
         CCLOG("JSON 解析错误");
-        return;
+        return false;
     }
 
     // 4. 读取第一部分: livemonsters
@@ -247,8 +242,9 @@ void GameManager::loadGameData(const std::string& fileName) {
                 int pathIndex = monsterData["pathIndex"].GetInt();
                 int health = monsterData["health"].GetInt();
                 //重新创建怪兽
-                produceMonsters(monsterName, pathIndex,health);
+                produceMonsters(monsterName, pathIndex,health,true);
                 CCLOG("readMonsters: name=%s, pathIndex=%d, health=%d", monsterName.c_str(), pathIndex, health);
+               AllMonsterNum++;
             }
         }
     }
@@ -262,6 +258,7 @@ void GameManager::loadGameData(const std::string& fileName) {
             waveConfig.monsterName = monsterName;
             // 获取怪物数量
             waveConfig.count = count;
+            AllMonsterNum+=count;
             // 添加波配置
             waveConfigs.push_back(waveConfig);
             CCLOG("currentWave: name=%s, count=%d", monsterName.c_str(), count);
@@ -274,7 +271,7 @@ void GameManager::loadGameData(const std::string& fileName) {
         // 你可以在这里设置当前的波索引
         this->waveIndex = waveIndex;
     }
-
+    AllWaveNum= waveIndex+1;
     // 7. 读取第四部分: upcomingWaves
     if (document.HasMember("upcomingWaves") && document["upcomingWaves"].IsArray()) {
         const rapidjson::Value& upcomingWaves = document["upcomingWaves"];
@@ -287,14 +284,17 @@ void GameManager::loadGameData(const std::string& fileName) {
                 waveConfig.monsterName = monsterName;
                 // 获取怪物数量
                 waveConfig.count = count;
+               AllMonsterNum += count;
+                AllWaveNum++;
                 // 添加波配置
                 waveConfigs.push_back(waveConfig);
                 CCLOG("upComingWave: name=%s, count=%d", monsterName.c_str(), count);
             }
         }
     }
-
+    
     CCLOG("Read All Data!");
+    return true;
 }
 
 
@@ -338,6 +338,7 @@ void GameManager::loadMonsterWaveConfig(const std::string& filename, const std::
 
             // 添加波配置
             waveConfigs.push_back(waveConfig);
+            AllWaveNum= waveConfigs.size();
             // 打印波的配置信息
             CCLOG("Wave %d - Monster: %s, Count: %d, Spawn Interval: %.2f - %.2f",
                 waveConfigs.size(),
@@ -351,6 +352,11 @@ void GameManager::loadMonsterWaveConfig(const std::string& filename, const std::
     else {
         CCLOG("No such level: %s", levelName.c_str());
     }
+    for(auto waveConfig:waveConfigs)
+    {
+        AllMonsterNum+= waveConfig.count;
+    }
+    CCLOG("All Num %d ", AllMonsterNum);
 }
 //产生一波怪兽
 void GameManager::produceMonsterWave(const WaveConfig& waveConfig) {
@@ -362,7 +368,7 @@ void GameManager::produceMonsterWave(const WaveConfig& waveConfig) {
 
         // 延迟生成怪物，注意延迟的时长是相对于当前时间的
         cocos2d::Director::getInstance()->getScheduler()->schedule([=](float) {
-            produceMonsters(waveConfig.monsterName,0);
+            produceMonsters(waveConfig.monsterName,0,false);
             }, this, 0, 0,delay, false, "produceMonster" + std::to_string(i));
     }
 }
@@ -370,7 +376,6 @@ void GameManager::produceMonsterWave(const WaveConfig& waveConfig) {
 void GameManager::startMonsterWaves() {
    CCLOG("Starting wave %d", waveIndex);
    produceMonsterWave(waveConfigs[waveIndex]); // 生成当前波的怪物
-    //++waveIndex; // 进入下一波
     cocos2d::Director::getInstance()->getScheduler()->schedule([this](float) {
         if (waveIndex >= waveConfigs.size()-1) {
             CCLOG("All waves are complete.");
@@ -438,18 +443,20 @@ void GameManager::playSpawnEffect(const cocos2d::Vec2& spawnPosition) {
     spawnEffect->runAction(sequence); // 运行动画
 }
 //单个怪兽生产函数
-void GameManager::produceMonsters(const std::string monsterName,const int startIndex,int health) {
-
+void GameManager::produceMonsters(const std::string monsterName,const int startIndex,int health,bool pause) {
+    a.born_music();
     if(startIndex==0)
    playSpawnEffect(screenPath[0]);
     // 创建怪物并添加到场景
-    auto Monster = Monster::create(monsterName,screenPath, startIndex);
+    auto Monster = Monster::create(monsterName,screenPath, startIndex,pause);
     if (!Monster) {
         CCLOG("Failed to create monster.");
         return;
     }
     monsters.push_back(Monster); // 保存到怪物列表 
     currentScene->addChild(Monster);
+    Monster->pause=pause;
+    CCLOG("MONSTER PAUSE  %d",Monster->pause);
     if(health!=-1)
     {
         Monster->setHealth(health);
@@ -466,11 +473,13 @@ void GameManager::onMonsterPathComplete(cocos2d::EventCustom* event)
         CCLOG("Monster has completed the path. Perform further actions here.");
         if (monster->getHealth() > 0)//怪物有血就攻击
         {
+            monster->setHealth(0);
             carrot->getDamage();
             CCLOG("carrot'HP    %d",carrot->getHP());
         }
         monster->toDie();  //怪兽死亡
-        NumOfDeadMonster++;
+      
+       // Monster::DeadCount++;
     }
 }
 
@@ -557,9 +566,10 @@ void GameManager::initCarrot() {
     // 目标位置的数组，假设levelId是1、2、3的场景关卡
     std::vector<cocos2d::Vec2> dst1 = { Vec2(804, 640 - 196), Vec2(816, 640 - 284), Vec2(831, 640 - 287) };
     std::vector<cocos2d::Vec2> dst2 = { Vec2(854, 640 - 196), Vec2(866, 640 - 284), Vec2(881, 640 - 287) };
-    // 生成萝卜，血量为5
-    carrot = Carrot::create(5, dst1[levelId - 1], dst2[levelId - 1]);
+    // 生成萝卜，血量为10
+    carrot = Carrot::create(10, dst1[levelId - 1], dst2[levelId - 1]);
     currentScene->addChild(carrot); // 直接将 Carrot 作为一个Node，添加到场景中
+    CCLOG("CARROT READY!");
 }
 //检查输状态
 bool GameManager::CheckLose()
@@ -574,15 +584,34 @@ bool GameManager::CheckLose()
 //检查赢状态
 bool GameManager::CheckWin()
 {
-    if (carrot->getHP()>0&& NumOfDeadMonster==monsters.size())
+    if (carrot->getHP()>0&&Monster::DeadCount==AllMonsterNum)
     {
         CCLOG("WIN THE GAME!");
         return true;
     }
     return false;
 }
-
-
+void GameManager::registerListener() {
+    _listener = cocos2d::EventListenerCustom::create("monster_path_complete",
+        CC_CALLBACK_1(GameManager::onMonsterPathComplete, this));
+    currentScene->getEventDispatcher()->addEventListenerWithSceneGraphPriority(_listener, currentScene);
+    CCLOG("REGISTER READY!");
+}
+void GameManager::removeListener() {
+    if (_listener) {
+        auto _eventDispatcher = cocos2d::Director::getInstance()->getEventDispatcher();
+        _eventDispatcher->removeEventListener(_listener);
+        _listener = nullptr;
+    }
+}
+void GameManager::Jineng1()
+{
+    carrot->getRecover();
+}
+void GameManager::stopAllSchedulers() {
+    CCLOG("Stopping all schedulers for GameManager.");
+    cocos2d::Director::getInstance()->getScheduler()->unscheduleAllForTarget(this);
+}
 
 //瓦格坐标转地图坐标的工具函数
 Vec2 GameManager::gridToScreenCenter(const Vec2& gridPoint) {

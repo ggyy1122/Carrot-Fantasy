@@ -9,61 +9,49 @@
 #include"themeScene.h"
 #include"Tower.h"
 #include"GameManager.h"
+#include<string>
 using namespace ui;
-#define DEBUG_MODE
+//#define DEBUG_MODE
 
 #define CELL_SIZE 64
-const Color3B money_color(154, 101, 25);
 
-std::string Tower::tower_table[TOWER_NUM][3] = { {"Towers/bottle0.png","Towers/bottle1.png","Towers/bottle2.png"},
-    {"Towers/windmill0.png","Towers/windmill1.png","Towers/windmill2.png"} };
-std::string Tower::base_table[TOWER_NUM] = { "Towers/bottlebase.png" ,"Towers/windmillbase.png" };
-Vec2 Tower::anchorpoint_table[TOWER_NUM][2] = { {Vec2(0.5,0.5),Vec2(0.4,0.46)},{Vec2(0.5,0.7),Vec2(0.5,0.35)} };
 
-int Tower::build_cost[TOWER_NUM] = { 100,160 };
-int Tower::demage_table[TOWER_NUM][3] = { {20,35,50},{30,45,60} };
-int Tower::range_table[TOWER_NUM][3] = { {200,300,400},{400,500,600} };
 
-int Tower::up_cost[TOWER_NUM][2] = { {180,260},{220,260} };
-int Tower::sell_money[TOWER_NUM][3] = { {80,224,432},{128,304,512} };
-
-std::map<int, std::string> Tower::sale_graph = { {80,"Towers/sale_80.png"} ,{ 128,"Towers/sale_128.png" } ,
-    { 144,"Towers/sale_144.png" } ,{ 224,"Towers/sale_224.png" }, { 304,"Towers/sale_304.png" },
-    { 352,"Towers/sale_352.png" } ,{ 432,"Towers/sale_432.png" } ,{ 512,"Towers/sale_512.png" } ,
-{ 608,"Towers/sale_608.png" } };
-
-std::map<int, std::string> Tower::up_graph = { {180,"Towers/up_180.png"},{220,"Towers/up_220.png"},
-    {260,"Towers/up_260.png"},{320,"Towers/up_320.png"} };
-
-std::map<int, std::string> Tower::noup_graph = { {180,"Towers/noup_180.png"},{220,"Towers/noup_220.png"},
-    {260,"Towers/noup_260.png"},{320,"Towers/noup_320.png"} };
-
-Sprite* Tower::curr_sale;
-Sprite* Tower::curr_up;
-Sprite* Tower::curr_range;
-
-const float Bottle::speed = 800;
-
-float Tower::interval_table[TOWER_NUM] = { 0.8,0.8 };
-
-std::string Bottle::bottle_shell[3] = { "Towers/shell1-1.png","Towers/shell1-2.png" ,"Towers/shell1-3.png" };
-//游戏过程中不需要变动的量的初始化
 
 extern Music a;
-GameManager* manager;
-
 extern bool level_is_win[3];
-extern bool is_newgame[3];
+extern bool isNewGame[3];
+GameManager* manager;
+const Color3B moneyColor(154, 101, 25);
 static void problemLoading(const char* filename)
 {
     printf("Error while loading: %s\n", filename);
     printf("Depending on how you compiled you might have to add 'Resources/' in front of filenames in BaseLevelScene.cpp\n");
 }
-void BaseLevelScene::updatemoney(int add) {
+// 关卡地图文件路径数组
+const std::vector<std::string> BaseLevelScene::mapFiles = {
+    "map/map1.tmx",  // 关卡 1
+    "map/map2.tmx",  // 关卡 2
+    "map/map3.tmx",  // 关卡 3
+};
+
+/****************标签部分******************/
+//更新金币标签
+void BaseLevelScene::updateMoney(int add) {
     money += add;
     std::string text = std::to_string(money); // 将数字转换为字符串
-    money_lable->setString(text);
+    moneyLable->setString(text);
 }
+//更新当前波数标签
+void BaseLevelScene::updateCurrentWaveLabe() {
+    _curNumberLabel->setString(StringUtils::format("%d", std::min(manager->getCurrentWaveNum() + 1, manager->getAllWaveNum())));
+    CCLOG("ALL WAVE                           %d", manager->getAllWaveNum());
+}
+/******************************************/
+
+
+/****************按钮部分******************/
+//二倍速按钮
 void BaseLevelScene::doublespeed(Ref* pSender) {
     isDoubleSpeed = !isDoubleSpeed; // 切换二倍速状态
     a.button_music();
@@ -79,6 +67,7 @@ void BaseLevelScene::doublespeed(Ref* pSender) {
         scheduler->setTimeScale(1.0f); //实现减速效果
     }
 }
+//暂停按钮
 void BaseLevelScene::pause_all(Ref* pSender) {
     isPaused = !isPaused; // 切换暂停状态
     a.button_music();
@@ -102,12 +91,14 @@ void BaseLevelScene::pause_all(Ref* pSender) {
         Director::getInstance()->resume();
     }
 }
+//菜单按钮
 void BaseLevelScene::menu_all(Ref* pSender) {
     a.button_music();
     Director::getInstance()->pause();
     auto visibleSize = Director::getInstance()->getVisibleSize();//分辨率大小
     Vec2 origin = Director::getInstance()->getVisibleOrigin();
     Size screenSize = Director::getInstance()->getWinSize();    //获取屏幕大小
+    
     //创建灰色遮罩层
     auto menuLayer = LayerColor::create(Color4B(0, 0, 0, 150));
     menuLayer->setPosition(Vec2::ZERO);
@@ -150,7 +141,12 @@ void BaseLevelScene::menu_all(Ref* pSender) {
     restartButton->setCallback([this, menuLayer](Ref* psender) {
         a.button_music();
         this->removeChild(menuLayer);
-        auto scene = BaseLevelScene::createScene(levelId);   
+        // 取消与 GameManager 相关的所有调度器
+        GameManager::getInstance()->stopAllSchedulers();
+        //取消事件监听
+        manager->removeListener();
+        auto scene = BaseLevelScene::createScene(levelId);
+        scheduler->setTimeScale(1.0f); //实现减速效果
         Director::getInstance()->replaceScene(scene);
         Director::getInstance()->resume();
         });
@@ -158,7 +154,12 @@ void BaseLevelScene::menu_all(Ref* pSender) {
     //选择关卡选项
     chooseButton->setCallback([this, menuLayer](Ref* psender) {
         a.button_music();
+        manager->saveMonstersDataToJson("level"+std::to_string(levelId)+"Monster.json");
         this->removeChild(menuLayer);
+        // 取消与 GameManager 相关的所有调度器
+        GameManager::getInstance()->stopAllSchedulers();
+        //取消事件监听
+        manager->removeListener();
         auto themeScene = themescene::createScene();
         Director::getInstance()->replaceScene(themeScene);
         Director::getInstance()->resume();
@@ -167,11 +168,151 @@ void BaseLevelScene::menu_all(Ref* pSender) {
     menu->addChild(chooseButton, 1);
     menu->addChild(restartButton, 1);
 }
+//技能1按钮
+void BaseLevelScene::Jineng1(Ref* pSender) {
+    a.button_music();
+    manager->Jineng1();
+}
+//技能2按钮
+void BaseLevelScene::Jineng2(Ref* pSender) {
+    a.button_music();
+}
+//技能3按钮
+void BaseLevelScene::Jineng3(Ref* pSender) {
+    a.button_music();
+}
+//技能4按钮
+void BaseLevelScene::Jineng4(Ref* pSender) {
+    a.button_music();
+}
+//技能5按钮
+void BaseLevelScene::Jineng5(Ref* pSender) {
+    a.button_music();
+}
+/******************************************/
 
-//倒计时
+
+//初始化ui组件
+void BaseLevelScene::initUI()
+{
+    // 1. 显示出现了多少波怪物  
+    _curNumberLabel = Label::createWithSystemFont(StringUtils::format("%d", std::min(manager->getCurrentWaveNum(), manager->getAllWaveNum())), "Arial", 32);
+    _curNumberLabel->setColor(Color3B::YELLOW);
+    _curNumberLabel->setPosition(960 * 0.42, 640 * 0.95);
+    this->addChild(_curNumberLabel, 2);
+    // 2. 一共有多少波怪物
+    _numberLabel = Label::createWithSystemFont(StringUtils::format("/ %dtimes", manager->getAllWaveNum()), "Arial", 32);
+    _numberLabel->setColor(Color3B::YELLOW);
+    _numberLabel->setPosition(960 * 0.50, 640 * 0.95);
+    this->addChild(_numberLabel, 2);
+    //加money
+    moneyLable = Label::createWithTTF("1000", "fonts/arial.ttf", 27);
+    moneyLable->setPosition(Vec2(160, 610));
+    this->addChild(moneyLable, 3);
+    //添加返回按钮
+    auto menu = Menu::create();
+    menu->setPosition(Vec2::ZERO);
+    this->addChild(menu, 2);
+    //倍数
+    auto doubleSpeedButton = MenuItemImage::create("CarrotGuardRes/UI/normalSpeed.png", "CarrotGuardRes/UI/doubleSpeed.png", CC_CALLBACK_1(BaseLevelScene::doublespeed, this));
+    if (doubleSpeedButton == nullptr)
+    {
+        problemLoading("'normalSpeed.png' and 'doubleSpeed.png'");
+    }
+    else
+    {
+        doubleSpeedButton->setPosition(670, 610);
+        doubleSpeedButton->setScale(1);
+        menu->addChild(doubleSpeedButton);
+    }
+    //暂停
+    auto pauseSpeedButton = MenuItemImage::create("CarrotGuardRes/UI/pauseButton.png", "CarrotGuardRes/UI/continueButton.png", CC_CALLBACK_1(BaseLevelScene::pause_all, this));
+    if (pauseSpeedButton == nullptr)
+    {
+        problemLoading("'pauseButton.png' and 'continueButton.png'");
+    }
+    else
+    {
+        pauseSpeedButton->setPosition(770, 610);
+        pauseSpeedButton->setScale(1);
+        menu->addChild(pauseSpeedButton);
+    }
+    //菜单
+    auto menuButton = MenuItemImage::create("CarrotGuardRes/UI/gameMenuNormal.png", "CarrotGuardRes/UI/gameMenuSelected.png", CC_CALLBACK_1(BaseLevelScene::menu_all, this));
+    if (menuButton == nullptr)
+    {
+        problemLoading("'gameMenuNormal.png' and 'gameMenuSelected'");
+    }
+    else
+    {
+        menuButton->setPosition(870, 610);
+        menuButton->setScale(1);
+        menu->addChild(menuButton);
+    }
+    auto jineng1Button = MenuItemImage::create("Carrot/jineng1.png", "Carrot/jineng1.png", CC_CALLBACK_1(BaseLevelScene::Jineng1, this));
+    if (jineng1Button == nullptr)
+    {
+        problemLoading("'jineng1.png'");
+    }
+    else
+    {
+        jineng1Button->setPosition(432, 33);
+        jineng1Button->setScale(1.9);
+        menu->addChild(jineng1Button);
+    }
+    auto jineng2Button = MenuItemImage::create("Carrot/jineng2.png", "Carrot/jineng2.png", CC_CALLBACK_1(BaseLevelScene::Jineng2, this));
+    if (jineng2Button == nullptr)
+    {
+        problemLoading("'jineng2.png'");
+    }
+    else
+    {
+        jineng2Button->setPosition(525, 33);
+        jineng2Button->setScale(1.9);
+        menu->addChild(jineng2Button);
+    }
+    auto jineng3Button = MenuItemImage::create("Carrot/jineng3.png", "Carrot/jineng3.png", CC_CALLBACK_1(BaseLevelScene::Jineng3, this));
+    if (jineng3Button == nullptr)
+    {
+        problemLoading("'jineng3.png'");
+    }
+    else
+    {
+        jineng3Button->setPosition(615, 33);
+        jineng3Button->setScale(1.7);
+        menu->addChild(jineng3Button);
+    }
+    auto jineng4Button = MenuItemImage::create("Carrot/jineng4.png", "Carrot/jineng4.png", CC_CALLBACK_1(BaseLevelScene::Jineng4, this));
+    if (jineng4Button == nullptr)
+    {
+        problemLoading("'jineng4.png'");
+    }
+    else
+    {
+        jineng4Button->setPosition(710, 33);
+        jineng4Button->setScale(1.7);
+        menu->addChild(jineng4Button);
+    }
+    auto jineng5Button = MenuItemImage::create("Carrot/jineng5.png", "Carrot/jineng5.png", CC_CALLBACK_1(BaseLevelScene::Jineng5, this));
+    if (jineng5Button == nullptr)
+    {
+        problemLoading("'jineng5.png'");
+    }
+    else
+    {
+        jineng5Button->setPosition(796, 33);
+        jineng5Button->setScale(1.7);
+        menu->addChild(jineng5Button);
+    }
+
+    auto jinengtiao = Sprite::create("Carrot/jinengtiao.png");
+    jinengtiao->setPosition(480, 30);
+    jinengtiao->setScale(0.7);
+    this->addChild(jinengtiao, 1);
+}
+//开局倒计时
 void BaseLevelScene::CountDown(std::function<void()> onComplete)
 {
-
     auto countBackground = Sprite::create("CarrotGuardRes/UI/countBackground.png");
     auto count1 = Sprite::create("CarrotGuardRes/UI/countOne.png");
     auto count2 = Sprite::create("CarrotGuardRes/UI/countTwo.png");
@@ -240,17 +381,10 @@ void BaseLevelScene::CountDown(std::function<void()> onComplete)
             }),
         nullptr  // Sequence结束
     );
-
     // 运行倒计时动作
     this->runAction(countdown);
 }
-// 定义关卡地图文件路径数组
-const std::vector<std::string> BaseLevelScene::mapFiles = {
-    "map/map1.tmx",  // 关卡 1
-    "map/map2.tmx",  // 关卡 2
-    "map/map3.tmx",  // 关卡 3
-    // 可以继续添加其他关卡的地图文件路径
-};
+
 
 // 创建场景时传入关卡编号
 Scene* BaseLevelScene::createScene(int level) {
@@ -261,96 +395,37 @@ Scene* BaseLevelScene::createScene(int level) {
     }
     return scene;
 }
-//初始化ui组件
-void BaseLevelScene::initUI()
-{
-    //加money
-    money_lable = Label::createWithTTF("1000", "fonts/arial.ttf", 27);
-    money_lable->setPosition(Vec2(160, 610));
-    this->addChild(money_lable, 3);
-    //添加返回按钮
-    auto menu = Menu::create();
-    menu->setPosition(Vec2::ZERO);
-    this->addChild(menu, 1);
-    //倍数
-    auto doubleSpeedButton = MenuItemImage::create("CarrotGuardRes/UI/normalSpeed.png", "CarrotGuardRes/UI/doubleSpeed.png", CC_CALLBACK_1(BaseLevelScene::doublespeed, this));
-    if (doubleSpeedButton == nullptr)
-    {
-        problemLoading("'normalSpeed.png' and 'doubleSpeed.png'");
-    }
-    else
-    {
-        doubleSpeedButton->setPosition(670, 610);
-        doubleSpeedButton->setScale(1);
-        menu->addChild(doubleSpeedButton);
-    }
-    //暂停
-    auto pauseSpeedButton = MenuItemImage::create("CarrotGuardRes/UI/pauseButton.png", "CarrotGuardRes/UI/continueButton.png", CC_CALLBACK_1(BaseLevelScene::pause_all, this));
-    if (pauseSpeedButton == nullptr)
-    {
-        problemLoading("'pauseButton.png' and 'continueButton.png'");
-    }
-    else
-    {
-        pauseSpeedButton->setPosition(770, 610);
-        pauseSpeedButton->setScale(1);
-        menu->addChild(pauseSpeedButton);
-    }
-    //菜单
-    auto menuButton = MenuItemImage::create("CarrotGuardRes/UI/gameMenuNormal.png", "CarrotGuardRes/UI/gameMenuSelected.png", CC_CALLBACK_1(BaseLevelScene::menu_all, this));
-    if (menuButton == nullptr)
-    {
-        problemLoading("'gameMenuNormal.png' and 'gameMenuSelected'");
-    }
-    else
-    {
-        menuButton->setPosition(870, 610);
-        menuButton->setScale(1);
-        menu->addChild(menuButton);
-    }
-    /*
-    auto jineng1Button = MenuItemImage::create("Carrot/jineng1.png", "Carrot/jineng1.png", CC_CALLBACK_1(BaseLevelScene::Jineng1, this));
-    if (jineng1Button == nullptr)
-    {
-        problemLoading("'jineng1.png'");
-    }
-    else
-    {
-        jineng1Button->setPosition(800, 100);
-        jineng1Button->setScale(2);
-        menu->addChild(jineng1Button);
-    }
-    auto jineng2Button = MenuItemImage::create("Carrot/jineng2.png", "Carrot/jineng2.png", CC_CALLBACK_1(BaseLevelScene::Jineng2, this));
-    if (jineng2Button == nullptr)
-    {
-        problemLoading("'jineng2.png'");
-    }
-    else
-    {
-        jineng2Button->setPosition(870, 100);
-        jineng2Button->setScale(2);
-        menu->addChild(jineng2Button);
-    }
-    */
-}
-//更新
+
+
+
+
+//更新游戏状态
 void BaseLevelScene::update(float deltaTime) {
-    manager->update(deltaTime);
-    if(manager->CheckLose())
-    {
-   // gameover(false);
-    }
+    //更新当前波数
+    updateCurrentWaveLabe();
+    //manager->update(deltaTime);
+    //更新炮塔和怪兽交互
     for (auto it = towers.begin(); it != towers.end(); it++) {
 
         if (it->second->interval >= it->second->interval_table[it->second->GetIndex()]) {
-            /* Director::getInstance()->end();*/
-             /*return;*/
             it->second->attack(this, GameManager::getInstance()->monsters);
         }
 
         it->second->interval += deltaTime;
     }
+    //更新检验输状态
+    if(manager->CheckLose())
+    {
+       gameover(false,manager->getCurrentWaveNum(), manager->getAllWaveNum());
+    }
+    //更新检验赢状态
+    if(manager->CheckWin())
+    {
+        gameover(true, manager->getCurrentWaveNum(), manager->getAllWaveNum());
+    }
 }
+
+
 //初始化关卡
 bool BaseLevelScene::initWithLevel(int level)
 {
@@ -358,16 +433,19 @@ bool BaseLevelScene::initWithLevel(int level)
     {
         return false;
     }
-    initUI();                                  //初始化ui
+    Director::getInstance()->resume();                             
     this->levelId = level;                     //存储关卡编号
     this->loadMap();                           // 加载对应关卡的地图
     manager = GameManager::getInstance(this);  // 初始化GameManager
-    manager->initLevel(level);                 //初始化怪兽 路径和存档等资源
+    manager->initLevel(level, !isNewGame[levelId-1]);          //初始化怪兽 路径和存档等资源
+    initUI();                                 //初始化ui
     // 调用倒计时函数并传递回调
     CountDown([=] {
+        CCLOG("READY");                          
               //计时结束后才能开始怪兽波
         manager->startMonsterWaves();
         });
+        
     this->scheduleUpdate();                    //启动更新逻辑
 
 
@@ -386,7 +464,6 @@ bool BaseLevelScene::initWithLevel(int level)
     InitMapData();
     return true;
 }
-
 // 默认的 init 方法
 bool BaseLevelScene::init() {
     if (!Scene::init()) {
@@ -394,10 +471,12 @@ bool BaseLevelScene::init() {
     }
     return true;
 }
+
+
 /**************************************************
  *****************地图相关*************************
  **************************************************/
- // 加载地图的函数
+ // 加载地图
 void BaseLevelScene::loadMap() {
     if (levelId <= 0 || levelId > mapFiles.size()) {
         CCLOG("Invalid level number!");
@@ -512,6 +591,8 @@ void BaseLevelScene::handlePlant(const Vec2& position) {
     }
 
 }
+
+
 /**************************************************
  *****************工具函数*************************
  **************************************************/
@@ -552,13 +633,14 @@ Vec2 BaseLevelScene::gridToScreenCenter(const Vec2& gridPoint) {
 
 
 
-
-void BaseLevelScene::gameover(bool is_win) {
-    Director::getInstance()->pause();
+//游戏结束的界面处理
+void BaseLevelScene::gameover(bool is_win, int currentWaveNum, int allWaveNum) {
+     Director::getInstance()->pause();
     // 设置灰色遮罩层
     auto menuLayer = LayerColor::create(Color4B(0, 0, 0, 150));
     menuLayer->setPosition(Vec2::ZERO);
     this->addChild(menuLayer, 10);
+
     // 创建菜单
     auto menu = Menu::create();
     menu->setPosition(Vec2::ZERO);
@@ -577,17 +659,16 @@ void BaseLevelScene::gameover(bool is_win) {
         menuLayer->addChild(goldenCarrot, 0);
 
         // 胜利的相关提示语
-        /*
-        _curNumberLabel = Label::createWithSystemFont(StringUtils::format("%d", _currNum > _monsterWave ? _monsterWave : _currNum), "Arial", 32);
+       
+        _curNumberLabel = Label::createWithSystemFont(StringUtils::format("%d", currentWaveNum > allWaveNum ? allWaveNum : currentWaveNum), "Arial", 32);
         _curNumberLabel->setColor(Color3B::YELLOW);
         _curNumberLabel->setPosition(960 * 0.51, 640 * 0.54);
-        */
         Label* loseWordLeft = Label::createWithSystemFont("fought off", "Arial", 30);
         loseWordLeft->setPosition(960 * 0.36, 640 * 0.54);
         Label* loseWordRight = Label::createWithSystemFont("waves", "Arial", 30);
         loseWordRight->setPosition(960 * 0.60, 640 * 0.545);
 
-        //this->addChild(_curNumberLabel, 10);
+        this->addChild(_curNumberLabel, 10);
         this->addChild(loseWordLeft, 10);
         this->addChild(loseWordRight, 10);
         //继续游戏按钮
@@ -617,17 +698,17 @@ void BaseLevelScene::gameover(bool is_win) {
         menuLayer->addChild(gameLoseBackground, 0);
 
         // 游戏失败的相关提示语
-        /*
-        _curNumberLabel = Label::createWithSystemFont(StringUtils::format("%d", _currNum - 1), "Arial", 32);// 暂时没搞currnum为什么会大1，所以先-1
+        
+        _curNumberLabel = Label::createWithSystemFont(StringUtils::format("%d", currentWaveNum - 1), "Arial", 32);// 暂时没搞currnum为什么会大1，所以先-1
         _curNumberLabel->setColor(Color3B::YELLOW);
-        _curNumberLabel->setPosition(960 * 0.51, 640 * 0.54);*/
+        _curNumberLabel->setPosition(960 * 0.51, 640 * 0.54);
         Label* loseWordLeft = Label::createWithSystemFont("fought off", "Arial", 30);
        
         loseWordLeft->setPosition(960 * 0.36, 640 * 0.54);
         Label* loseWordRight = Label::createWithSystemFont("waves", "Arial", 30);
         loseWordRight->setPosition(960 * 0.60, 640 * 0.54);
 
-        //this->addChild(_curNumberLabel, 10);
+        this->addChild(_curNumberLabel, 10);
         this->addChild(loseWordLeft, 10);
         this->addChild(loseWordRight, 10);
         //重新游戏按钮
@@ -638,11 +719,14 @@ void BaseLevelScene::gameover(bool is_win) {
         againButton->setCallback([this, menuLayer](Ref* psender) {
             a.button_music();
             this->removeChild(menuLayer);
+            // 取消与 GameManager 相关的所有调度器
+           // GameManager::getInstance()->stopAllSchedulers();
             auto scene = BaseLevelScene::createScene(levelId);
             Director::getInstance()->replaceScene(scene);
             Director::getInstance()->resume();
             });
         menu->addChild(againButton, 1);
+
     }
     // 选择游戏关卡按钮
     auto chooseButton = MenuItemImage::create("CarrotGuardRes/UI/chooseLevelNormal.png", "CarrotGuardRes/UI/chooseLevelSelected.png");
@@ -652,15 +736,20 @@ void BaseLevelScene::gameover(bool is_win) {
     chooseButton->setCallback([this, menuLayer](Ref* psender) {
         a.button_music();
         this->removeChild(menuLayer);
+        // 取消与 GameManager 相关的所有调度器
+        GameManager::getInstance()->stopAllSchedulers();
+        //取消事件监听
+         manager->removeListener();
         auto themeScene = themescene::createScene();
         Director::getInstance()->replaceScene(themeScene);
-        Director::getInstance()->resume();
+        //Director::getInstance()->resume();
         });
     menu->addChild(chooseButton, 1);
+   
 }
 
 
-
+//种植界面出现
 void BaseLevelScene::PlantMenuAppear(Vec2 mapPos)
 {
     cell_flag = 0;
@@ -678,7 +767,7 @@ void BaseLevelScene::PlantMenuAppear(Vec2 mapPos)
         this->addChild(tower_graph); remove_table.push_back(tower_graph);
     }
 }
-
+//种植界面消失
 void BaseLevelScene::PlantMenuGone(Vec2 position)
 {
     auto location = position;
@@ -699,14 +788,11 @@ void BaseLevelScene::PlantMenuGone(Vec2 position)
     remove_table.clear();
     cell_flag = 1;
 }
-
-
 void BaseLevelScene::InitMapData()
 {
     for (int i = 0; i < X; i++)
         for (int j = 0; j < Y; j++) { map_data[i][j].flag = 1; map_data[i][j].key = j * X + i; }
 }
-
 void BaseLevelScene::UpMenuAppear(Vec2& position)
 {
     last_position = position;
@@ -714,7 +800,6 @@ void BaseLevelScene::UpMenuAppear(Vec2& position)
     towers[key]->UpMenuAppear(this, position);
     cell_flag = 0;
 }
-
 void BaseLevelScene::UpMenuGone(Vec2& position)
 {
     int key = BaseLevelScene::map_data[int(last_position.x / CELL_SIZE)][int(last_position.y / CELL_SIZE)].key;

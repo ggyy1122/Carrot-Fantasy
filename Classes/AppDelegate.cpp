@@ -134,7 +134,7 @@ bool AppDelegate::applicationDidFinishLaunching() {
     // run
     director->runWithScene(scene);
     //ÔÚ²¥·Å
-   // a.background_music();
+    a.background_music();
     return true;
 }
 

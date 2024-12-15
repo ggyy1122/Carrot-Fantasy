@@ -39,6 +39,10 @@ public:
 		if (music_play)
 			AudioEngine::play2d("Music/sell.mp3", false, 1.0f);
 	}
+	void born_music() {        //²úÉúÒôÀÖ
+		if (music_play)
+			AudioEngine::play2d("Music/born.mp3", false, 2.0f);
+	}
 	void upgrade_music() {        //Éı¼¶ÒôÀÖ
 		if (music_play)
 			AudioEngine::play2d("Music/upgrade.mp3", false, 1.0f);

@@ -28,7 +28,7 @@ bool Carrot::init(int initialHP, const cocos2d::Vec2& carrotPos, const cocos2d::
     frameCache->addSpriteFramesWithFile("CarrotGuardRes/Health.plist", "CarrotGuardRes/Health.png");
 
     // 初始化萝卜图片
-    carrotSprite = Sprite::createWithSpriteFrameName(StringUtils::format("Carrot_%d.png", hp));
+    carrotSprite = Sprite::createWithSpriteFrameName(StringUtils::format("Carrot_%d.png", (hp+1)/2));
     carrotSprite->setScale(1.5);
     carrotSprite->setPosition(carrotPos);
     this->addChild(carrotSprite, 2); // 将萝卜图片添加为Carrot的子节点
@@ -47,13 +47,13 @@ void Carrot::changeHP(int change) {
     if (hp <= 0) {
         gameOver(); // 游戏结束
     }
-    else if (hp > 0 && hp <= 5) {
+    else if (hp > 0 && hp <= 10) {
         updateHPDisplay(); // 更新萝卜图片和血条图片
     }
 }
 
 void Carrot::updateHPDisplay() {
-    carrotSprite->setSpriteFrame(StringUtils::format("Carrot_%d.png", hp));
+    carrotSprite->setSpriteFrame(StringUtils::format("Carrot_%d.png", (hp + 1) /2));
     hpSprite->setSpriteFrame(StringUtils::format("Health_%d.png", hp));
 }
 
@@ -64,7 +64,13 @@ void Carrot::getDamage() {
     changeHP(-1);
     CCLOG("getDamage...");
 }
-
+void Carrot::getRecover()
+{
+    if (hp== 10)
+        return;
+    changeHP(1);
+    CCLOG("getRecover...");
+}
 void Carrot::gameOver() {
     CCLOG("game over");
 }

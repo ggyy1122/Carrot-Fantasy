@@ -16,6 +16,7 @@ public:
 
     void changeHP(int change); // 改变血量
     void getDamage();          // 受伤
+    void getRecover();         //治疗
     int getHP() const;         // 获取当前的萝卜血量
 
 private:
