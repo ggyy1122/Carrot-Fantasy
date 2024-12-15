@@ -368,7 +368,7 @@ void GameManager::produceMonsterWave(const WaveConfig& waveConfig) {
 
         // 延迟生成怪物，注意延迟的时长是相对于当前时间的
         cocos2d::Director::getInstance()->getScheduler()->schedule([=](float) {
-            produceMonsters(waveConfig.monsterName,0,false);
+            produceMonsters(waveConfig.monsterName,0,-1,false);
             }, this, 0, 0,delay, false, "produceMonster" + std::to_string(i));
     }
 }

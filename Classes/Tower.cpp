@@ -187,7 +187,9 @@ void Bottle::ShellProduct(Scene* my_scene, Monster* monster)//产生子弹
 void Bottle::ShellDemage(BaseLevelScene* my_scene, std::vector<Monster*>::iterator it)//子弹对怪兽造成伤害后，子弹消失
 {
 	curr_shell->removeFromParent();//将子弹清除，并将其引用计数减一，自动释放
+	CCLOG("(*it)->health        %d", (*it)->health);
 	(*it)->health -= demage;
+	CCLOG("(*it)->health        %d", (*it)->health);
 	(*it)->updateHealthBar();
 	if ((*it)->health <= 0) {
 		my_scene->updateMoney((*it)->reward);

@@ -67,7 +67,7 @@ public:
     void produceMonsterWave(const WaveConfig& waveConfig);   //产生怪兽波
     void startMonsterWaves();                                //开始怪兽波
     void loadMonsterResources();                             //加载怪兽资源
-    void produceMonsters(const std::string monsterName,const int startIndex,int health=-1,bool pause=false);
+    void produceMonsters(const std::string monsterName,const int startIndex,int health,bool pause=false);
                                                              //根据关卡放置怪兽
     void loadMonsterWaveConfig
   (const std::string& filename, const std::string& levelName);//加载怪兽波配置
