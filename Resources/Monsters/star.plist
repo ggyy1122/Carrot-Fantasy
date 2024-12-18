@@ -4,33 +4,33 @@
     <dict>
         <key>frames</key>
         <dict>
-            <key>blue_0.png</key>
+            <key>star_0.png</key>
             <dict>
                 <key>aliases</key>
                 <array/>
                 <key>spriteOffset</key>
                 <string>{0,0}</string>
                 <key>spriteSize</key>
-                <string>{99,104}</string>
+                <string>{107,113}</string>
                 <key>spriteSourceSize</key>
-                <string>{99,104}</string>
+                <string>{107,113}</string>
                 <key>textureRect</key>
-                <string>{{0,0},{99,104}}</string>
+                <string>{{0,0},{107,113}}</string>
                 <key>textureRotated</key>
                 <false/>
             </dict>
-            <key>blue_1.png</key>
+            <key>star_1.png</key>
             <dict>
                 <key>aliases</key>
                 <array/>
                 <key>spriteOffset</key>
                 <string>{0,0}</string>
                 <key>spriteSize</key>
-                <string>{99,104}</string>
+                <string>{100,106}</string>
                 <key>spriteSourceSize</key>
-                <string>{99,104}</string>
+                <string>{100,106}</string>
                 <key>textureRect</key>
-                <string>{{99,0},{99,104}}</string>
+                <string>{{107,0},{100,106}}</string>
                 <key>textureRotated</key>
                 <false/>
             </dict>
@@ -44,13 +44,13 @@
             <key>premultiplyAlpha</key>
             <false/>
             <key>realTextureFileName</key>
-            <string>blue.png</string>
+            <string>star.png</string>
             <key>size</key>
-            <string>{198,198}</string>
+            <string>{207,207}</string>
             <key>smartupdate</key>
-            <string>$TexturePacker:SmartUpdate:757684c863fdae1fa316bfa8605384cd:7593e4bab0728d6120326c7f3453490b:06e17f1fdf634a552aa2320423342f7a$</string>
+            <string>$TexturePacker:SmartUpdate:41f46ae07f69d2e62de72c4944cb4800:fecd92e30eedb0f26f02f7c6b1debffe:3529feb3fcfae6daa554c62bd8c6844e$</string>
             <key>textureFileName</key>
-            <string>blue.png</string>
+            <string>star.png</string>
         </dict>
     </dict>
 </plist>

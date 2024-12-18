@@ -4,33 +4,33 @@
     <dict>
         <key>frames</key>
         <dict>
-            <key>blue_0.png</key>
+            <key>biao_0.png</key>
             <dict>
                 <key>aliases</key>
                 <array/>
                 <key>spriteOffset</key>
                 <string>{0,0}</string>
                 <key>spriteSize</key>
-                <string>{99,104}</string>
+                <string>{80,94}</string>
                 <key>spriteSourceSize</key>
-                <string>{99,104}</string>
+                <string>{80,94}</string>
                 <key>textureRect</key>
-                <string>{{0,0},{99,104}}</string>
+                <string>{{0,0},{80,94}}</string>
                 <key>textureRotated</key>
                 <false/>
             </dict>
-            <key>blue_1.png</key>
+            <key>biao_1.png</key>
             <dict>
                 <key>aliases</key>
                 <array/>
                 <key>spriteOffset</key>
                 <string>{0,0}</string>
                 <key>spriteSize</key>
-                <string>{99,104}</string>
+                <string>{82,89}</string>
                 <key>spriteSourceSize</key>
-                <string>{99,104}</string>
+                <string>{82,89}</string>
                 <key>textureRect</key>
-                <string>{{99,0},{99,104}}</string>
+                <string>{{80,0},{82,89}}</string>
                 <key>textureRotated</key>
                 <false/>
             </dict>
@@ -44,13 +44,13 @@
             <key>premultiplyAlpha</key>
             <false/>
             <key>realTextureFileName</key>
-            <string>blue.png</string>
+            <string>biao.png</string>
             <key>size</key>
-            <string>{198,198}</string>
+            <string>{162,162}</string>
             <key>smartupdate</key>
-            <string>$TexturePacker:SmartUpdate:757684c863fdae1fa316bfa8605384cd:7593e4bab0728d6120326c7f3453490b:06e17f1fdf634a552aa2320423342f7a$</string>
+            <string>$TexturePacker:SmartUpdate:0bcc00fccfd5266a3680853d8ae86968:052edded11eb993c1bd90352d64ce93e:8193c9bcf0985c416499ddaa7db955b2$</string>
             <key>textureFileName</key>
-            <string>blue.png</string>
+            <string>biao.png</string>
         </dict>
     </dict>
 </plist>
