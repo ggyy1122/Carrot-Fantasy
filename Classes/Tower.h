@@ -1,14 +1,17 @@
 #pragma once
 #include "cocos2d.h"
 #include"Monster.h"
+#include"Obstacle.h"
 #include<vector>
 #include<string>
 #include<map>
 USING_NS_CC;
 
-#define TOWER_NUM 2
+#define TOWER_NUM 3
 
 class BaseLevelScene;
+class Tower;
+class Obstacle;
 
 class Tower {
 protected:
@@ -42,7 +45,7 @@ public:
 	void UpMenuGone(BaseLevelScene*);//升级菜单消失
 	int GetIndex()const { return index; }
 
-	virtual void attack(BaseLevelScene*, std::vector<Monster*>&, int) = 0;
+	virtual void attack(BaseLevelScene*, std::vector<Monster*>&, char isTarget, Monster* tar_m, Obstacle* tar_o,int jiasu) = 0;
 };
 
 
@@ -56,20 +59,49 @@ protected:
 	float tower_angle;//炮塔朝向的角度，以向右为0度，逆时针增加
 	Sprite* curr_shell;//指向子弹
 	float curr_dis, de_time;
+	//bool Clockwise;//是否顺时针转动
 public:
+
 	//构造函数
 	Bottle(int index_) :Tower(index_), tower_angle(0) { }
-	virtual void attack(BaseLevelScene*, std::vector<Monster*>&, int);//攻击怪物
-	void ShellProduct(Scene* my_scene, Monster* monster);//将炮塔转到合适的方向，并产生炮弹，在炮口的正前方
-	void ShellDemage(BaseLevelScene* my_scene, std::vector<Monster*>::iterator it);
-	//攻击的特效，攻击时是否转向
 
+	virtual void attack(BaseLevelScene*, std::vector<Monster*>&, char isTarget, Monster* tar_m, Obstacle* tar_o, int jiasu);//攻击
+
+	void ShellProduct(Scene* my_scene);//产生炮弹
+
+	template<class T>
+	void ShellDemage(BaseLevelScene* my_scene, T* sp);
+
+	template<class T>
+	bool  AttackSprite(T* sp, BaseLevelScene* my_scene, int jiasu);//攻击某个精灵
 	static std::string bottle_shell[3];
 };
 
 
-class Windmill :public Tower {
+class Sun :public Tower {
+private:
+	Sprite* curr_halo;
 public:
-	Windmill(int index_) :Tower(index_) {}
-	virtual void attack(BaseLevelScene*, std::vector<Monster*>&,int);//攻击怪物
+	Sun(int index_) :Tower(index_) {}
+	virtual void attack(BaseLevelScene*, std::vector<Monster*>&, char isTarget, Monster* tar_m, Obstacle* tar_o, int jiasu);//攻击怪物
+	void SunAttack(BaseLevelScene* my_scene, std::vector<Monster*>& monsters, int jiasu);
+
+};
+
+
+
+class MyPlane :public Tower {
+private:
+	Sprite* curr_ray;
+	float tower_angle;//炮塔朝向的角度，以向右为0度，逆时针增加
+	float de_ang;
+public:
+	MyPlane(int index_) :Tower(index_), tower_angle(90) {}
+	virtual void attack(BaseLevelScene*, std::vector<Monster*>&, char isTarget, Monster* tar_m, Obstacle* tar_o, int jiasu);//攻击怪物
+
+	template<class T>
+	bool  AttackSprite(T* sp, BaseLevelScene* my_scene, std::vector<Monster*>& monsters, int jiasu);//攻击某个精灵
+
+	void PlaneDemage(BaseLevelScene* my_scene, std::vector<Monster*>& monsters);
+	static std::string ray[3];
 };

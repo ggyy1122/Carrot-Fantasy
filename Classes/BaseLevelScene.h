@@ -7,6 +7,7 @@
 #include<vector>
 #include<Monster.h>
 #include"Tower.h"
+#include"Obstacle.h"
 
 USING_NS_CC;
 
@@ -40,13 +41,19 @@ private:
     Vec2 last_position;//记录上一次的位置
 
     std::map<int, Tower*> towers;//记录场上的塔的信息
-    Cell map_data[X][Y];//地图管理
+
     Label* _numberLabel;                  // 显示怪物波数
     Label* _curNumberLabel;               // 显示当前怪物波数
     int tower_jiasu=1;
 
 public:
-    int money = 1000;
+    std::map<int, Obstacle*> Obstacles;//障碍物数组
+    Cell map_data[X][Y];//地图管理
+    char isTarget = 0;//0代表没有被标记的，1代表怪物被标记，2代表障碍物被标记
+    Monster* tar_m = nullptr;
+    Obstacle* tar_o = nullptr;//指向被标记的对象
+
+    int money = 1000;//钱，得设为公有
 
     virtual void update(float deltaTime) override;
     cocos2d::TMXTiledMap* tileMap = nullptr;                // 地图对象
@@ -67,7 +74,8 @@ public:
     void loadMonsterConfig();                                //加载怪物配置
     void moveMonsterAlongPath(Monster* monster, const std::vector<cocos2d::Vec2>& path);   //怪物路径移动
     Vec2 gridToScreenCenter(const Vec2& gridPoint);         //将网格坐标转成屏幕坐标的工具函数
-    void  loadMonsters();                                    //加载怪物精灵帧
+    void  loadMonsters();//加载怪物精灵帧
+
     void updateMoney(int add);           //更新money，add为变化量
     void doublespeed(Ref* pSender);
     void pause_all(Ref* pSender);
@@ -90,6 +98,8 @@ public:
     void UpMenuAppear(Vec2& position);//升级菜单出现
     void UpMenuGone(Vec2& position);//升级菜单消失
 
-    
+    void ProduceObstacles();//产生障碍物
+
+    Monster* IsTargetMonster(const Vec2& pos);//检测是否有怪物被锁定
 };
 #endif 

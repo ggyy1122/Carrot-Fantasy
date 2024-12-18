@@ -1,6 +1,7 @@
 #include"Monster.h"
 #include"MonsterConfigs.h"
 #include"music.h"
+#include"BaseLevelScene.h"
 extern Music a;
 int Monster::DeadCount=0;
 // 初始化怪物
@@ -119,16 +120,17 @@ void Monster::moveAlongPath(const std::vector<Vec2>& path) {
     this->runAction(speedaction);
 }
 //让怪物死亡
-void Monster::toDie()
+void Monster::toDie(BaseLevelScene*my_scene)
 {
     if(isDead)
      return;
     DeadCount++;
     CCLOG("Monster %p is dying.", this);
 
+    my_scene->updateMoney(reward);
     // 1. 标记死亡并隐藏怪物
     this->isDead = true;
-    this->setVisible(false); // 隐藏怪物
+    //this->setVisible(false); // 隐藏怪物
 
     // 2. 创建一个新的临时精灵用于播放死亡动画
     auto deathSprite = cocos2d::Sprite::create();
@@ -174,5 +176,14 @@ void Monster::toDie()
     deathSprite->runAction(cocos2d::Sequence::create(animate, onDeathComplete, nullptr));
     a.normalSound();
     // 9. 删除怪物本身
-   this->stopAllActions();
+
+    this->retain();
+    /* Vec2 position = this->getPosition();*/
+    my_scene->removeChild(this);
+    /*this->setPosition(position);*/
+    // 9. 删除怪物本身
+    if (my_scene->tar_m == this) {//如果是这个怪被锁定，那么它被打死后，锁定解除
+        my_scene->isTarget = 0;
+        my_scene->tar_m = nullptr;
+    }
 }

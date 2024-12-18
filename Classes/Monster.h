@@ -6,6 +6,9 @@
 USING_NS_CC;
 using namespace cocos2d::ui;
 extern float beishu;
+
+class BaseLevelScene;
+
 class Monster : public cocos2d::Sprite {
 private:
    
@@ -17,10 +20,13 @@ private:
     int startPosIndex;              //起始位置
     std::string name;               //怪兽名
     int PathIndex=0;                //路径索引
-    LoadingBar* _HP;       // 进度条效果表示血条
+   
     int maxHp;
    
 public:
+    LoadingBar* _HP;       // 进度条效果表示血条
+    Sprite* hpback;//血条背景
+    bool ishpvs = false;//HP是否可见
     Speed* speedaction;
     float  speed;                  // 移动速度
     bool pause;             //暂停
@@ -40,9 +46,11 @@ public:
             monster->_HP->setPosition(Vec2(monster->getContentSize().width / 2, monster->getContentSize().height * 1.3f));
             monster->addChild(monster->_HP, 10);
             //添加血条背景
-            auto HPBackground = Sprite::create("Monsters/HPBackground.png");
-            HPBackground->setPosition(Vec2(monster->getContentSize().width / 2, monster->getContentSize().height * 1.3f));
-            monster->addChild(HPBackground, 9);
+            monster->hpback= Sprite::create("Monsters/HPBackground.png");
+            monster->hpback->setPosition(Vec2(monster->getContentSize().width / 2, monster->getContentSize().height * 1.3f));
+            monster->addChild(monster->hpback, 9);
+            monster->_HP->setVisible(false);
+            monster->hpback->setVisible(false);
             return monster;
         }
         CC_SAFE_DELETE(monster);//如果创建或初始化失败，释放内存并返回nullptr
@@ -53,7 +61,7 @@ public:
     //怪物的移动逻辑
     void moveAlongPath(const std::vector<Vec2>& path);
     //让怪兽死亡
-    void toDie();
+    void toDie(BaseLevelScene* my_scene);
     //检查怪兽是否死亡
     bool checkLive()const{return (!isDead);};
     //获取怪兽生命值

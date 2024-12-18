@@ -208,7 +208,7 @@ void BaseLevelScene::Jineng3(Ref* pSender) {
         for (auto it = manager->monsters.begin(); it != manager->monsters.end(); it++) {
             if ((*it)->health > 0) {
                 (*it)->health = 0;
-                (*it)->toDie();
+                (*it)->toDie(this);
             }    
         }
     }
@@ -458,7 +458,8 @@ void BaseLevelScene::update(float deltaTime) {
     for (auto it = towers.begin(); it != towers.end(); it++) {
 
         if (it->second->interval >= it->second->interval_table[it->second->GetIndex()]) {
-            it->second->attack(this, GameManager::getInstance()->monsters,tower_jiasu);
+            it->second->attack(this, GameManager::getInstance()->monsters, isTarget, tar_m, tar_o,tower_jiasu);
+            continue;
         }
 
         it->second->interval += deltaTime*tower_jiasu;
@@ -508,10 +509,13 @@ bool BaseLevelScene::initWithLevel(int level)
 
     cell_flag = 1;
     buy_tower[0].push_back("Towers/affordbottle.png"); buy_tower[1].push_back("Towers/unaffordbottle.png");
-    buy_tower[0].push_back("Towers/affordwindmill.png"); buy_tower[1].push_back("Towers/unaffordwindmill.png");
+    buy_tower[0].push_back("Towers/affordsun.png"); buy_tower[1].push_back("Towers/unaffordsun.png");
+    buy_tower[0].push_back("Towers/affordplane.png"); buy_tower[1].push_back("Towers/unaffordplane.png");
     index_table.push_back(0);
     index_table.push_back(1);
+    index_table.push_back(2);
     InitMapData();
+    ProduceObstacles();
     return true;
 }
 // 默认的 init 方法
@@ -603,13 +607,21 @@ void BaseLevelScene::handlePlant(const Vec2& position) {
         return;
     }
 
+    if (isTarget != 0) {//如果在有锁定期间点击任何位置，都会使锁定消失
+        isTarget = 0;
+        tar_m = nullptr;
+        tar_o = nullptr;
+        return;
+    }
+
     // 判断该瓦片是否可种植
     auto tileGID = tileMap->getLayer("plantable")->getTileGIDAt(tileCoord);
 
     if (!cell_flag) {//如果已经出现种植或者升级菜单，则再次点击时判断是否进行种植或升级(删除)操作，并使菜单消失
-        if (map_data[int(last_position.x / CELL_SIZE)][int(last_position.y / CELL_SIZE)].flag)
+        if (map_data[int(last_position.x / CELL_SIZE)][int(last_position.y / CELL_SIZE)].flag == 0)
             PlantMenuGone(Vec2(position.x, Director::getInstance()->getVisibleSize().height - position.y));
-        else UpMenuGone(Vec2(position.x, Director::getInstance()->getVisibleSize().height - position.y));
+        else if (map_data[int(last_position.x / CELL_SIZE)][int(last_position.y / CELL_SIZE)].flag == 1)
+            UpMenuGone(Vec2(position.x, Director::getInstance()->getVisibleSize().height - position.y));
         return;
     }
 
@@ -630,13 +642,24 @@ void BaseLevelScene::handlePlant(const Vec2& position) {
         CCLOG("Screen Position: (%f, %f)", mapPos.x, mapPos.y);
 
         //如果这地方没有塔，那么打开种植菜单，否则打开升级菜单
-        if (map_data[int(mapPos.x / CELL_SIZE)][int(mapPos.y / CELL_SIZE)].flag)
+        if (map_data[int(mapPos.x / CELL_SIZE)][int(mapPos.y / CELL_SIZE)].flag == 0)
             PlantMenuAppear(mapPos);
-        else UpMenuAppear(mapPos);
+        else if (map_data[int(mapPos.x / CELL_SIZE)][int(mapPos.y / CELL_SIZE)].flag == 1)
+            UpMenuAppear(mapPos);
+        else if (isTarget == 0) {
+            isTarget = 2;
+            tar_o = Obstacles[map_data[int(mapPos.x / CELL_SIZE)][int(mapPos.y / CELL_SIZE)].key];
+        }
     }
 
     else
     {
+        Monster* tool = IsTargetMonster(Vec2(position.x, Director::getInstance()->getVisibleSize().height - position.y));
+        if (tool != nullptr) {
+            isTarget = 1;
+            tar_m = tool;
+            CCLOG("-------------------------------------------------locked");
+        }
         CCLOG("Tile at (%f, %f) is not plantable.", tileCoord.x, tileCoord.y);
     }
 
@@ -831,7 +854,7 @@ void BaseLevelScene::PlantMenuGone(Vec2 position)
             this_tower->build(this, last_position);
             int x = int(last_position.x / CELL_SIZE), y = int(last_position.y / CELL_SIZE);
             towers[map_data[x][y].key] = this_tower;
-            map_data[x][y].flag = 0;
+            map_data[x][y].flag = 1;
         }
     }
     this->removeChild(curr_cell); curr_cell->release();
@@ -839,11 +862,8 @@ void BaseLevelScene::PlantMenuGone(Vec2 position)
     remove_table.clear();
     cell_flag = 1;
 }
-void BaseLevelScene::InitMapData()
-{
-    for (int i = 0; i < X; i++)
-        for (int j = 0; j < Y; j++) { map_data[i][j].flag = 1; map_data[i][j].key = j * X + i; }
-}
+
+
 void BaseLevelScene::UpMenuAppear(Vec2& position)
 {
     last_position = position;
@@ -867,4 +887,60 @@ void BaseLevelScene::UpMenuGone(Vec2& position)
         towers[key]->update(this, last_position);
     }
     cell_flag = 1;
+}
+
+
+void BaseLevelScene::InitMapData()//初始化地图数据
+{
+    for (int i = 0; i < X; i++)
+        for (int j = 0; j < Y; j++) { map_data[i][j].flag = 0; map_data[i][j].key = j * X + i; }
+    for (int i = 2; i <= 11; i++) {
+        for (int j = 5; j <= 8; j++) { map_data[i][j].flag = 3; map_data[i][j].key = j * X + i; }
+        for (int j = 1; j <= 2; j++) { map_data[i][j].flag = 3; map_data[i][j].key = j * X + i; }
+    }//3表示此地可用于生成障碍物，在后面生成障碍物时会用到 
+}
+
+
+void BaseLevelScene::ProduceObstacles()//在场景中生成障碍物
+{
+    srand(time(0));
+    for (int i = 0; i < X; i++)
+        for (int j = 0; j < Y; j++) {
+            if (map_data[i][j].flag == 3) {
+                int rd;//随机因子
+                if (i + 1 < X && j + 1 < Y && map_data[i + 1][j].flag == 3 && map_data[i][j + 1].flag == 3 && map_data[i + 1][j + 1].flag == 3)
+                    rd = 10;
+                else if (i + 1 < X && map_data[i + 1][j].flag == 3) rd = 6;
+                else rd = 5;
+                int index = rand() % (rd + 5);
+                if (index >= rd) {//并不是在每个可生成障碍物的地方都生成障碍物
+                    map_data[i][j].flag = 0;
+                    continue;
+                }
+                map_data[i][j].flag = 2;
+                auto obb = new Obstacle(index);
+                obb->Produce(this, i, j);
+                Obstacles[map_data[i][j].key] = obb;
+                if (index == 5) {
+                    map_data[i + 1][j].flag = 2;
+                    Obstacles[map_data[i + 1][j].key] = obb;
+                }
+                else if (index > 5) {
+                    map_data[i][j + 1].flag = map_data[i + 1][j].flag = map_data[i + 1][j + 1].flag = 2;
+                    Obstacles[map_data[i + 1][j].key] = Obstacles[map_data[i][j + 1].key] = Obstacles[map_data[i + 1][j + 1].key] = obb;
+                }
+            }
+        }
+}
+
+Monster* BaseLevelScene::IsTargetMonster(const Vec2& pos)//判断是否有怪物被锁定
+{
+    for (auto it = GameManager::getInstance()->monsters.begin(); it != GameManager::getInstance()->monsters.end(); it++) {
+        if ((*it)->health <= 0)continue;
+        auto m_pos = (*it)->getPosition();
+        auto m_size = (*it)->getContentSize();
+        if (pos.x > m_pos.x - m_size.width && pos.x < m_pos.x + m_size.width
+            && pos.y>m_pos.y - m_size.height && pos.y < m_pos.y + m_size.height) return (*it);
+    }
+    return nullptr;
 }

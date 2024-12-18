@@ -535,7 +535,7 @@ void GameManager::onMonsterPathComplete(cocos2d::EventCustom* event)
             carrot->getDamage();
             CCLOG("carrot'HP    %d",carrot->getHP());
         }
-        monster->toDie();  //¹ÖÊŞËÀÍö
+        monster->toDie(currentScene);  //¹ÖÊŞËÀÍö
       
        // Monster::DeadCount++;
     }
