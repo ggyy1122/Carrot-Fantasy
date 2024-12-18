@@ -42,7 +42,7 @@ public:
 	void UpMenuGone(BaseLevelScene*);//升级菜单消失
 	int GetIndex()const { return index; }
 
-	virtual void attack(BaseLevelScene*, std::vector<Monster*>&) = 0;
+	virtual void attack(BaseLevelScene*, std::vector<Monster*>&, int) = 0;
 };
 
 
@@ -57,10 +57,9 @@ protected:
 	Sprite* curr_shell;//指向子弹
 	float curr_dis, de_time;
 public:
-
 	//构造函数
 	Bottle(int index_) :Tower(index_), tower_angle(0) { }
-	virtual void attack(BaseLevelScene*, std::vector<Monster*>&);//攻击怪物
+	virtual void attack(BaseLevelScene*, std::vector<Monster*>&, int);//攻击怪物
 	void ShellProduct(Scene* my_scene, Monster* monster);//将炮塔转到合适的方向，并产生炮弹，在炮口的正前方
 	void ShellDemage(BaseLevelScene* my_scene, std::vector<Monster*>::iterator it);
 	//攻击的特效，攻击时是否转向
@@ -72,5 +71,5 @@ public:
 class Windmill :public Tower {
 public:
 	Windmill(int index_) :Tower(index_) {}
-	virtual void attack(BaseLevelScene*, std::vector<Monster*>&);//攻击怪物
+	virtual void attack(BaseLevelScene*, std::vector<Monster*>&,int);//攻击怪物
 };

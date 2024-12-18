@@ -17,7 +17,7 @@ using namespace ui;
 
 
 
-
+extern float beishu;
 extern Music a;
 extern bool level_is_win[3];
 extern bool isNewGame[3];
@@ -59,12 +59,16 @@ void BaseLevelScene::doublespeed(Ref* pSender) {
     if (isDoubleSpeed) {
         button->setNormalImage(Sprite::create("CarrotGuardRes/UI/doubleSpeed.png"));
         button->setSelectedImage(Sprite::create("CarrotGuardRes/UI/doubleSpeed.png"));
-        scheduler->setTimeScale(2.0f); //实现加速效果
+        tower_jiasu = 2;
+        guaisou_jiansu(2.0f);
+        beishu = 2;//实现加速效果
     }
     else {
         button->setNormalImage(Sprite::create("CarrotGuardRes/UI/normalSpeed.png"));
         button->setSelectedImage(Sprite::create("CarrotGuardRes/UI/normalSpeed.png"));
-        scheduler->setTimeScale(1.0f); //实现减速效果
+        tower_jiasu = 1;
+        guaisou_jiansu(1.0f);
+        beishu = 1; //实现减速效果
     }
 }
 //暂停按钮
@@ -78,7 +82,7 @@ void BaseLevelScene::pause_all(Ref* pSender) {
         // 添加顶部暂停标识
         auto pauseTop = Sprite::create("CarrotGuardRes/UI/pausing.png");
         pauseTop->setName("pauseTop");
-        pauseTop->setPosition(450, 610);
+        pauseTop->setPosition(464, 610);
         pauseTop->setScale(2.0f);
         this->addChild(pauseTop, 10);
         Director::getInstance()->pause();
@@ -168,26 +172,72 @@ void BaseLevelScene::menu_all(Ref* pSender) {
     menu->addChild(chooseButton, 1);
     menu->addChild(restartButton, 1);
 }
+void BaseLevelScene::guaisou_jiansu(float guai_jiansu) {
+    for (auto it = manager->monsters.begin(); it != manager->monsters.end(); it++) {
+        if ((*it)->health > 0) 
+            (*it)->speedaction->setSpeed(guai_jiansu);   
+    }
+}
 //技能1按钮
 void BaseLevelScene::Jineng1(Ref* pSender) {
     a.button_music();
-    manager->Jineng1();
+    if (money >= 100) {
+        updateMoney(-100);
+        manager->Jineng1();
+    }
 }
 //技能2按钮
 void BaseLevelScene::Jineng2(Ref* pSender) {
     a.button_music();
+    if (money >= 100) {
+        updateMoney(-100); 
+        guaisou_jiansu(0.01f);
+        beishu = 0.01f;
+        auto delayaction = Sequence::create(
+            DelayTime::create(5.0f),
+            CallFunc::create([=] {guaisou_jiansu(1); beishu = 1.0f; }),
+            nullptr);
+        this->runAction(delayaction);
+    }
 }
 //技能3按钮
 void BaseLevelScene::Jineng3(Ref* pSender) {
     a.button_music();
+    if (money >= 100) {
+        updateMoney(-100);
+        for (auto it = manager->monsters.begin(); it != manager->monsters.end(); it++) {
+            if ((*it)->health > 0) {
+                (*it)->health = 0;
+                (*it)->toDie();
+            }    
+        }
+    }
 }
 //技能4按钮
 void BaseLevelScene::Jineng4(Ref* pSender) {
     a.button_music();
+    if (money >= 100) {
+        updateMoney(-100);
+        tower_jiasu = 2;
+        auto delayaction = Sequence::create(DelayTime::create(5.0f), CallFunc::create([=] {
+            tower_jiasu = 1;
+            }), nullptr);
+        this->runAction(delayaction);
+    }
 }
 //技能5按钮
 void BaseLevelScene::Jineng5(Ref* pSender) {
     a.button_music();
+    if (money >= 100) {
+        updateMoney(-100);
+        guaisou_jiansu(0.5f);
+        beishu = 0.5f;
+        auto delayaction = Sequence::create(
+            DelayTime::create(5.0f),
+            CallFunc::create([=] {guaisou_jiansu(1); beishu = 1.0f; }),
+            nullptr);
+        this->runAction(delayaction);
+    }
 }
 /******************************************/
 
@@ -201,7 +251,7 @@ void BaseLevelScene::initUI()
     _curNumberLabel->setPosition(960 * 0.42, 640 * 0.95);
     this->addChild(_curNumberLabel, 2);
     // 2. 一共有多少波怪物
-    _numberLabel = Label::createWithSystemFont(StringUtils::format("/ %dtimes", manager->getAllWaveNum()), "Arial", 32);
+    _numberLabel = Label::createWithSystemFont(StringUtils::format("/ %d times", manager->getAllWaveNum()), "Arial", 32);
     _numberLabel->setColor(Color3B::YELLOW);
     _numberLabel->setPosition(960 * 0.50, 640 * 0.95);
     this->addChild(_numberLabel, 2);
@@ -249,7 +299,7 @@ void BaseLevelScene::initUI()
         menuButton->setScale(1);
         menu->addChild(menuButton);
     }
-    auto jineng1Button = MenuItemImage::create("Carrot/jineng1.png", "Carrot/jineng1.png", CC_CALLBACK_1(BaseLevelScene::Jineng1, this));
+    auto jineng1Button = MenuItemImage::create("Carrot/jineng1.png", "Carrot/jineng1_1.png", CC_CALLBACK_1(BaseLevelScene::Jineng1, this));
     if (jineng1Button == nullptr)
     {
         problemLoading("'jineng1.png'");
@@ -260,7 +310,7 @@ void BaseLevelScene::initUI()
         jineng1Button->setScale(1.9);
         menu->addChild(jineng1Button);
     }
-    auto jineng2Button = MenuItemImage::create("Carrot/jineng2.png", "Carrot/jineng2.png", CC_CALLBACK_1(BaseLevelScene::Jineng2, this));
+    auto jineng2Button = MenuItemImage::create("Carrot/jineng2.png", "Carrot/jineng2_1.png", CC_CALLBACK_1(BaseLevelScene::Jineng2, this));
     if (jineng2Button == nullptr)
     {
         problemLoading("'jineng2.png'");
@@ -271,7 +321,7 @@ void BaseLevelScene::initUI()
         jineng2Button->setScale(1.9);
         menu->addChild(jineng2Button);
     }
-    auto jineng3Button = MenuItemImage::create("Carrot/jineng3.png", "Carrot/jineng3.png", CC_CALLBACK_1(BaseLevelScene::Jineng3, this));
+    auto jineng3Button = MenuItemImage::create("Carrot/jineng3.png", "Carrot/jineng3_1.png", CC_CALLBACK_1(BaseLevelScene::Jineng3, this));
     if (jineng3Button == nullptr)
     {
         problemLoading("'jineng3.png'");
@@ -282,7 +332,7 @@ void BaseLevelScene::initUI()
         jineng3Button->setScale(1.7);
         menu->addChild(jineng3Button);
     }
-    auto jineng4Button = MenuItemImage::create("Carrot/jineng4.png", "Carrot/jineng4.png", CC_CALLBACK_1(BaseLevelScene::Jineng4, this));
+    auto jineng4Button = MenuItemImage::create("Carrot/jineng4.png", "Carrot/jineng4_1.png", CC_CALLBACK_1(BaseLevelScene::Jineng4, this));
     if (jineng4Button == nullptr)
     {
         problemLoading("'jineng4.png'");
@@ -293,7 +343,7 @@ void BaseLevelScene::initUI()
         jineng4Button->setScale(1.7);
         menu->addChild(jineng4Button);
     }
-    auto jineng5Button = MenuItemImage::create("Carrot/jineng5.png", "Carrot/jineng5.png", CC_CALLBACK_1(BaseLevelScene::Jineng5, this));
+    auto jineng5Button = MenuItemImage::create("Carrot/jineng5.png", "Carrot/jineng5_1.png", CC_CALLBACK_1(BaseLevelScene::Jineng5, this));
     if (jineng5Button == nullptr)
     {
         problemLoading("'jineng5.png'");
@@ -408,10 +458,10 @@ void BaseLevelScene::update(float deltaTime) {
     for (auto it = towers.begin(); it != towers.end(); it++) {
 
         if (it->second->interval >= it->second->interval_table[it->second->GetIndex()]) {
-            it->second->attack(this, GameManager::getInstance()->monsters);
+            it->second->attack(this, GameManager::getInstance()->monsters,tower_jiasu);
         }
 
-        it->second->interval += deltaTime;
+        it->second->interval += deltaTime*tower_jiasu;
     }
     //更新检验输状态
     if(manager->CheckLose())
@@ -441,7 +491,7 @@ bool BaseLevelScene::initWithLevel(int level)
     initUI();                                 //初始化ui
     // 调用倒计时函数并传递回调
     CountDown([=] {
-        CCLOG("READY");                          
+        CCLOG("READY");
               //计时结束后才能开始怪兽波
         manager->startMonsterWaves();
         });
@@ -597,7 +647,7 @@ void BaseLevelScene::handlePlant(const Vec2& position) {
  *****************工具函数*************************
  **************************************************/
  //画网格线
-#ifdef DEBUG_MODE
+//#ifdef DEBUG_MODE
 void BaseLevelScene::drawGrid() {
     // 获取地图的大小和瓦片的大小
     Size mapSize = tileMap->getContentSize();
@@ -618,7 +668,7 @@ void BaseLevelScene::drawGrid() {
         drawNode->drawLine(Vec2(0, y), Vec2(mapSize.width, y), Color4F::WHITE);
     }
 }
-#endif // DEBUG_MODE
+//#endif // DEBUG_MODE
 
 //瓦格坐标转地图坐标的工具函数
 Vec2 BaseLevelScene::gridToScreenCenter(const Vec2& gridPoint) {
@@ -735,14 +785,15 @@ void BaseLevelScene::gameover(bool is_win, int currentWaveNum, int allWaveNum) {
     //选择关卡选项
     chooseButton->setCallback([this, menuLayer](Ref* psender) {
         a.button_music();
+        manager->saveMonstersDataToJson("level" + std::to_string(levelId) + "Monster.json");
         this->removeChild(menuLayer);
         // 取消与 GameManager 相关的所有调度器
         GameManager::getInstance()->stopAllSchedulers();
         //取消事件监听
-         manager->removeListener();
+        manager->removeListener();
         auto themeScene = themescene::createScene();
         Director::getInstance()->replaceScene(themeScene);
-        //Director::getInstance()->resume();
+        Director::getInstance()->resume();
         });
     menu->addChild(chooseButton, 1);
    

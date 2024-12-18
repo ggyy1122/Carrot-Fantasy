@@ -356,7 +356,7 @@ void GameManager::loadMonsterWaveConfig(const std::string& filename, const std::
     {
         AllMonsterNum+= waveConfig.count;
     }
-    CCLOG("All Num %d ", AllMonsterNum);
+   CCLOG("All Num %d ", AllMonsterNum);
 }
 //产生一波怪兽
 void GameManager::produceMonsterWave(const WaveConfig& waveConfig) {
@@ -394,6 +394,14 @@ void GameManager::loadMonsterResources() {
     SpriteFrameCache::getInstance()->addSpriteFramesWithFile("Monsters/pig.plist");
     SpriteFrameCache::getInstance()->addSpriteFramesWithFile("Monsters/yellowbat.plist");
     SpriteFrameCache::getInstance()->addSpriteFramesWithFile("Monsters/blue.plist");
+    SpriteFrameCache::getInstance()->addSpriteFramesWithFile("Monsters/tuzi.plist");
+    SpriteFrameCache::getInstance()->addSpriteFramesWithFile("Monsters/pink.plist");
+    SpriteFrameCache::getInstance()->addSpriteFramesWithFile("Monsters/boss.plist");
+    SpriteFrameCache::getInstance()->addSpriteFramesWithFile("Monsters/sheep.plist");
+    SpriteFrameCache::getInstance()->addSpriteFramesWithFile("Monsters/biao.plist");
+    SpriteFrameCache::getInstance()->addSpriteFramesWithFile("Monsters/star.plist");
+    SpriteFrameCache::getInstance()->addSpriteFramesWithFile("Monsters/bubble.plist");
+    SpriteFrameCache::getInstance()->addSpriteFramesWithFile("Monsters/fuck.plist");
     if (!SpriteFrameCache::getInstance()->getSpriteFrameByName("pig_0.png")) {
         CCLOG("Failed to load SpriteFrame 'pig_0.png'.");
     }
@@ -412,6 +420,56 @@ void GameManager::loadMonsterResources() {
     if (!SpriteFrameCache::getInstance()->getSpriteFrameByName("blue_1.png")) {
         CCLOG("Failed to load SpriteFrame 'blue_1.png'.");
     }
+    if (!SpriteFrameCache::getInstance()->getSpriteFrameByName("tuzi_0.png")) {
+        CCLOG("Failed to load SpriteFrame 'tuzi_0.png'.");
+    }
+    if (!SpriteFrameCache::getInstance()->getSpriteFrameByName("tuzi_1.png")) {
+        CCLOG("Failed to load SpriteFrame 'tuzi_1.png'.");
+    }
+    if (!SpriteFrameCache::getInstance()->getSpriteFrameByName("pink_0.png")) {
+        CCLOG("Failed to load SpriteFrame 'pink_0.png'.");
+    }
+    if (!SpriteFrameCache::getInstance()->getSpriteFrameByName("pink_1.png")) {
+        CCLOG("Failed to load SpriteFrame 'pink_1.png'.");
+    }
+    if (!SpriteFrameCache::getInstance()->getSpriteFrameByName("boss_0.png")) {
+        CCLOG("Failed to load SpriteFrame 'boss_0.png'.");
+    }
+    if (!SpriteFrameCache::getInstance()->getSpriteFrameByName("boss_1.png")) {
+        CCLOG("Failed to load SpriteFrame 'boss_1.png'.");
+    }
+    if (!SpriteFrameCache::getInstance()->getSpriteFrameByName("sheep_0.png")) {
+        CCLOG("Failed to load SpriteFrame 'sheep_0.png'.");
+    }
+    if (!SpriteFrameCache::getInstance()->getSpriteFrameByName("sheep_1.png")) {
+        CCLOG("Failed to load SpriteFrame 'sheep_1.png'.");
+    }
+    if (!SpriteFrameCache::getInstance()->getSpriteFrameByName("fuck_0.png")) {
+        CCLOG("Failed to load SpriteFrame 'fuck_0.png'.");
+    }
+    if (!SpriteFrameCache::getInstance()->getSpriteFrameByName("fuck_1.png")) {
+        CCLOG("Failed to load SpriteFrame 'fuck_1.png'.");
+    }
+    if (!SpriteFrameCache::getInstance()->getSpriteFrameByName("bubble_0.png")) {
+        CCLOG("Failed to load SpriteFrame 'bubble_0.png'.");
+    }
+    if (!SpriteFrameCache::getInstance()->getSpriteFrameByName("bubble_1.png")) {
+        CCLOG("Failed to load SpriteFrame 'bubble_1.png'.");
+    }
+    
+    if (!SpriteFrameCache::getInstance()->getSpriteFrameByName("star_0.png")) {
+        CCLOG("Failed to load SpriteFrame 'star_0.png'.");
+    }
+    if (!SpriteFrameCache::getInstance()->getSpriteFrameByName("star_1.png")) {
+        CCLOG("Failed to load SpriteFrame 'star_1.png'.");
+    }
+    if (!SpriteFrameCache::getInstance()->getSpriteFrameByName("biao_0.png")) {
+        CCLOG("Failed to load SpriteFrame 'biao_0.png'.");
+    }
+    if (!SpriteFrameCache::getInstance()->getSpriteFrameByName("biao_1.png")) {
+        CCLOG("Failed to load SpriteFrame 'biao_1.png'.");
+    }
+
 }
 //入场特效
 void GameManager::playSpawnEffect(const cocos2d::Vec2& spawnPosition) {
@@ -564,8 +622,8 @@ void GameManager::saveMonstersDataToJson(const std::string& fileName) {
 //初始化萝卜
 void GameManager::initCarrot() {
     // 目标位置的数组，假设levelId是1、2、3的场景关卡
-    std::vector<cocos2d::Vec2> dst1 = { Vec2(804, 640 - 196), Vec2(816, 640 - 284), Vec2(831, 640 - 287) };
-    std::vector<cocos2d::Vec2> dst2 = { Vec2(854, 640 - 196), Vec2(866, 640 - 284), Vec2(881, 640 - 287) };
+    std::vector<cocos2d::Vec2> dst1 = { Vec2(804, 640 - 196), Vec2(826, 640 - 210), Vec2(831, 640 - 287) };
+    std::vector<cocos2d::Vec2> dst2 = { Vec2(854, 640 - 196), Vec2(886, 640 - 210), Vec2(881, 640 - 287) };
     // 生成萝卜，血量为10
     carrot = Carrot::create(10, dst1[levelId - 1], dst2[levelId - 1]);
     currentScene->addChild(carrot); // 直接将 Carrot 作为一个Node，添加到场景中

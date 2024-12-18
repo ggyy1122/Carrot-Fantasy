@@ -5,10 +5,11 @@
 #include "ui/CocosGUI.h"
 USING_NS_CC;
 using namespace cocos2d::ui;
+extern float beishu;
 class Monster : public cocos2d::Sprite {
 private:
    
-    float  speed;                  // 移动速度
+    
     int   damage;                   // 攻击力
   
     
@@ -20,6 +21,8 @@ private:
     int maxHp;
    
 public:
+    Speed* speedaction;
+    float  speed;                  // 移动速度
     bool pause;             //暂停
     int   reward;                   // 击杀奖励
     int   health;                   // 生命值

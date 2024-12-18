@@ -43,6 +43,7 @@ private:
     Cell map_data[X][Y];//地图管理
     Label* _numberLabel;                  // 显示怪物波数
     Label* _curNumberLabel;               // 显示当前怪物波数
+    int tower_jiasu=1;
 
 public:
     int money = 1000;
@@ -80,6 +81,7 @@ public:
     void Jineng3(Ref* pSender);   //炸弹，消灭所有怪兽
     void Jineng4(Ref* pSender);   //植物攻速加倍
     void Jineng5(Ref* pSender);   //怪兽减速
+    void guaisou_jiansu(float guai_jiansu);
 
     void PlantMenuAppear(Vec2 mapPos);//出现种植菜单
     void PlantMenuGone(Vec2 position);//种植菜单消失

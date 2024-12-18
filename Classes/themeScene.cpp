@@ -8,6 +8,7 @@
 extern Music a;
 extern bool level_is_win[3];//1通关了解锁第2关
 extern bool isNewGame[3];
+extern float beishu;
 USING_NS_CC;
 using namespace ui;
 // 假设这里有一个全局变量或者成员变量来存储页面相关内容，比如是否可操作等状态标识

@@ -102,25 +102,21 @@ void Monster::moveAlongPath(const std::vector<Vec2>& path) {
         });
 
     actions.pushBack(onPathComplete);
-
     // 创建动作序列
     auto sequence = cocos2d::Sequence::create(actions);
-
     if (pause) {
         // 创建一个延迟3秒的动作
         auto delay = DelayTime::create(3.0f);
-
         // 将延迟动作和现有的动作序列结合起来
         auto delayedSequence = Sequence::create(delay, sequence, nullptr);
-
+        speedaction = Speed::create(delayedSequence, beishu);
         // 执行新的序列动作（先延迟3秒，再执行原来的sequence）
-        this->runAction(delayedSequence);
     }
     else
     {
-    this->runAction(sequence);
+        speedaction = Speed::create(sequence, beishu);
     }
-
+    this->runAction(speedaction);
 }
 //让怪物死亡
 void Monster::toDie()

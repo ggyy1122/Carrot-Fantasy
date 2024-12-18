@@ -29,7 +29,7 @@ std::map<int, std::string> Tower::up_graph = { {180,"Towers/up_180.png"},{220,"T
 std::map<int, std::string> Tower::noup_graph = { {180,"Towers/noup_180.png"},{220,"Towers/noup_220.png"},
 	{260,"Towers/noup_260.png"},{320,"Towers/noup_320.png"} };
 const float Bottle::speed = 800;
-float Tower::interval_table[TOWER_NUM] = { 0.8,0.8 };
+float Tower::interval_table[TOWER_NUM] = { 1.4,0.8 };
 std::string Bottle::bottle_shell[3] = { "Towers/shell1-1.png","Towers/shell1-2.png" ,"Towers/shell1-3.png" };
 
 Tower* createTower(int index)
@@ -113,7 +113,7 @@ void Tower::UpMenuGone(BaseLevelScene* my_scene)
 }
 
 
-void Bottle::attack(BaseLevelScene* my_scene, std::vector<Monster*>& monsters)
+void Bottle::attack(BaseLevelScene* my_scene, std::vector<Monster*>& monsters,int jia_su)
 {
 	interval = 0;
 	int size = monsters.size();
@@ -128,15 +128,15 @@ void Bottle::attack(BaseLevelScene* my_scene, std::vector<Monster*>& monsters)
 			direction.normalize();
 			auto ang = direction.getAngle();
 			ang = m_pos.y < pos.y ? (ang < 0 ? fabs(ang / PI) * 180 : ang / PI * 180) : (ang > 0 ? -ang / PI * 180 : ang / PI * 180);
-			auto action1 = RotateTo::create(fabs(ang / 360), ang);//炮塔转向
+			auto action1 = RotateTo::create(fabs(ang / (360*jia_su)), ang);//炮塔转向
 
 
 
-			auto callback2 = CallFunc::create([this, my_scene, it, m_pos, ang]() {
+			auto callback2 = CallFunc::create([this, my_scene, it, m_pos, ang,jia_su]() {
 
 				tower_angle = ang;//角度更新
 				ShellProduct(my_scene, (*it));//子弹的生成
-				auto callback3 = CallFunc::create([it, this]() {//子弹追踪
+				auto callback3 = CallFunc::create([it, this,jia_su]() {//子弹追踪
 					auto m_pos = (*it)->getPosition();
 					auto s_pos = curr_shell->getPosition();
 
@@ -144,7 +144,7 @@ void Bottle::attack(BaseLevelScene* my_scene, std::vector<Monster*>& monsters)
 					move.normalize();
 					move = move * 10;
 					//检测子弹位置和怪兽位置，并向该位置移动10个像素点
-					auto action3 = MoveBy::create(10 / speed, move);
+					auto action3 = MoveBy::create(10 / (speed*jia_su), move);
 					curr_shell->runAction(action3);
 					});
 				auto callback4 = CallFunc::create([my_scene, it, this]() {
@@ -153,7 +153,7 @@ void Bottle::attack(BaseLevelScene* my_scene, std::vector<Monster*>& monsters)
 						ShellDemage(my_scene, it);
 					}
 					});
-				de_time = 10 / speed;//不断重复检测与移动，以实现追击效果
+				de_time = 10 / (speed*jia_su);//不断重复检测与移动，以实现追击效果
 				auto sequence3 = Sequence::create(callback3, DelayTime::create(de_time), callback4, nullptr);
 				auto repeat = RepeatForever::create(sequence3);
 				curr_shell->runAction(repeat);
@@ -224,7 +224,7 @@ void Bottle::ShellDemage(BaseLevelScene* my_scene, std::vector<Monster*>::iterat
 
 
 //Windmill------------------------------------------------------------------------------------------------------------
-void Windmill::attack(BaseLevelScene*, std::vector<Monster*>& monsters)
+void Windmill::attack(BaseLevelScene*, std::vector<Monster*>& monsters,int jia_su)
 {
 
 }
