@@ -6,18 +6,31 @@
 * 项目Github地址：
 [https://github.com/xing05188/CattotFantasy.git]()
 * 项目进度时间线：
+* 
 * 场景的逻辑关系：
- 
-主场景：
+*
+ ![屏幕截图 2024-12-21 190132](https://github.com/user-attachments/assets/124578a9-ad6c-4ead-81cc-884500dc3ffd)
+ *
+*主场景：
+*
  ![屏幕截图 2024-12-21 192116](https://github.com/user-attachments/assets/6e6dddc9-f078-491c-815c-e4457068534b)
-设置界面：
+ *
+*设置界面：
+*
 ![屏幕截图 2024-12-21 192410](https://github.com/user-attachments/assets/a9d08696-d8b2-4591-9d6a-7e6f3714c44e)
-主题界面：
+*
+*主题界面：
+*
  ![屏幕截图 2024-12-21 192451](https://github.com/user-attachments/assets/fd4b44b4-a588-43a5-b2a4-f3176a026b78)
-关卡选择界面：
+ *
+*关卡选择界面：
+*
  ![屏幕截图 2024-12-21 192528](https://github.com/user-attachments/assets/850ad3f5-f1f0-4de8-bcf7-f200f0b5227c)
-游戏界面：
+ *
+*游戏界面：
+*
  ![屏幕截图 2024-12-21 192557](https://github.com/user-attachments/assets/692894c3-856f-4acf-a801-ab87c193dd59)
+ *
 
 
 扩展功能：
@@ -47,8 +60,6 @@ std::unique_ptr<Carrot> ret = std::make_unique<Carrot>();
 
 
 
-
-* <img src="MDres\7.png" width = "300" height = "200" alt="" align=center />
 ## 项目开发文档
 * 选用引擎： Cocos2d-x v4.0
 * 辅助软件：Tiled-1.1.4、TexturePackerGUI
