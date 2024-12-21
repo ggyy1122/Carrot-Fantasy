@@ -10,16 +10,15 @@
  
 主场景：
  ![屏幕截图 2024-12-21 192116](https://github.com/user-attachments/assets/6e6dddc9-f078-491c-815c-e4457068534b)
-
 设置界面：
- ![Uploading 屏幕截图 2024-12-21 192410.png…]()
-
+![屏幕截图 2024-12-21 192410](https://github.com/user-attachments/assets/a9d08696-d8b2-4591-9d6a-7e6f3714c44e)
 主题界面：
- 
+ ![屏幕截图 2024-12-21 192451](https://github.com/user-attachments/assets/fd4b44b4-a588-43a5-b2a4-f3176a026b78)
 关卡选择界面：
- 
+ ![屏幕截图 2024-12-21 192528](https://github.com/user-attachments/assets/850ad3f5-f1f0-4de8-bcf7-f200f0b5227c)
 游戏界面：
- 
+ ![屏幕截图 2024-12-21 192557](https://github.com/user-attachments/assets/692894c3-856f-4acf-a801-ab87c193dd59)
+
 
 扩展功能：
 *	魔法技能：
