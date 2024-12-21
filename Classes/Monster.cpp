@@ -1,51 +1,69 @@
 #include"Monster.h"
-#include"MonsterConfigs.h"
+
 #include"music.h"
 #include"BaseLevelScene.h"
 extern Music a;
-int Monster::DeadCount=0;
-// 初始化怪物
+int DeadCount=0;
 
+
+//静态方法创建怪兽对象
+Monster* Monster::create(const std::string& monsterName, const std::vector<Vec2>& path, int startIndex, bool pause) {
+    Monster* monster = new (std::nothrow) Monster();//使用new运算符分配内存，创建一个Monster对象
+    if (monster && monster->initWithPath(monsterName, path, startIndex, pause))//判断是否创建成功和初始化成功
+    {
+        monster->autorelease();
+        //添加血条
+        monster->_HP = cocos2d::ui::LoadingBar::create("Monsters/HPbar.png");
+        monster->_HP->setPercent(100); // 初始血量为满血
+        monster->_HP->setPosition(Vec2(monster->getContentSize().width / 2, monster->getContentSize().height * 1.3f));
+        monster->addChild(monster->_HP, 10);
+        //添加血条背景
+        monster->hpback = Sprite::create("Monsters/HPBackground.png");
+        monster->hpback->setPosition(Vec2(monster->getContentSize().width / 2, monster->getContentSize().height * 1.3f));
+        monster->addChild(monster->hpback, 9);
+        monster->_HP->setVisible(false);
+        monster->hpback->setVisible(false);
+        return monster;
+    }
+    CC_SAFE_DELETE(monster);//如果创建或初始化失败，释放内存并返回nullptr
+    return nullptr;
+}
+
+// 初始化怪物
 bool Monster::initWithPath(const std::string& monsterName, const std::vector<Vec2>& path, int startIndex,bool pause) {
     // 加载精灵帧资源
     std::string plistPath = "Monsters/" + monsterName + ".plist";
     SpriteFrameCache::getInstance()->addSpriteFramesWithFile(plistPath);
-    
     // 检查精灵帧是否加载
     std::string frameName = monsterName + "_0.png";
     if (!SpriteFrameCache::getInstance()->getSpriteFrameByName(frameName)) {
         CCLOG("Failed to load SpriteFrame '%s'.", frameName.c_str());
         return false;
     }
-
     // 初始化精灵
     if (!Sprite::initWithSpriteFrameName(frameName)) {
         CCLOG("Failed to initialize sprite with frame '%s'.", frameName.c_str());
         return false;
     }
-
     // 加载怪物配置
     MonsterConfig config = MonsterManager::getMonsterConfigByName(monsterName);
     this->startPosIndex=startIndex;
-    this->maxHp=this->health = config.health;
-    this->speed = config.speed;
-    this->damage = config.damage;
+    this->maxHp=this->health=config.health;
+    this->speed=config.speed;
+    this->damage=config.damage;
     this->reward = config.reward;
     this->name= monsterName;
     this->pause=pause;
     CCLOG("Monster Config - Sprite Frame: %s, Health: %d, Speed: %.2f, Damage: %d, Reward: %d",
         config.spriteFrameName.c_str(), config.health, config.speed, config.damage, config.reward);
-
     // 加载怪物行走动画
     auto walkFrames = cocos2d::Vector<SpriteFrame*>();
     walkFrames.pushBack(SpriteFrameCache::getInstance()->getSpriteFrameByName(monsterName + "_0.png"));
     walkFrames.pushBack(SpriteFrameCache::getInstance()->getSpriteFrameByName(monsterName + "_1.png"));
-
     auto walkAnimation = Animation::createWithSpriteFrames(walkFrames, 0.5f);  // 两帧动画，速度可以调节
     auto walkAnimate = Animate::create(walkAnimation);
     auto repeatWalk = RepeatForever::create(walkAnimate);
     this->runAction(repeatWalk); // 持续播放行走动画
-
     // 设置初始位置
     if (!path.empty()) {
         moveAlongPath(path); // 立即启动路径移动逻辑
@@ -53,21 +71,18 @@ bool Monster::initWithPath(const std::string& monsterName, const std::vector<Vec
 
     return true;
 }
-
+//怪兽的移动逻辑
 void Monster::moveAlongPath(const std::vector<Vec2>& path) {
     if (path.empty()) {
         CCLOG("Path is empty, cannot move the monster.");
         return;
     }
-
     // 确保怪物在路径的起始点
     this->setPosition(path[startPosIndex]);
     // 记录终点元素
     endPos = path.back();
-
     // 创建一个数组存储所有的动作
     cocos2d::Vector<cocos2d::FiniteTimeAction*> actions;
-
     // 遍历路径点，添加移动动作
     float distance;
     float moveTime;
@@ -83,7 +98,6 @@ void Monster::moveAlongPath(const std::vector<Vec2>& path) {
             this->PathIndex = i; // 更新怪物的 pathIndex 成员变量
             CCLOG("Monster %p pathIndex updated to %d", this, i);
             });
-
         // 将每个移动动作添加到动作数组中
         actions.pushBack(moveTo);
         actions.pushBack(updatePathIndex); // 在移动到点后，更新 pathIndex
@@ -101,17 +115,12 @@ void Monster::moveAlongPath(const std::vector<Vec2>& path) {
         auto dispatcher = Director::getInstance()->getEventDispatcher();
         dispatcher->dispatchEvent(&event);
         });
-
-    actions.pushBack(onPathComplete);
-    // 创建动作序列
+    actions.pushBack(onPathComplete); // 创建动作序列
     auto sequence = cocos2d::Sequence::create(actions);
     if (pause) {
-        // 创建一个延迟3秒的动作
-        auto delay = DelayTime::create(3.0f);
-        // 将延迟动作和现有的动作序列结合起来
-        auto delayedSequence = Sequence::create(delay, sequence, nullptr);
-        speedaction = Speed::create(delayedSequence, beishu);
-        // 执行新的序列动作（先延迟3秒，再执行原来的sequence）
+        auto delay = DelayTime::create(3.0f); // 创建一个延迟3秒的动作
+        auto delayedSequence = Sequence::create(delay, sequence, nullptr);  // 将延迟动作和现有的动作序列结合起来
+        speedaction = Speed::create(delayedSequence, beishu); // 执行新的序列动作（先延迟3秒，再执行原来的sequence）
     }
     else
     {
@@ -126,19 +135,15 @@ void Monster::toDie(BaseLevelScene*my_scene)
      return;
     DeadCount++;
     CCLOG("Monster %p is dying.", this);
-
     my_scene->updateMoney(reward);
     // 1. 标记死亡并隐藏怪物
     this->isDead = true;
-    //this->setVisible(false); // 隐藏怪物
-
     // 2. 创建一个新的临时精灵用于播放死亡动画
     auto deathSprite = cocos2d::Sprite::create();
     if (!deathSprite) {
         CCLOG("Failed to create death sprite.");
         return;
     }
-
     // 3. 将死亡动画精灵添加到与 Monster 相同的父节点上
     this->getParent()->addChild(deathSprite);
     deathSprite->setPosition(this->getPosition());  // 设置死亡动画精灵位置与怪物相同
@@ -155,35 +160,46 @@ void Monster::toDie(BaseLevelScene*my_scene)
             CCLOG("Failed to load frame: %s", frameName.c_str());
         }
     }
-
     // 5. 如果没有加载到动画帧，直接返回
     if (frames.empty()) {
         CCLOG("No frames found for death animation, skipping.");
         return;
     }
-
     // 6. 创建动画，每帧持续 0.2 秒
     auto animation = cocos2d::Animation::createWithSpriteFrames(frames, 0.2f);
     auto animate = cocos2d::Animate::create(animation);
-
     // 7. 动画完成后删除临时的死亡动画精灵
     auto onDeathComplete = cocos2d::CallFunc::create([deathSprite]() {
         CCLOG("Death animation completed, removing death sprite.");
         deathSprite->removeFromParent();
         });
-
     // 8. 播放死亡动画，动画结束后清理临时精灵
     deathSprite->runAction(cocos2d::Sequence::create(animate, onDeathComplete, nullptr));
     a.normalSound();
     // 9. 删除怪物本身
-
     this->retain();
-    /* Vec2 position = this->getPosition();*/
     my_scene->removeChild(this);
-    /*this->setPosition(position);*/
-    // 9. 删除怪物本身
     if (my_scene->tar_m == this) {//如果是这个怪被锁定，那么它被打死后，锁定解除
         my_scene->isTarget = 0;
         my_scene->tar_m = nullptr;
     }
+}
+//设置血条可见
+void Monster::setHpVisible(bool isVisible) 
+{ 
+    _HP->setVisible(isVisible); 
+     hpback->setVisible(isVisible); 
+     ishpvs = true; 
+}
+//更新血条
+void  Monster::updateHealthBar() {
+    float percentage = (static_cast<float>(health) / maxHp) * 100;
+    if (percentage < 0) percentage = 0;
+    if (percentage > 100) percentage = 100;
+    _HP->setPercent(percentage); // 更新血条百分比
+}
+//怪兽受伤
+void  Monster::getHurt(int value)
+{
+    health-=value;
 }

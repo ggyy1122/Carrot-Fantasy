@@ -17,6 +17,7 @@ public:
 	// a selector callback
 	void to_advantureScene(Ref* pSender);
 	void know_Callback(Ref* pSender);
+	void loadGameState();
 	CREATE_FUNC(themescene);
 };
 

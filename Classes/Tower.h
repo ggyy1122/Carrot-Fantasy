@@ -7,7 +7,7 @@
 #include<map>
 USING_NS_CC;
 
-#define TOWER_NUM 3
+#define TOWER_NUM 4
 
 class BaseLevelScene;
 class Tower;
@@ -18,7 +18,7 @@ protected:
 	int index, grade;//炮塔序号和等级
 	int range, demage;//当前防御塔可攻击的范围和伤害
 public:
-	Tower(int index_) :index(index_), grade(0) { range = range_table[index][grade]; demage = demage_table[index][grade]; }
+	Tower(int index_,int _grade=0) :index(index_), grade(_grade) { range = range_table[index][grade]; demage = demage_table[index][grade]; }
 	static std::string tower_table[TOWER_NUM][3];//记录所有炮塔的图片路径
 	static std::string base_table[TOWER_NUM];//所有炮塔底座的图片路径
 	static Vec2 anchorpoint_table[TOWER_NUM][2];//所有炮塔和底座锚点的设定
@@ -44,12 +44,13 @@ public:
 	void UpMenuAppear(BaseLevelScene* my_scene, Vec2& position);//升级菜单出现
 	void UpMenuGone(BaseLevelScene*);//升级菜单消失
 	int GetIndex()const { return index; }
+	int GetGrade()const {return grade;}
 
-	virtual void attack(BaseLevelScene*, std::vector<Monster*>&, char isTarget, Monster* tar_m, Obstacle* tar_o,int jiasu) = 0;
+	virtual void attack(BaseLevelScene*, std::vector<Monster*>&, char isTarget, Monster* tar_m, Obstacle* tar_o,float jiasu) = 0;
 };
 
 
-Tower* createTower(int index);
+Tower* createTower(int index,int grade=0);
 
 
 
@@ -63,9 +64,9 @@ protected:
 public:
 
 	//构造函数
-	Bottle(int index_) :Tower(index_), tower_angle(0) { }
+	Bottle(int index_,int grade	) :Tower(index_,grade), tower_angle(0) { }
 
-	virtual void attack(BaseLevelScene*, std::vector<Monster*>&, char isTarget, Monster* tar_m, Obstacle* tar_o, int jiasu);//攻击
+	virtual void attack(BaseLevelScene*, std::vector<Monster*>&, char isTarget, Monster* tar_m, Obstacle* tar_o, float jiasu);//攻击
 
 	void ShellProduct(Scene* my_scene);//产生炮弹
 
@@ -73,7 +74,7 @@ public:
 	void ShellDemage(BaseLevelScene* my_scene, T* sp);
 
 	template<class T>
-	bool  AttackSprite(T* sp, BaseLevelScene* my_scene, int jiasu);//攻击某个精灵
+	bool  AttackSprite(T* sp, BaseLevelScene* my_scene, float jiasu);//攻击某个精灵
 	static std::string bottle_shell[3];
 };
 
@@ -82,9 +83,9 @@ class Sun :public Tower {
 private:
 	Sprite* curr_halo;
 public:
-	Sun(int index_) :Tower(index_) {}
-	virtual void attack(BaseLevelScene*, std::vector<Monster*>&, char isTarget, Monster* tar_m, Obstacle* tar_o, int jiasu);//攻击怪物
-	void SunAttack(BaseLevelScene* my_scene, std::vector<Monster*>& monsters, int jiasu);
+	Sun(int index_, int grade) :Tower(index_, grade) {}
+	virtual void attack(BaseLevelScene*, std::vector<Monster*>&, char isTarget, Monster* tar_m, Obstacle* tar_o, float jiasu);//攻击怪物
+	void SunAttack(BaseLevelScene* my_scene, std::vector<Monster*>& monsters, float jiasu);
 
 };
 
@@ -96,12 +97,31 @@ private:
 	float tower_angle;//炮塔朝向的角度，以向右为0度，逆时针增加
 	float de_ang;
 public:
-	MyPlane(int index_) :Tower(index_), tower_angle(90) {}
-	virtual void attack(BaseLevelScene*, std::vector<Monster*>&, char isTarget, Monster* tar_m, Obstacle* tar_o, int jiasu);//攻击怪物
+	MyPlane(int index_, int grade) :Tower(index_, grade), tower_angle(90) {}
+	virtual void attack(BaseLevelScene*, std::vector<Monster*>&, char isTarget, Monster* tar_m, Obstacle* tar_o, float jiasu);//攻击怪物
 
 	template<class T>
-	bool  AttackSprite(T* sp, BaseLevelScene* my_scene, std::vector<Monster*>& monsters, int jiasu);//攻击某个精灵
+	bool  AttackSprite(T* sp, BaseLevelScene* my_scene, std::vector<Monster*>& monsters, float jiasu);//攻击某个精灵
 
 	void PlaneDemage(BaseLevelScene* my_scene, std::vector<Monster*>& monsters);
 	static std::string ray[3];
+};
+
+
+class Shit :public Tower {
+	Sprite* curr_shell;
+	Sprite* sprite_mark;
+	float de_time;
+	static const float speed;
+public:
+	Shit(int index_, int grade) :Tower(index_, grade) {}
+	virtual void attack(BaseLevelScene*, std::vector<Monster*>&, char isTarget, Monster* tar_m, Obstacle* tar_o, float jiasu);//攻击怪物
+	static std::string shit_shell[3];
+
+	void ShellProduct(Scene* my_scene);//产生炮弹
+	template<class T>
+	void ShellDemage(BaseLevelScene* my_scene, T* sp);
+
+	template<class T>
+	bool  AttackSprite(T* sp, BaseLevelScene* my_scene, float jiasu);//攻击某个精灵
 };

@@ -5,10 +5,15 @@
 #include"BaseLevelScene.h"
 #include "json/document.h"
 #include "json/rapidjson.h"
+#include "json/writer.h"
+#include "json/stringbuffer.h"
+#include<fstream>
+using namespace rapidjson;
 extern Music a;
 extern bool level_is_win[3];//1通关了解锁第2关
 extern bool isNewGame[3];
 extern float beishu;
+
 USING_NS_CC;
 using namespace ui;
 // 假设这里有一个全局变量或者成员变量来存储页面相关内容，比如是否可操作等状态标识
@@ -40,11 +45,51 @@ void themescene::clearRelatedButtons() {
         this->removeChildByName("lockedButton");
 }
 
+void themescene::loadGameState() {
+	// 获取可写路径
+	std::string writablePath = FileUtils::getInstance()->getWritablePath();  // 获取可写路径
 
+	// 构造文件路径（文件名为 level_state）
+	std::string filePath = writablePath + "level_state.json";  // 生成完整文件路径
+
+	// 打开文件读取
+	std::ifstream ifs(filePath);  // 使用可读路径
+	if (ifs.is_open()) {
+		// 读取文件内容到字符串
+		std::string jsonContent((std::istreambuf_iterator<char>(ifs)), std::istreambuf_iterator<char>());
+		ifs.close();  // 关闭文件
+
+		// 解析 JSON 字符串
+		Document document;
+		document.Parse(jsonContent.c_str());
+
+		if (document.HasMember("levels") && document["levels"].IsArray()) {
+			// 获取 levels 数组
+			const rapidjson::Value& levels = document["levels"];
+
+
+			// 遍历 levels 数组，填充 level_is_win 数组
+			for (SizeType i = 0; i < levels.Size(); i++) {
+				level_is_win[i] = levels[i].GetBool();  // 获取布尔值并添加到 level_is_win 中
+			}
+
+			// 打印关卡状态
+			for (size_t i = 0; i < sizeof(level_is_win) / sizeof(level_is_win[0]); i++) {
+				CCLOG("Level %d: %s", (int)i + 1, level_is_win[i] ? "Win" : "Lose");
+			}
+		}
+		else {
+			CCLOG("Error: Invalid JSON format or missing 'levels' field.");
+		}
+	}
+	else {
+		CCLOG("Failed to open file: %s", filePath.c_str());
+	}
+}
 bool themescene::init() {
     if (!Layer::init())
         return false;
-
+	loadGameState();
     auto visibleSize = Director::getInstance()->getVisibleSize();//分辨率大小
     Vec2 origin = Director::getInstance()->getVisibleOrigin();
     Size screenSize = Director::getInstance()->getWinSize();    //获取屏幕大小
@@ -144,6 +189,7 @@ bool themescene::init() {
 				confirmButton->addTouchEventListener([=](Ref* pSender, Widget::TouchEventType type) {
 					if (type == Widget::TouchEventType::ENDED) {
 						a.button_music();
+						
 						isNewGame[currentIndex] = false;
 						auto scene = BaseLevelScene::createScene(currentIndex + 1);
 						Director::getInstance()->replaceScene(scene);

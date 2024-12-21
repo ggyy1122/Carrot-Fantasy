@@ -65,11 +65,22 @@ public:
 		if (music_play)
 			AudioEngine::play2d("Music/down.mp3", false, 1.0f);
 	}
-
-
-
-
-
+	void bongSound() {
+		if (music_play)
+			AudioEngine::play2d("Music/bong.mp3", false, 1.0f);
+	}
+	void tuSound() {
+		if (music_play)
+			AudioEngine::play2d("Music/tu.mp3", false, 1.0f);
+	}
+	void guaiSound() {
+		if (music_play)
+			AudioEngine::play2d("Music/guaishou.mp3", false, 1.0f);
+	}
+	void duanSound() {
+		if (music_play)
+			AudioEngine::play2d("Music/duan.mp3", false, 1.0f);
+	}
 	//植物，可添加
 	void  sunSound() {
 		if (music_play)
@@ -80,10 +91,40 @@ public:
 		if (music_play)
 			AudioEngine::play2d("Music/bottle.mp3", false, 1.0f);
 	}
-	//播放风扇攻击音效
-	void  fanSound() {
+	//播放飞机攻击音效
+	void  planeSound() {
 		if (music_play)
-			AudioEngine::play2d("Music/fan.mp3", false, 1.0f);
+			AudioEngine::play2d("Music/Plane.mp3", false, 1.0f);
+	}
+
+	void  ShootSelect() {
+		if (music_play)
+			AudioEngine::play2d("Music/ShootSelect.mp3", false, 1.0f);
+	}
+
+	void  TowerBuild() {
+		if (music_play)
+			AudioEngine::play2d("Music/TowerBuild.mp3", false, 1.0f);
+	}
+
+	void  TowerSell() {
+		if (music_play)
+			AudioEngine::play2d("Music/TowerSell.mp3", false, 1.0f);
+	}
+
+	void  TowerUpdata() {
+		if (music_play)
+			AudioEngine::play2d("Music/TowerUpdata.mp3", false, 1.0f);
+	}
+
+	void Object() {//障碍物被摧毁时
+		if (music_play)
+			AudioEngine::play2d("Music/Object.mp3", false, 1.0f);
+	}
+
+	void ShitSound() {
+		if (music_play)
+			AudioEngine::play2d("Music/Shit.mp3", false, 1.0f);
 	}
 };
 #endif __music_H__

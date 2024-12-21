@@ -4,7 +4,7 @@
 #include"music.h"
 #include "ui/CocosGUI.h"
 bool level_is_win[3] = { false };
-bool isNewGame[3] = { false };
+bool isNewGame[3] = { true,true,true };
 float beishu=1.0f;
 extern Music a;
 USING_NS_CC;

@@ -1,5 +1,6 @@
 #include "Carrot.h"
 #include"Music.h"
+#define schedule_selector(_SELECTOR) static_cast<SEL_SCHEDULE>(&_SELECTOR)
 USING_NS_CC;
 extern Music a;
 Carrot* Carrot::create(int initialHP, const cocos2d::Vec2& carrotPos, const cocos2d::Vec2& hpPos) {
@@ -45,7 +46,7 @@ bool Carrot::init(int initialHP, const cocos2d::Vec2& carrotPos, const cocos2d::
 void Carrot::changeHP(int change) {
     hp += change;
     if (hp <= 0) {
-        gameOver(); // 游戏结束
+        hp == 0;
     }
     else if (hp > 0 && hp <= 10) {
         updateHPDisplay(); // 更新萝卜图片和血条图片
@@ -57,11 +58,15 @@ void Carrot::updateHPDisplay() {
     hpSprite->setSpriteFrame(StringUtils::format("Health_%d.png", hp));
 }
 
-void Carrot::getDamage() {
+
+
+
+
+void Carrot::getDamage(int damage) {
     if(hp<=0)
         return;
     a.carrotSound();
-    changeHP(-1);
+    changeHP(0-damage);
     CCLOG("getDamage...");
 }
 void Carrot::getRecover()

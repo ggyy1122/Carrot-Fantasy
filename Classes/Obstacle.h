@@ -21,19 +21,19 @@ private:
 	
 	int index;
 	int size;//尺寸,1代表1*1，2代表1*2，4代表2*2
-	
+	int health;//血量
 	int maxHp;
 	int x, y;//指的是左下角在地图数组中的位置
 	bool isDead = false;
-	
-public:
 	LoadingBar* _HP;       // 进度条效果表示血条
+public:
+	
 	Sprite* hpback;
 	bool ishpvs=false;//HP是否可见
 	Sprite* curr;
 	int reward;//打爆后所得的钱
-	int health;//血量
 	static ObData Ob[10];
+	int GetIndex(){return index;}
 	Obstacle(int index) :index(index),size(Ob[index].size),maxHp(Ob[index].hp), reward(Ob[index].money), health(Ob[index].hp) {}
 	void Produce(Scene* my_scene, int x_, int y_);//产生障碍物
 
@@ -42,6 +42,17 @@ public:
 	void toDie(BaseLevelScene* my_scene);
 
 	void updateHealthBar(); 
+
+	void addChild(Sprite* c) {
+		curr->addChild(c);
+	}
+	void setHpVisible(bool isVisible){ _HP->setVisible(isVisible); hpback->setVisible(isVisible); ishpvs = true;
+	}	//设置血条可见
+	bool getHpVisibleState()const { return ishpvs; }
+	int  GetSize()const{return size;}
+	void getHurt(int value){health-=value;}
+	int getHealth()const { return health; }                       //获取血量
+	 void setHealth(int health) { this->health = health; };
 };
 
 

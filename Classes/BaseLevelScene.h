@@ -44,9 +44,11 @@ private:
 
     Label* _numberLabel;                  // 显示怪物波数
     Label* _curNumberLabel;               // 显示当前怪物波数
-    int tower_jiasu=1;
-
+    float tower_jiasu=1;       //用于塔加速
+    float time_total=0;      //用于萝卜抖动
 public:
+    Sprite* lock;//锁定标志，因为同一时间只能有一个对象被锁定，所以将其放在BaseLevelScene中
+
     std::map<int, Obstacle*> Obstacles;//障碍物数组
     Cell map_data[X][Y];//地图管理
     char isTarget = 0;//0代表没有被标记的，1代表怪物被标记，2代表障碍物被标记
@@ -81,7 +83,7 @@ public:
     void pause_all(Ref* pSender);
     void menu_all(Ref* pSender);
     void updateCurrentWaveLabe();
-
+    void wenhao(Ref* pSender);
     void CountDown(std::function<void()> onComplete);             //倒计时
     void gameover(bool is_win,int currentWaveNum,int allWaveNum);   //结束游戏
     void Jineng1(Ref* pSender);   //萝卜血量加1
@@ -99,7 +101,9 @@ public:
     void UpMenuGone(Vec2& position);//升级菜单消失
 
     void ProduceObstacles();//产生障碍物
-
     Monster* IsTargetMonster(const Vec2& pos);//检测是否有怪物被锁定
+    void saveGameState();
+    void saveTowerData();
+    void loadTowerData(const std::string& filename);
 };
 #endif 

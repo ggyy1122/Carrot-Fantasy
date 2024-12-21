@@ -33,7 +33,7 @@
 using namespace cocos2d::experimental;
 #endif
 #define DEBUG_MODE 1
-#ifdef _WIN32
+#ifdef _WIN32 
 #include <windows.h>
 #include <iostream>
 void createConsole() {
@@ -125,7 +125,7 @@ bool AppDelegate::applicationDidFinishLaunching() {
     //先预加载
     a.preloadSoundEffect("Music/bgm.mp3");
     //调试模式
-#ifdef _WIN32
+#ifdef DEBUG_MODE
     createConsole();
 #endif 
 
