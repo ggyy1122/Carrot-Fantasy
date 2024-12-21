@@ -1,85 +1,167 @@
-# carrotfantasy
+# TowerDefense
+
 ### 同济大学 2024程序设计范式大作业
+
 ## 项目信息
+
 * 项目选题 ： 保卫萝⼘
 * 项目成员 ：官奕、于广淳、周慧星
 * 项目Github地址：
-[https://github.com/xing05188/CattotFantasy.git]()
-本项目文档将介绍这个游戏项目的主要逻辑和核心代码。
+[[CattotFantasy 项目](https://github.com/xing05188/CattotFantasy)]()
+* 项目进度时间线：
 
 ## 项目开发文档
-* 选用引擎： Cocos2d-x v4.0
-* 辅助软件：Tiled-1.1.4、TexturePackerGUI
-* 小组分工：
-    - 官奕
-        
-    - 于广淳
-       
-    - 周慧星
-     
- 扩展功能：
-*	魔法技能：
-*	
-1.	超级炸弹：消灭屏幕上的所有怪兽
-2.	急救包：萝卜血量恢复加1
-3.	急速攻击：塔的攻击速度加倍
-4.	全屏冰冻：怪兽停止运动
-5.	全屏减速：怪兽速度减半
-*	魔法技能介绍日志
-*	萝卜可以升级，不同血量有不同萝卜效果
-*	萝卜满血抖动效果
-*	支持4种塔（火瓶、太阳花、飞机、大便），攻击方式不同
-*	支持10余种怪兽
-*	怪兽、障碍受到攻击的效果（爆炸、灼伤、大便）
-*	大便攻击怪兽时的单体减速效果
-*	游戏支持暂停和开启二倍速，且不会有bug
-*	各种点击、攻击、建造音效
-*	界面精美，已基本还原游戏
-炮塔设计：
 
-怪兽设计：
+#### 1.项目概述
 
-场景设计：
+##### 1.1 选用引擎
 
-UI设计：
+ Cocos2d-x v4.0
 
-地图管理：
+##### 1.2 辅助软件
 
-音乐系统：
+* Tiled-1.1.4
 
-存档功能：
+* TexturePackerGUI
 
-萝卜：
+##### 1.3 小组分工
 
-##*评分项完成度
+- 官奕
+- 周慧星
+- 于广淳
 
-*基础功能：
- - [x]⽀持⾄少3种防御塔和防御塔的删除
- - [x]需要每种防御塔的攻击特效，⾄少要完成发射物弹道
- - [x]怪物、萝⼘⽣命值显示
- - [x]⽀持资源功能，资源可⽤于购买防御塔，资源可通过击杀怪物获得
- - [x]⽀持每种防御塔的升级，⾄少可升级2次
- - [x]⽀持萝⼘的升级，⾄少可升级2次
- - [x]⽀持⾄少3种怪物
- - [x]⽀持⾄少2张地图
- - [x]⽀持背景⾳乐
- - [x]需要关卡选择界⾯和保存通关进度记录功能（即已完成哪些关卡，可进⾏哪些关卡，哪些关卡还需解锁）
- - [x]⽀持攻击、建造、击杀时的⾳效
- - [x]⽀持选定攻击⽬标
- - [x]⽀持场景破坏功能，即需要先将场景中的元素破坏后再⽣成防御塔底座进⽽建造防御塔的设定（提示：本功能最好以选定攻击⽬标功能为前提）
- - [x]⽀持特殊技能，如AOE/单体伤害技能或增益技能
- - [x]暂停游戏功能
- - [x]⽀持中途退出时记录当前状态，下次进⼊同⼀关卡继续上⼀次游戏进程的功能
+##### 1.4 评分项完成度
+
+###### 基础功能
+
+  - [x] ⽀持⾄少3种防御塔和防御塔的删除
+  - [x] 需要每种防御塔的攻击特效，⾄少要完成发射物弹道
+  - [x] 怪物、萝⼘⽣命值显示
+  - [x] ⽀持资源功能，资源可⽤于购买防御塔，资源可通过击杀怪物获得
+  - [x] ⽀持每种防御塔的升级，⾄少可升级2次
+  - [x] ⽀持萝⼘的升级，⾄少可升级2次
+  - [x] ⽀持⾄少3种怪物
+  - [x] ⽀持⾄少2张地图
+  - [x] ⽀持背景⾳乐
+  - [x] 需要关卡选择界⾯和保存通关进度记录功能（即已完成哪些关卡，可进⾏哪些关卡，哪些关卡还需解锁）
+
+- [x] ⽀持攻击、建造、击杀时的⾳效
+- [x] 支持选定攻击目标
+- [x] 支持场景破坏功能，即需要先将场景中的元素破坏后再生成防御塔底座而进行建造防御塔的设定
+- [x] 支持炮塔特殊技能，如AOEA/单体伤害技能或增益技能
+- [x] 暂停游戏功能
+- [x] ⽀持中途退出时记录当前状态，下次进⼊同⼀关卡继续上⼀次游戏进程的功能
+
+###### 拓展功能
+
+- [x] 灵活完善的怪兽波数配置
+
+###### C++新特性
+
+- [x] 类型推断
+- [x] 基于范围的for循环
+- [x] 智能指针
+- [x] Lambda表达式
+
+###### 其他亮点 
+
+- [x] 游戏还原度高
    
-*可选功能（欢迎⾃创）：
- - [x]⽀持多⼈联机
- - [x]可以⾃⾏设计有着特殊技能或强⼤⽣命值的boss
+   * 全部使用原版游戏素材
    
-## 1. 项目架构
+   - 还原原版界面设计
+   
+- [x] 使用json数据文件
+     - 记录关卡数据：怪物数据、炮塔数据、路径、可建造区域等，增强了数据的可读性和可修改性。
+     - 记录存档，保存当前关卡数据
 
-### 1.1 核心类图
+###### 加分项
+
+1. 在Github上部署完整项目，并且有详细的使用文档
+2. 团队分工合理，项目开源至GitHub
+3. 界面精美，接近还原游戏原作
+4. 添加了音效和背景音乐，且均支持手动打开关闭
+5. 项目目录结构清晰
+6. 运行时无崩溃情况发生
+7. 没有内存泄露问题
+8. 实现暂停游戏功能
+9. 实现了二倍速功能
+10. 实现游戏存档功能
+11. 使用problemloading来处理异常
+
+###### 代码亮点
+
+- 使用日志系统记录游戏状态
+
+    ```c++
+    void createConsole() {
+        AllocConsole(); // 创建控制台窗口
+        FILE* stream;
+        freopen_s(&stream, "CONOUT$", "w", stdout); // 将标准输出重定向到控制台
+        freopen_s(&stream, "CONOUT$", "w", stderr); // 将标准错误重定向到控制台
+        std::cout.clear();
+        std::clog.clear();
+        std::cerr.clear();
+    }
+    ```
+
+    ```c++
+    if (!SpriteFrameCache::getInstance()->getSpriteFrameByName("pig_0.png")) {
+        CCLOG("Failed to load SpriteFrame 'pig_0.png'.");
+    }
+    if (!SpriteFrameCache::getInstance()->getSpriteFrameByName("pig_1.png")) {
+        CCLOG("Failed to load SpriteFrame 'pig_1.png'.");
+    }
+    ```
+
+- json文件读写
+    ```c++
+    //写入
+    // 创建 JSON 文档对象
+     Document document;
+     document.SetObject();  // 设置为 JSON 对象
+     // 创建一个 JSON 数组，用来存储关卡状态
+     rapidjson::Value GameState(kArrayType);
+     // 将关卡状态逐个添加到 GameState 数组中
+     for (auto level : level_is_win) {
+         GameState.PushBack(rapidjson::Value(level), document.GetAllocator());
+     }
+     // 将 GameState 数组添加到 JSON 文档对象中
+     document.AddMember("levels", GameState, document.GetAllocator());
+    ```
+    ```c++
+    //读取
+      // 打开 JSON 文件
+      std::string writablePath = FileUtils::getInstance()->getWritablePath();  // 获取可写路径
+      std::string path = writablePath + filename ;//完整文件路径
+      std::string fileContent = FileUtils::getInstance()->getStringFromFile(path);
+      // 使用 rapidjson 解析文件内容
+      rapidjson::Document doc;
+      doc.Parse(fileContent.c_str());
+      if (doc.HasParseError()) {
+          CCLOG("Error parsing JSON file: %s", filename.c_str());
+          return;
+      }
+      // 检查是否存在配置
+      if (doc.HasMember("towers") && doc["towers"].IsArray()) 
+    ```
+
+- 多次使用宏调试
+    ```c++
+    #define DEBUG_MODE 1
+    //如果是调试模式就开启日志系统
+    #ifdef DEBUG_MODE
+        createConsole();
+    #endif 	
+    ```
+
+#### 2.项目架构
+
+##### 2.1 核心类图
+
 ```
-GameManager (单例)
+ GameManager
+    |
 ├── BaseLevelScene
 │   ├── Tower
 │   │   ├── Bottle
@@ -93,7 +175,8 @@ GameManager (单例)
 └── SetScene
 ```
 
-### 1.2 文件结构
+##### 2.2 文件结构
+
 ```
 Classes/
 ├── AppDelegate.cpp/h          // 应用程序入口
@@ -110,446 +193,190 @@ Classes/
     └── advantureScene.cpp/h
 ```
 
-## 2. 核心系统详解
+<img src="https://github.com/user-attachments/assets/124578a9-ad6c-4ead-81cc-884500dc3ffd" alt="屏幕截图 2024-12-21 190132" style="zoom: 50%;" />
 
-### 2.1 游戏管理器 (GameManager)
+#### 3.核心实现
 
-GameManager 采用单例模式，作为整个游戏的核心控制器：
+##### 3.1场景设计
 
-```cpp
-class GameManager {
-private:
-    static GameManager* instance;
-    BaseLevelScene* currentScene;
-    Carrot* carrot;                    // 萝卜实例
-    int AllMonsterNum = 0;             // 总怪物数
-    std::vector<WaveConfig> waveConfigs; // 波次配置
-    int waveIndex = 0;                 // 当前波次
-    int AllWaveNum = 0;                // 总波次数
-    std::map<int, std::vector<Vec2>> pathsCache; // 路径缓存
-    
-public:
-    static GameManager* getInstance(BaseLevelScene* scene = nullptr);
-    void initLevel(int level, bool ReadMode);
-    void update(float deltaTime);
-    bool CheckLose();
-    bool CheckWin();
-    void produceMonsterWave(const WaveConfig& waveConfig);
-};
-```
+##### 3.2UI设计
 
-### 2.2 防御塔系统
+##### 3.3地图管理
 
-#### 2.2.1 基础塔类
-```cpp
-class Tower {
-protected:
-    int index, grade;    // 塔的编号和等级
-    int range, demage;   // 攻击范围和伤害
-    float interval;      // 攻击间隔
-    
-public:
-    static std::string tower_table[TOWER_NUM][3];  // 塔的图片资源
-    static int build_cost[TOWER_NUM];              // 建造费用
-    static int up_cost[TOWER_NUM][2];             // 升级费用
-    static int range_table[TOWER_NUM][3];         // 攻击范围表
-    static int demage_table[TOWER_NUM][3];        // 伤害表
-    
-    virtual void attack(BaseLevelScene*, std::vector<Monster*>&, char isTarget, 
-                       Monster* tar_m, Obstacle* tar_o, int jiasu) = 0;
-    void build(BaseLevelScene*, Vec2);
-    void destroy(BaseLevelScene*);
-    void update(BaseLevelScene*, Vec2);
-};
-```
+本项目中地图部分采用Tiled软件对png的地图文件进行编辑后对地图进行分区和分层后生成的tmx文件地图，针对这种地图，cocos2d引擎自带有解析的方法，将其作为节点添加在场景上。采用这种地图的好处是:通过软件编辑对地图的分区直接实现了xy坐标到网格坐标的转换，减少了坐标转换的工作量，以及通过在地图上添加层，很好地区分了哪些网格是可种植区域哪些是不可种植区域，减少了编写相应数据文件的工作量。
 
-#### 2.2.2 特殊塔实现
-```cpp
-// 太阳塔 - 范围攻击
-class Sun : public Tower {
-public:
-    virtual void attack(BaseLevelScene*, std::vector<Monster*>&, 
-                       char isTarget, Monster* tar_m, Obstacle* tar_o, int jiasu);
-    void SunAttack(BaseLevelScene* my_scene, std::vector<Monster*>& monsters, int jiasu);
-};
+如下图所示，我们对地图实现了网格状的分区，这样规整的网格状很方便我们后续用数组来存储炮塔的数据，绿色的区域实际上是我们加在地图上的一个可种植层，这个可种植层可以选择是否显示。在程序运行中每当发生一个鼠标点击事件时，判断点击区域是否可以种植的方法是首先将屏幕坐标转换成网格坐标，然后再检查该网格坐标是否在可种植层上。
 
-// 飞机塔 - 直线攻击
-class MyPlane : public Tower {
-private:
-    float tower_angle;  // 塔的角度
-    
-public:
-    template<class T>
-    bool AttackSprite(T* sp, BaseLevelScene* my_scene, 
-                     std::vector<Monster*>& monsters, int jiasu);
-};
-```
+<img src="../AppData/Roaming/Typora/typora-user-images/image-20241222005714261.png" alt="image-20241222005714261" style="zoom:67%;" />
 
-### 2.3 怪物系统
+在地图数据文件的基础上，还需要数据文件专门存储路径，由于地图的网格化，路径数据很好存储,只需依次存下每关的网格坐标即可。
 
-#### 2.3.1 怪物配置
-```cpp
-struct MonsterConfig {
-    std::string spriteFrameName;  // 精灵帧名称
-    int health;                   // 生命值
-    float speed;                  // 移动速度
-    int damage;                   // 攻击力
-    int reward;                   // 击杀奖励
-};
-```
+![image-20241222010916368](../AppData/Roaming/Typora/typora-user-images/image-20241222010916368.png)
 
-#### 2.3.2 怪物类实现
-```cpp
-class Monster : public cocos2d::Sprite {
-private:
-    Vec2 endPos;          // 终点位置
-    int startPosIndex;    // 起始位置
-    std::string name;     // 怪物名称
-    int PathIndex;        // 路径索引
-    int maxHp;           // 最大生命值
-    
-public:
-    LoadingBar* _HP;      // 血条显示
-    float speed;          // 移动速度
-    bool pause;           // 暂停状态
-    int damage;           // 攻击力
-    int reward;           // 奖励金币
-    int health;          // 当前生命值
-    
-    void moveAlongPath(const std::vector<Vec2>& path);
-    void toDie(BaseLevelScene* my_scene);
-    void updateHealthBar();
-};
-```
+##### 3.4怪兽设计
 
-### 2.4 关卡系统
+###### 怪兽类的设计思路
 
-#### 2.4.1 基础关卡场景
-```cpp
-class BaseLevelScene : public cocos2d::Scene {
-private:
-    TMXTiledMap* tileMap;     // 地图
-    TMXLayer* plantableLayer;  // 可放置层
-    int levelId;              // 关卡ID
-    Label* moneyLable;        // 金钱显示
-    bool isDoubleSpeed;       // 双倍速度
-    bool isPaused;           // 暂停状态
-    
-public:
-    void initUI();
-    void loadMap();
-    void addMouseListener();
-    void handleMouseDown(EventMouse* event);
-    void plantAt(const Vec2& tileCoord);
-    void updateMoney(int add);
-    void gameover(bool is_win, int currentWaveNum, int allWaveNum);
-};
-```
+虽然保卫萝卜中的怪兽有很多种类，但是除了它们的一些基本属性(如速度、生命值外)并没有太大差异，因此，并没有考虑使用多态来实现各种怪兽，而是采用类的静态函数作为工厂方法，以怪兽的名字，怪兽的诞生点，怪兽的移动路径，怪兽诞生时的状态作为参数来创建和返回类的对象。
 
-### 2.5 存档系统
+在C++中，static关键字的作用是使得某个成员函数或变量与类的实例无关而与类本身有关，在怪兽类中，提供create这么一个静态方法意味着可以在没有创建类实例的情况下直接调用，不需要先创建一个monster对象，这样为创建不同类型的怪兽提供了一个统一的接口，同时也避免了因为要加载初始化数据而导致构造函数复杂难懂的问题。
 
-#### 2.5.1 存档数据结构
-```cpp
-// JSON 格式示例
-{
-    "level": 1,
-    "money": 1000,
-    "wave": {
-        "current": 2,
-        "total": 5
-    },
-    "monsters": [
-        {
-            "type": "normal",
-            "health": 100,
-            "position": {
-                "x": 100,
-                "y": 200
-            }
-        }
-    ],
-    "towers": [
-        {
-            "type": "sun",
-            "level": 2,
-            "position": {
-                "x": 300,
-                "y": 400
-            }
-        }
-    ]
-}
-```
+实际调用如下图:
 
-#### 2.5.2 存档管理
-```cpp
-void GameManager::saveMonstersDataToJson(const std::string& fileName) {
-    rapidjson::Document document;
-    document.SetObject();
-    rapidjson::Document::AllocatorType& allocator = document.GetAllocator();
-    
-    // 保存基本信息
-    document.AddMember("level", levelId, allocator);
-    document.AddMember("money", currentScene->money, allocator);
-    
-    // 保存波次信息
-    rapidjson::Value waveInfo(rapidjson::kObjectType);
-    waveInfo.AddMember("current", waveIndex, allocator);
-    waveInfo.AddMember("total", AllWaveNum, allocator);
-    document.AddMember("wave", waveInfo, allocator);
-    
-    // 保存怪物信息
-    rapidjson::Value monstersArray(rapidjson::kArrayType);
-    for (auto monster : monsters) {
-        if (monster->health > 0) {
-            rapidjson::Value monsterObj(rapidjson::kObjectType);
-            monsterObj.AddMember("type", 
-                rapidjson::Value(monster->getMonsterName().c_str(), allocator),
-                allocator);
-            monsterObj.AddMember("health", monster->health, allocator);
-            monstersArray.PushBack(monsterObj, allocator);
-        }
-    }
-    document.AddMember("monsters", monstersArray, allocator);
-}
-```
+> ```c++
+>  // 创建怪物并添加到场景
+>  auto Monster = Monster::create(monsterName, screenPath, startIndex, pause);
+>  if (!Monster) {
+>      CCLOG("Failed to create monster.");
+>      return;
+>  }
+> ```
 
-### 2.6 音效系统
+###### 怪兽的移动逻辑
 
-```cpp
-class Music {
-private:
-    int music_play;      // 音效开关
-    int soundEffectID;   // 音效ID
-    
-public:
-    void preloadSoundEffect(const std::string& music_file) {
-        AudioEngine::preload(music_file);
-    }
-    
-    void background_music() {
-        if (music_play)
-            soundEffectID = AudioEngine::play2d("Music/bgm.mp3", true, 0.5f);
-        else
-            AudioEngine::pause(soundEffectID);
-    }
-    
-    // 各种音效
-    void button_music();
-    void build_music();
-    void sell_music();
-    void upgrade_music();
-    void carrotSound();
-    void bottleSound();
-    void planeSound();
-    void ShitSound();
-};
-```
+> ```c++
+>   bool initWithPath(const std::string& monsterName,  const std::vector<Vec2>& path, int startIndex,bool pause); //用怪物名和关卡路径来初始化怪物的属性
+> ```
 
-## 3. 游戏特性
+怪兽的移动是所有怪兽均具有的公共行为，并且只受到关卡和初始位置影响(关卡不同，则移动路径不同。初始位置不同，则移动的起点不同)。因此，怪兽一经创建，就用怪兽名、路径和初始位置这几个参数调用initWithPath这个函数，这个函数实际上是已经这些参数并结合cocos2d的动作系统创建了一个动作序列。
 
-### 3.1 防御塔特性
-- 瓶子塔：单体攻击，攻击速度快
-- 太阳塔：范围攻击，伤害较高
-- 飞机塔：直线攻击，穿透效果
-- 便便塔：减速效果，战略价值高
+之所以还要传入初始位置是为了方便后面存档系统对于怪兽位置数据的存储与加载，通过初始位置这个参数可以让怪兽从任意路径位置开始移动逻辑。
 
-### 3.2 怪物特性
-- 不同类型怪物有不同的生命值、移动速度和攻击力
-- 怪物死亡会掉落金币
-- 怪物有血条显示
-- 支持多路径移动
+###### 怪兽类的其它相关函数
 
-### 3.3 游戏机制
-- 金钱系统：建造和升级塔需要消耗金币
-- 波次系统：怪物分波次进攻
-- 升级系统：防御塔可升级提升属性
-- 暂停功能：可随时暂停游戏
-- 双倍速度：可加快游戏进程
+*  怪兽死亡函数
 
-## 4. 技术亮点
+  > ```c++
+  >  void toDie(BaseLevelScene* my_scene); //让怪兽死亡
+  > ```
 
-1. 设计模式运用：
-   - 单例模式：GameManager
-   - 观察者模式：事件系统
-   - 工厂模式：怪物和防御塔的创建
+这个函数实现怪兽与场景的UI的交互，通过传入场景的指针，在触发死亡条件时，除了完成自身的死亡逻辑和动画，还调用场景提供的公有方法updateMoney来更新场景的呈现的金币数量。
 
-2. 数据管理：
-   - JSON配置文件管理游戏数据
-   - 存档系统支持游戏进度保存
+* 一系列的set和get函数
 
-3. 性能优化：
-   - 对象池管理
-   - 资源预加载
-   - 场景管理优化
+  这些函数提供了获取及修改怪物数据的公有接口，避免将怪兽数据直接暴露。
 
-4. 代码架构：
-   - 清晰的类层次结构
-   - 高内聚低耦合的模块设计
-   - 可扩展的系统架构
+  > ```c++
+  >   //set函数
+  >   void setHealth(int health) { this->health = health; };
+  >   void setHpVisible(bool isVisible);                         //设置血条可见
+  >   void setDamage(int value) { this->damage = value; }        //设置怪兽伤害数值
+  >   void setSpeed(int value) { this->speed = value; }          //设置怪兽速度
+  >   void setPause(bool isPause){this->pause=isPause;}          //设置暂停状态
+  >   void setReward(int reward) { this->reward=reward; }        //设置暂停状态
+  >   //get函数
+  >   int getHealth()const{return health;}                       //获取血量
+  >   bool getHpVisibleState()const{return ishpvs;}              //获取血条显示状态
+  >   std::string getMonsterName()const { return name; }         //获取怪兽的名字
+  >   int getDamage()const{return damage;}                       //获取怪兽伤害数值
+  >   int getPathIndex()const{return PathIndex;}                 //获取怪物当前的路径索引
+  >   int getSpeed()const { return speed; }                      //获取怪兽速度
+  >   bool getPause()const {return pause;}                       //获取暂停状态
+  >   int  getReward()const{ return reward;}
+  > ```
 
-* 项目进度时间线：
-* 
-* 场景截图：
-*
-![屏幕截图 2024-12-21 190132](https://github.com/user-attachments/assets/124578a9-ad6c-4ead-81cc-884500dc3ffd)
-*
-*主场景：
-*
-![屏幕截图 2024-12-21 192116](https://github.com/user-attachments/assets/6e6dddc9-f078-491c-815c-e4457068534b)
-*
-*设置界面：
-*
-![屏幕截图 2024-12-21 192410](https://github.com/user-attachments/assets/a9d08696-d8b2-4591-9d6a-7e6f3714c44e)
-*
-*主题界面：
-*
-![屏幕截图 2024-12-21 192451](https://github.com/user-attachments/assets/fd4b44b4-a588-43a5-b2a4-f3176a026b78)
-*
-*关卡选择界面：
-*
-![屏幕截图 2024-12-21 192528](https://github.com/user-attachments/assets/850ad3f5-f1f0-4de8-bcf7-f200f0b5227c)
-*
-*游戏界面：
-*
-![屏幕截图 2024-12-21 192557](https://github.com/user-attachments/assets/692894c3-856f-4acf-a801-ab87c193dd59)
-*
+##### 3.5炮塔设计
+
+##### 3.6音乐系统
+
+##### 3.7存档功能
+
+###### 3.7.1功能简介
+
+本项目进行较为全面的数据存档:①炮塔数据存档:包含有当前关卡场上所有炮塔种类、等级、种植位置、当前血量。②障碍物数据存档:包含当前关卡场上所有的障碍物的种类、血量、摆放位置。③怪兽数据的存档:包含当前关卡场上所有的怪兽的血量、位置、种类，以及当前怪兽的波数。④萝卜数据存档:包含有当前关卡萝卜的血量。⑤关卡通过情况存档:包含有每关的通关情况。⑥金币存档:包含有当前关卡的金币数。
+
+每关游戏过程中通过点击选择关卡按钮，就会调用存档函数，存档函数会记录下当前场上的所有数据，生成json文件。
+
+<img src="../AppData/Roaming/Typora/typora-user-images/image-20241222021214489.png" alt="image-20241222021214489" style="zoom:50%;" />
+
+在关卡选择界面，每一关有开始游戏和载入存档两个按钮，点击开始游戏会进入全新的一关，点击载入存档，如果有存档就会载入存档，如果没有就会进入全新的一关。
+
+<img src="../AppData/Roaming/Typora/typora-user-images/image-20241222021431482.png" alt="image-20241222021431482" style="zoom: 50%;" />
+
+###### 3.7.2 存档功能设计
+
+存档功能核心在于各个存档文件的数据结构的设计:
+
+* 怪兽数据:
+
+> ```
+> level1Monster.json/
+> ├── livemonsters(在场的怪兽) 
+> │       ├── monsterName
+> │       ├── pathIndex
+> │       └── health
+> ├── currentWave(当前波即将上场的怪兽)
+> │       ├── monsterName
+> │       └── count
+> ├── currentWaveIndex(当前波数)
+> ├── upcomingWave(即将上场的波)
+> │       ├── monsterName
+> │       └── count
+> 
+> ```
+
+* 炮塔数据和障碍物数据
+
+炮塔数据和障碍物数据共用一个存档文件，因为它们的存储逻辑有很大的相似性。
+
+对于每个炮塔或障碍物，它们的存储结构如下:
+
+> ```
+> ├── flag
+> ├── index
+> ├── data
+> ```
+
+* 关卡通关数据
+
+用一个bool型的数组存储每一个的通关情况，每一关卡胜利后都更新该数组并且进行存档，每次进入游戏时就开始对关卡通关情况的读档并且更新该数组。
+
+> ```
+> {"levels":[true,false,false]}  //表示第一关通关的情况
+> ```
+
+* 金币存档和萝卜血量存档
+
+简单存储和读取两个变量即可
+
+###### 3.7.3 存档功能实现
+
+采用json文件作为存储数据文件，因为json文件是一种轻量级、易读易写的数据格式，特别适合保存游戏存档中需要的层级化结构数据。
+
+##### 3.8萝卜设计
+
+## 游戏文档
+
+### 游戏简介
+同保卫萝卜
+
+### 游戏截图
+
+* 主界面
+
+  ![屏幕截图 2024-12-21 192116](https://github.com/user-attachments/assets/6e6dddc9-f078-491c-815c-e4457068534b)
+
+* 设置界面
+
+  ![屏幕截图 2024-12-21 192410](https://github.com/user-attachments/assets/a9d08696-d8b2-4591-9d6a-7e6f3714c44e)
+
+* 主题界面
+
+  ![屏幕截图 2024-12-21 192451](https://github.com/user-attachments/assets/fd4b44b4-a588-43a5-b2a4-f3176a026b78)
+
+* 关卡选择界面
+
+  ![屏幕截图 2024-12-21 192528](https://github.com/user-attachments/assets/850ad3f5-f1f0-4de8-bcf7-f200f0b5227c)
+
+* 游戏界面
+
+  ![屏幕截图 2024-12-21 192557](https://github.com/user-attachments/assets/692894c3-856f-4acf-a801-ab87c193dd59)
+
+  
 
 
-项目中使用的 C++11 及以上的新特性：
 
-## 1. 智能指针 (Smart Pointers)
 
-```cpp
-std::unique_ptr<GameManager> instance;
-std::shared_ptr<Monster> monster;
-```
 
-## 2. auto 类型推导
-项目中大量使用了 auto 关键字进行类型推导：
 
-```cpp:Classes/BaseLevelScene.cpp
-auto visibleSize = Director::getInstance()->getVisibleSize();
-auto backgroundImage = Sprite::create("see.png");
-auto menu = Menu::create();
-```
 
-## 3. Lambda 表达式
-在事件处理和回调函数中大量使用了 Lambda 表达式：
-
-```cpp:Classes/themeScene.cpp
-rightButton->addTouchEventListener([=](Ref* pSender, Widget::TouchEventType type) {
-    if (type == Widget::TouchEventType::ENDED) {
-        a.button_music();
-        int currentIndex = pageView->getCurrentPageIndex();
-        if (currentIndex < mapImages.size() - 1) {
-            pageView->scrollToPage(currentIndex + 1);
-            clearRelatedButtons();
-        }
-    }
-});
-```
-
-## 4. 基于范围的 for 循环
-使用了更简洁的循环语法：
-
-```cpp:Classes/GameManager.cpp
-for (auto monster : monsters) {
-    if (monster->health > 0) {
-        // ... 处理逻辑
-    }
-}
-```
-
-## 5. 初始化列表
-在类成员初始化时使用：
-
-```cpp:Classes/Tower.h
-struct WaveConfig {
-    std::array<float, 2> spawnInterval={1,2};  // 使用初始化列表
-};
-```
-
-## 6. nullptr
-替代 NULL 使用更安全的 nullptr：
-
-```cpp:Classes/Monster.cpp
-if (sprite == nullptr) {
-    return false;
-}
-```
-
-## 7. std::array
-使用标准数组替代 C 风格数组：
-
-```cpp:Classes/GameManager.h
-std::array<float, 2> spawnInterval;
-```
-
-## 8. 强类型枚举 (enum class)
-可以使用强类型枚举提高类型安全性：
-
-```cpp
-enum class TowerType {
-    Bottle,
-    Sun,
-    Plane,
-    Shit
-};
-```
-
-## 9. 右值引用和移动语义
-在资源管理和性能优化中可以使用：
-
-```cpp
-std::vector<Monster*> monsters;
-monsters = std::move(tempMonsters);
-```
-
-## 10. constexpr
-用于编译期常量计算：
-
-```cpp
-constexpr float PI = 3.14159265359;
-constexpr int TOWER_MAX_LEVEL = 3;
-```
-
-## 11. 统一初始化语法
-使用花括号初始化：
-
-```cpp
-Vec2 position{100.0f, 200.0f};
-std::vector<int> costs{100, 200, 300};
-```
-
-## 12. std::function 和 std::bind
-在回调系统中使用：
-
-```cpp:Classes/BaseLevelScene.h
-void CountDown(std::function<void()> onComplete);
-```
-
-## 13. 委托构造函数
-在构造函数中复用其他构造函数的代码：
-
-```cpp
-class Tower {
-public:
-    Tower(int index) : Tower(index, 0) {}
-    Tower(int index, int grade) : index(index), grade(grade) {
-        // 初始化代码
-    }
-};
-```
-
-## 14. override 关键字
-明确标记覆盖虚函数：
-
-```cpp:Classes/Tower.h
-class Sun : public Tower {
-public:
-    void attack(BaseLevelScene*, std::vector<Monster*>&, 
-                char isTarget, Monster* tar_m, 
-                Obstacle* tar_o, int jiasu) override;
-};
-```
