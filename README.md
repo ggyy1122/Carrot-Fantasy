@@ -255,9 +255,6 @@ UI设计：
 
 萝卜：
 
-* 类的设计及继承关系：
-
-* <img src="MDres\8.png" width = "390" height = "200" alt="" align=center />
 *  评分项完成度
     -    基础功能
            - [x] ⽀持⾄少3种防御塔和防御塔的删除
