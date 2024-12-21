@@ -5,6 +5,168 @@
 * 项目成员 ：官奕、于广淳、周慧星
 * 项目Github地址：
 [https://github.com/xing05188/CattotFantasy.git]()
+我将为您编写一个项目文档，介绍这个游戏项目的主要逻辑和核心代码。
+
+# 塔防游戏项目文档
+
+## 1. 项目概述
+
+这是一个基于 Cocos2d-x 引擎开发的塔防类游戏。玩家需要通过建造防御塔来保护萝卜不被怪物攻击。
+
+## 2. 核心系统
+
+### 2.1 场景管理系统
+
+项目包含多个场景:
+- MenuScene: 主菜单场景
+- ThemeScene: 主题选择场景
+- BaseLevelScene: 游戏关卡场景
+- SetScene: 设置场景
+
+核心场景切换代码:
+```cpp
+void MenuScene::to_AdvantureScene(Ref* pSender) {
+    a.button_music();
+    auto advantureScene = advanturescene::createScene();
+    Director::getInstance()->pushScene(advantureScene);
+}
+```
+
+### 2.2 游戏管理器 (GameManager)
+
+GameManager 是游戏的核心类，负责:
+- 怪物波次管理
+- 游戏存档读取
+- 路径加载
+- 事件监听
+
+关键代码:
+```cpp
+struct WaveConfig {
+    int wave;
+    std::string monsterName;
+    int count;
+    std::array<float, 2> spawnInterval;
+};
+
+class GameManager {
+public:
+    static GameManager* getInstance();
+    void loadMonsterWaveConfig(const std::string& filename, const std::string& levelName);
+    void produceMonsters(const std::string monsterName, const int startIndex, int health, bool pause=false);
+    void saveMonstersDataToJson(const std::string& fileName);
+};
+```
+
+### 2.3 防御塔系统
+
+游戏包含多种防御塔:
+- Bottle: 瓶子塔
+- Sun: 太阳塔
+- MyPlane: 飞机塔
+- Shit: 便便塔
+
+塔的基类设计:
+```cpp
+class Tower {
+protected:
+    Vec2 pos;
+    int grade;
+    float range;
+    int demage;
+    float interval;
+    
+public:
+    virtual void attack(BaseLevelScene*, std::vector<Monster*>&, char isTarget, Monster* tar_m, Obstacle* tar_o, int jiasu);
+    virtual void update(Scene* my_scene, Vec2& position);
+};
+```
+
+### 2.4 怪物系统
+
+怪物类的核心功能:
+```cpp
+class Monster : public cocos2d::Sprite {
+public:
+    bool initWithPath(const std::string& monsterName, const std::vector<Vec2>& path, int startIndex, bool pause);
+    void moveAlongPath(const std::vector<Vec2>& path);
+    void toDie(BaseLevelScene* my_scene);
+    
+private:
+    int health;
+    int maxHp;
+    float speed;
+    int damage;
+    int reward;
+    LoadingBar* _HP;
+};
+```
+
+### 2.5 存档系统
+
+使用 JSON 格式保存游戏数据:
+```cpp
+void GameManager::saveMonstersDataToJson(const std::string& fileName) {
+    rapidjson::Document document;
+    document.SetObject();
+    
+    // 保存当前存活的怪物
+    rapidjson::Value livingMonsters(rapidjson::kArrayType);
+    for (auto monster : monsters) {
+        if (monster->health > 0) {
+            rapidjson::Value monsterData(rapidjson::kObjectType);
+            monsterData.AddMember("monsterName", 
+                rapidjson::Value(monster->getMonsterName().c_str(), document.GetAllocator()),
+                document.GetAllocator());
+            monsterData.AddMember("pathIndex", monster->getPathIndex(), document.GetAllocator());
+            monsterData.AddMember("health", monster->health, document.GetAllocator());
+            livingMonsters.PushBack(monsterData, document.GetAllocator());
+        }
+    }
+}
+```
+
+## 3. 音效系统
+
+使用 AudioEngine 管理游戏音效:
+```cpp
+class Music {
+private:
+    int music_play = 1;
+    int soundEffectID;
+    
+public:
+    void preloadSoundEffect(const std::string& music_file);
+    void button_music();
+    void background_music();
+    void bottleSound();
+    void ShitSound();
+};
+```
+
+## 4. 关键特性
+
+1. 波次系统：怪物分波次进攻，每波次可配置不同类型和数量的怪物
+
+2. 升级系统：防御塔可以升级以提升攻击力
+
+3. 路径系统：怪物沿预设路径移动，支持多条路径
+
+4. 存档系统：支持游戏进度保存和读取
+
+5. 音效系统：完整的游戏音效支持
+
+## 5. 技术特点
+
+1. 使用单例模式管理游戏状态
+2. 采用事件系统处理游戏逻辑
+3. JSON 配置文件管理游戏数据
+4. 面向对象的架构设计
+5. 完整的场景管理系统
+
+这个项目展示了一个完整的塔防游戏实现，包含了游戏开发中常见的各个系统的实现方式。
+
+
 * 项目进度时间线：
 * 
 * 场景的逻辑关系：
