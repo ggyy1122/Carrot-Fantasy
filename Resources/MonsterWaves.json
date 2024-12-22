@@ -2,45 +2,45 @@
   "level1": [
     {
       "wave": 0,
-      "monsterName": "boss",
-      "count": 10,
-      "spawnInterval": [ 0.6, 1.3 ]
+      "monsterName": "tuzi",
+      "count": 5,
+      "spawnInterval": [ 1.0, 1.3 ]
     },
     {
       "wave": 1,
-      "monsterName": "boss",
+      "monsterName": "pig",
       "count": 10,
-      "spawnInterval": [ 0.6, 1.3 ]
+      "spawnInterval": [ 0.8, 1.3 ]
     },
     {
       "wave": 2,
       "monsterName": "biao",
       "count": 10,
-      "spawnInterval": [ 0.6, 1.3 ]
+      "spawnInterval": [ 1.0, 1.3 ]
     },
     {
       "wave": 3,
       "monsterName": "tuzi",
       "count": 7,
-      "spawnInterval": [ 0.6, 1.4 ]
+      "spawnInterval": [ 1.0, 1.4 ]
 
     },
     {
       "wave": 4,
       "monsterName": "pig",
       "count": 7,
-      "spawnInterval": [ 0.6, 1.4 ]
+      "spawnInterval": [ 0.8, 1.4 ]
 
     },
     {
       "wave": 5,
       "monsterName": "yellowbat",
       "count": 5,
-      "spawnInterval": [ 0.6, 1.5 ]
+      "spawnInterval": [ 0.8, 1.5 ]
     },
     {
       "wave": 6,
-      "monsterName": "pink",
+      "monsterName": "BossYellow",
       "count": 4,
       "spawnInterval": [ 1.0, 2.0 ]
     },
@@ -81,7 +81,7 @@
     },
     {
       "wave": 12,
-      "monsterName": "boss",
+      "monsterName": "BossYellow",
       "count": 2,
       "spawnInterval": [ 1.0, 2.0 ]
 
@@ -91,18 +91,176 @@
     {
       "wave": 0,
       "monsterName": "tuzi",
+      "count": 10,
+      "spawnInterval": [ 0.8, 1.3 ]
+    },
+    {
+      "wave": 1,
+      "monsterName": "pig",
+      "count": 10,
+      "spawnInterval": [ 0.8, 1.3 ]
+    },
+    {
+      "wave": 2,
+      "monsterName": "biao",
+      "count": 10,
+      "spawnInterval": [ 0.8, 1.3 ]
+    },
+    {
+      "wave": 3,
+      "monsterName": "tuzi",
+      "count": 7,
+      "spawnInterval": [ 0.8, 1.4 ]
+
+    },
+    {
+      "wave": 4,
+      "monsterName": "pig",
+      "count": 7,
+      "spawnInterval": [ 0.8, 1.4 ]
+
+    },
+    {
+      "wave": 5,
+      "monsterName": "yellowbat",
+      "count": 5,
+      "spawnInterval": [ 0.8, 1.5 ]
+    },
+    {
+      "wave": 6,
+      "monsterName": "BossYellow",
+      "count": 4,
+      "spawnInterval": [ 1.0, 2.0 ]
+    },
+    {
+      "wave": 7,
+      "monsterName": "blue",
+      "count": 4,
+      "spawnInterval": [ 1.0, 2.0 ]
+
+    },
+    {
+      "wave": 8,
+      "monsterName": "sheep",
       "count": 3,
-      "spawnInterval": [ 0.6, 1.3 ]
+      "spawnInterval": [ 1.0, 2.0 ]
+
+    },
+    {
+      "wave": 9,
+      "monsterName": "fuck",
+      "count": 3,
+      "spawnInterval": [ 1.0, 2.0 ]
+
+    },
+    {
+      "wave": 10,
+      "monsterName": "bubble",
+      "count": 3,
+      "spawnInterval": [ 1.0, 2.0 ]
+
+    },
+    {
+      "wave": 11,
+      "monsterName": "star",
+      "count": 3,
+      "spawnInterval": [ 1.0, 2.0 ]
+
+    },
+    {
+      "wave": 12,
+      "monsterName": "BossSheep",
+      "count": 4,
+      "spawnInterval": [ 1.0, 2.0 ]
+
     }
   ],
   "level3": [
     {
       "wave": 0,
       "monsterName": "tuzi",
-      "count": 2,
-      "spawnInterval": [ 0.6, 1.3 ]
+      "count": 10,
+      "spawnInterval": [ 0.8, 1.3 ]
+    },
+    {
+      "wave": 1,
+      "monsterName": "pig",
+      "count": 10,
+      "spawnInterval": [ 0.8, 1.3 ]
+    },
+    {
+      "wave": 2,
+      "monsterName": "biao",
+      "count": 10,
+      "spawnInterval": [ 0.8, 1.3 ]
+    },
+    {
+      "wave": 3,
+      "monsterName": "tuzi",
+      "count": 7,
+      "spawnInterval": [ 0.8, 1.4 ]
+
+    },
+    {
+      "wave": 4,
+      "monsterName": "pig",
+      "count": 7,
+      "spawnInterval": [ 0.8, 1.4 ]
+
+    },
+    {
+      "wave": 5,
+      "monsterName": "yellowbat",
+      "count": 5,
+      "spawnInterval": [ 1.0, 1.5 ]
+    },
+    {
+      "wave": 6,
+      "monsterName": "pink",
+      "count": 4,
+      "spawnInterval": [ 1.0, 2.0 ]
+    },
+    {
+      "wave": 7,
+      "monsterName": "BossSheep",
+      "count": 4,
+      "spawnInterval": [ 1.0, 2.0 ]
+
+    },
+    {
+      "wave": 8,
+      "monsterName": "sheep",
+      "count": 3,
+      "spawnInterval": [ 1.0, 2.0 ]
+
+    },
+    {
+      "wave": 9,
+      "monsterName": "fuck",
+      "count": 3,
+      "spawnInterval": [ 1.0, 2.0 ]
+
+    },
+    {
+      "wave": 10,
+      "monsterName": "bubble",
+      "count": 3,
+      "spawnInterval": [ 1.0, 2.0 ]
+
+    },
+    {
+      "wave": 11,
+      "monsterName": "star",
+      "count": 3,
+      "spawnInterval": [ 1.0, 2.0 ]
+
+    },
+    {
+      "wave": 12,
+      "monsterName": "BossYellow",
+      "count": 5,
+      "spawnInterval": [ 1.0, 2.0 ]
+
     }
   ]
-
-
 }

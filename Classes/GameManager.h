@@ -78,7 +78,7 @@ public:
     int getCurrentWaveIndex() const{return waveIndex;}       //获取当前怪兽波序号
     int getAllWaveNum()const { return AllWaveNum; }          //获取总波数
     int getCurrentWaveNum()const { return waveIndex; }       //获取现波数
-
+    int getAllMonsterNum()const{return AllMonsterNum;}
   //读档存档相关
     bool loadGameData(const std::string& fileName);          //加载初始游戏数据
     bool loadPathForLevel(int levelId, const std::string& filePath);

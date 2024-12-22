@@ -95,7 +95,7 @@ void Tower::destroy(BaseLevelScene* my_scene)
 
 void Tower::update(BaseLevelScene* my_scene, Vec2 position)
 {
-	if (grade >= 2 || my_scene->money < up_cost[index][grade]) return;
+	if (grade >= 2 || my_scene->getMoney() < up_cost[index][grade]) return;
 	my_scene->updateMoney(-up_cost[index][grade]);
 	my_scene->removeChild(sprite_mark);
 	sprite_mark->release();
@@ -114,7 +114,7 @@ void Tower::update(BaseLevelScene* my_scene, Vec2 position)
 void Tower::UpMenuAppear(BaseLevelScene* my_scene, Vec2& position)
 {
 	Sprite* up;
-	if (grade < 2 && my_scene->money >= up_cost[index][grade]) up = Sprite::create(up_graph[up_cost[index][grade]]);
+	if (grade < 2 && my_scene->getMoney() >= up_cost[index][grade]) up = Sprite::create(up_graph[up_cost[index][grade]]);
 	else if (grade < 2) up = Sprite::create(noup_graph[up_cost[index][grade]]);
 	else up = Sprite::create("Towers/upgrade_top.png");
 	auto sale = Sprite::create(sale_graph[sell_money[index][grade]]);

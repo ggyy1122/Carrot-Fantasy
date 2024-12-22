@@ -1,10 +1,18 @@
 {
+"BossSheep": {
+    "spriteFrameName": "BossYellow_0.png",
+    "health": 2000,
+    "speed": 70,
+    "damage": 2,
+    "reward": 500
+  },
+
   "BossYellow": {
     "spriteFrameName": "BossYellow_0.png",
     "health": 1500,
     "speed": 20,
     "damage": 5,
-    "reward": 2000
+    "reward": 1000
   },
 
   "biao": {

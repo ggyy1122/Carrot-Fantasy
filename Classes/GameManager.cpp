@@ -220,6 +220,7 @@ void GameManager::loadMonsterResources() {
     SpriteFrameCache::getInstance()->addSpriteFramesWithFile("Monsters/xin.plist");
     SpriteFrameCache::getInstance()->addSpriteFramesWithFile("Monsters/yuxin.plist");
     SpriteFrameCache::getInstance()->addSpriteFramesWithFile("Monsters/BossYellow.plist");
+    SpriteFrameCache::getInstance()->addSpriteFramesWithFile("Monsters/BossSheep.plist");
     if (!SpriteFrameCache::getInstance()->getSpriteFrameByName("pig_0.png")) {
         CCLOG("Failed to load SpriteFrame 'pig_0.png'.");
     }
@@ -305,6 +306,12 @@ void GameManager::loadMonsterResources() {
     if (!SpriteFrameCache::getInstance()->getSpriteFrameByName("BossYellow_1.png")) {
         CCLOG("Failed to load SpriteFrame 'BossYellow_1.png'.");
     }
+    if (!SpriteFrameCache::getInstance()->getSpriteFrameByName("BossSheep_0.png")) {
+        CCLOG("Failed to load SpriteFrame 'BossSheep_0.png'.");
+    }
+    if (!SpriteFrameCache::getInstance()->getSpriteFrameByName("BossSheep_1.png")) {
+        CCLOG("Failed to load SpriteFrame 'BossSheep_1.png'.");
+    }
 }
 //单个怪兽生产函数
 void GameManager::produceMonsters(const std::string monsterName, const int startIndex, int health, bool pause) {
@@ -325,6 +332,11 @@ void GameManager::produceMonsters(const std::string monsterName, const int start
     if (health != -1)
     {
         Monster->setHealth(health);
+    }
+    if(monsterName.find("Boss") == 0)
+    {
+      
+    Monster->SpecialAttack();
     }
 }
 //怪兽波的数据配置
@@ -387,7 +399,7 @@ void GameManager::produceMonsterWave(const WaveConfig& waveConfig) {
     float delay = 0;
     CCLOG("%d   %d", waveIndex,AllWaveNum);
     for (int i = 0; i < waveConfig.count; ++i) {
-        // 生成一个 0 到 2 秒之间的随机时间
+        // 生成随机时间
         delay += cocos2d::RandomHelper::random_real(waveConfig.spawnInterval[0], waveConfig.spawnInterval[1]);
 
         // 延迟生成怪物，注意延迟的时长是相对于当前时间的
@@ -410,7 +422,7 @@ void GameManager::startMonsterWaves() {
         CCLOG("Starting wave %d", waveIndex);
         produceMonsterWave(waveConfigs[waveIndex]); // 生成当前波的怪物
 
-        }, this, 15.0f, false, "startWave"); // 每隔 9 秒调度一次
+        }, this, 15.0f, false, "startWave"); // 每隔 15 秒调度一次
 }
 //怪兽入场特效
 void GameManager::playSpawnEffect(const cocos2d::Vec2& spawnPosition) {

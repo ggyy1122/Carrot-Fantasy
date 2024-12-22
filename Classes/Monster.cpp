@@ -2,7 +2,10 @@
 
 #include"music.h"
 #include"BaseLevelScene.h"
+#include"GameManager.h"
 extern Music a;
+extern GameManager* manager;
+extern float tower_jiasu;
 int DeadCount=0;
 
 
@@ -13,7 +16,13 @@ Monster* Monster::create(const std::string& monsterName, const std::vector<Vec2>
     if(monsterName.find("Boss")==0)
     {
         if(monsterName=="BossYellow")
+        {
        monster=new (std::nothrow) BossYellow();//使用new运算符分配内存，创建一个BossYellow对象
+        }
+        if (monsterName == "BossSheep")
+        {
+            monster = new (std::nothrow) BossSheep();//使用new运算符分配内存，创建一个BossYellow对象
+        }
         else
         {
             CCLOG("UNKONW BOSS: %s",monsterName.c_str());
@@ -131,7 +140,7 @@ void Monster::moveAlongPath(const std::vector<Vec2>& path) {
     actions.pushBack(onPathComplete); // 创建动作序列
     auto sequence = cocos2d::Sequence::create(actions);
     if (pause) {
-        auto delay = DelayTime::create(3.0f); // 创建一个延迟3秒的动作
+        auto delay = DelayTime::create(4.0f); // 创建一个延迟3秒的动作
         auto delayedSequence = Sequence::create(delay, sequence, nullptr);  // 将延迟动作和现有的动作序列结合起来
         speedaction = Speed::create(delayedSequence, beishu); // 执行新的序列动作（先延迟3秒，再执行原来的sequence）
     }
@@ -216,3 +225,108 @@ void  Monster::getHurt(int value)
 {
     health-=value;
 }
+void showBossSkill(const std::string& skillText);
+//BossYellow的技能:减速炮塔
+void BossYellow::SpecialAttack() {
+    //boss技能，让塔的攻速减半
+    CCLOG("BossYellow's Attack!");
+    showBossSkill("SpecialAttack:Slow Speed!");
+            a.duanSound();
+            tower_jiasu = 0.3;
+            auto delayaction = Sequence::create(DelayTime::create(20.0f), CallFunc::create([=] {
+                tower_jiasu = 1;
+                }), nullptr);
+            this->runAction(delayaction);
+    }
+
+#define CELL_SIZE 64
+void BossSheep::SpecialAttack()
+{
+    //boss技能，消灭近一半炮塔
+    CCLOG("BossSheep's Attack!");
+    showBossSkill("SpecialAttack:Destroy!");
+            a.duanSound();
+            auto bong = Sprite::create();
+            if (!bong) {
+                CCLOG("Failed to create bong sprite.");
+                return;
+            }
+            bong->setPosition(480, 320);
+            bong->setScale(2);
+            this->addChild(bong);
+            cocos2d::Vector<cocos2d::SpriteFrame*> frames;
+            for (int i = 0; i <= 3; ++i) {
+                std::string frameName = "Carrot/bong/bong_" + std::to_string(i) + ".png";
+                auto frame = cocos2d::SpriteFrame::create(frameName, cocos2d::Rect(0, 0, 164, 160)); // 假设每张图片的大小是 64x64
+                if (frame) {
+                    frames.pushBack(frame);
+                }
+                else {
+                    CCLOG("Failed to load frame: %s", frameName.c_str());
+                }
+            }
+            if (frames.empty()) {
+                CCLOG("No frames found for bong, skipping.");
+                return;
+            }
+            auto animation = cocos2d::Animation::createWithSpriteFrames(frames, 0.2f);
+            auto animate = cocos2d::Animate::create(animation);
+            auto onbong = cocos2d::CallFunc::create([bong]() {
+                CCLOG("bong.");
+                bong->removeFromParent();
+                });
+            a.bongSound();
+            bong->runAction(cocos2d::Sequence::create(animate, onbong, nullptr));
+            int num = 0;
+            for (auto it = manager->getScene()->towers.begin(); it != manager->getScene()->towers.end();) {
+                if (num % 2 == 0) {
+                    manager->getScene()->removeChild(it->second->sprite_mark);
+                    manager->getScene()->removeChild(it->second->sp_base);
+                    it->second->sprite_mark->release();
+                    it->second->sp_base->release();
+                    auto tool = ++it;
+                    it--;
+                    manager->getScene()->map_data[int(it->second->pos.x / CELL_SIZE)][int(it->second->pos.y / CELL_SIZE)].flag=0;
+                    manager->getScene()->towers.erase(it);
+                    it = tool;
+                }
+                else
+                    it++;
+                num++;
+            }
+}
+
+//文字显示Boss技能
+void showBossSkill(const std::string& skillText) {
+    // 创建一个 Label 来显示技能名称
+    auto skillLabel = Label::createWithTTF(skillText, "fonts/Marker Felt.ttf", 48); // 使用 TTF 字体
+    if (!skillLabel) return;
+
+    // 设置 Label 位置为屏幕中央
+    skillLabel->setPosition(Director::getInstance()->getVisibleSize() / 2);
+    skillLabel->setTextColor(Color4B::RED); // 设置字体颜色为红色
+
+    // 添加 Label 到当前层
+    manager->getScene()->addChild(skillLabel, 100); // 设置较高的 z-order 确保显示在最前面
+
+    // 淡入动画
+    auto fadeIn = FadeIn::create(0.5f);
+
+    // 停留时间
+    auto delay = DelayTime::create(2.0f);
+
+    // 淡出动画
+    auto fadeOut = FadeOut::create(0.5f);
+
+    // 动画完成后移除 Label
+    auto remove = CallFunc::create([=]() {
+        manager->getScene()->removeChild(skillLabel);
+        });
+
+    // 组合动作
+    auto sequence = Sequence::create(fadeIn, delay, fadeOut, remove, nullptr);
+
+    // 运行动作
+    skillLabel->runAction(sequence);
+}
+  

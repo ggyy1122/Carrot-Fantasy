@@ -47,6 +47,7 @@ void Carrot::changeHP(int change) {
     hp += change;
     if (hp <= 0) {
         hp == 0;
+        updateHPDisplay(); // ¸üÐÂÂÜ²·Í¼Æ¬ºÍÑªÌõÍ¼Æ¬
     }
     else if (hp > 0 && hp <= 10) {
         updateHPDisplay(); // ¸üÐÂÂÜ²·Í¼Æ¬ºÍÑªÌõÍ¼Æ¬

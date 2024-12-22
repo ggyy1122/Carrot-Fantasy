@@ -54,14 +54,18 @@ public:
     int getSpeed()const { return speed; }                      //获取怪兽速度
     bool getPause()const {return pause;}                       //获取暂停状态
     int  getReward()const{ return reward;}
+    virtual void SpecialAttack() {  }
     
 };
-
-
 //BossYellow类
 class BossYellow :public Monster
 {
 public:
-     void JiNeng();
+    void SpecialAttack()override;
 };
-
+//BossSheep类
+class BossSheep :public Monster
+{
+public:
+    void SpecialAttack()override;
+};
