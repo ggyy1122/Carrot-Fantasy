@@ -487,8 +487,6 @@ void BaseLevelScene::gameover(bool is_win, int currentWaveNum, int allWaveNum) {
     //选择关卡选项
     chooseButton->setCallback([this, menuLayer](Ref* psender) {
         a.button_music();
-        manager->saveMonstersDataToJson("level" + std::to_string(levelId) + "Monster.json");
-        saveTowerData();
         this->removeChild(menuLayer);
         // 取消与 GameManager 相关的所有调度器
         GameManager::getInstance()->stopAllSchedulers();
