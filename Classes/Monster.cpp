@@ -8,7 +8,20 @@ int DeadCount=0;
 
 //静态方法创建怪兽对象
 Monster* Monster::create(const std::string& monsterName, const std::vector<Vec2>& path, int startIndex, bool pause) {
-    Monster* monster = new (std::nothrow) Monster();//使用new运算符分配内存，创建一个Monster对象
+    Monster* monster;
+    //判断是否是Boss
+    if(monsterName.find("Boss")==0)
+    {
+        if(monsterName=="BossYellow")
+       monster=new (std::nothrow) BossYellow();//使用new运算符分配内存，创建一个BossYellow对象
+        else
+        {
+            CCLOG("UNKONW BOSS: %s",monsterName.c_str());
+            return nullptr;
+        }         
+    }
+    else
+    monster = new (std::nothrow) Monster();//使用new运算符分配内存，创建一个Monster对象
     if (monster && monster->initWithPath(monsterName, path, startIndex, pause))//判断是否创建成功和初始化成功
     {
         monster->autorelease();

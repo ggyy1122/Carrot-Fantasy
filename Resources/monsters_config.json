@@ -1,4 +1,12 @@
 {
+  "BossYellow": {
+    "spriteFrameName": "BossYellow_0.png",
+    "health": 1500,
+    "speed": 20,
+    "damage": 5,
+    "reward": 2000
+  },
+
   "biao": {
     "spriteFrameName": "biao_0.png",
     "health": 50,

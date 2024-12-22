@@ -10,7 +10,7 @@ extern float beishu;
 class BaseLevelScene;
 
 class Monster : public cocos2d::Sprite {
-private:
+protected:
     Vec2  endPos;                   //终止位置
     int startPosIndex;              //起始索引
     int PathIndex = 0;              //路径索引
@@ -55,5 +55,13 @@ public:
     bool getPause()const {return pause;}                       //获取暂停状态
     int  getReward()const{ return reward;}
     
+};
+
+
+//BossYellow类
+class BossYellow :public Monster
+{
+public:
+     void JiNeng();
 };
 

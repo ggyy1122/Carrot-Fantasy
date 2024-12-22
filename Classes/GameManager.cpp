@@ -51,7 +51,7 @@ void GameManager::update(float deltaTime) {
 //检查输状态
 bool GameManager::CheckLose()
 {
-    if (carrot->getHP() == 0)
+    if (carrot->getHP() <= 0)
     {
         CCLOG("LOSE THE GAME!");
         return true;
@@ -219,6 +219,7 @@ void GameManager::loadMonsterResources() {
     SpriteFrameCache::getInstance()->addSpriteFramesWithFile("Monsters/fuck.plist");
     SpriteFrameCache::getInstance()->addSpriteFramesWithFile("Monsters/xin.plist");
     SpriteFrameCache::getInstance()->addSpriteFramesWithFile("Monsters/yuxin.plist");
+    SpriteFrameCache::getInstance()->addSpriteFramesWithFile("Monsters/BossYellow.plist");
     if (!SpriteFrameCache::getInstance()->getSpriteFrameByName("pig_0.png")) {
         CCLOG("Failed to load SpriteFrame 'pig_0.png'.");
     }
@@ -297,6 +298,12 @@ void GameManager::loadMonsterResources() {
     }
     if (!SpriteFrameCache::getInstance()->getSpriteFrameByName("xin_1.png")) {
         CCLOG("Failed to load SpriteFrame 'xin_1.png'.");
+    }
+    if (!SpriteFrameCache::getInstance()->getSpriteFrameByName("BossYellow_0.png")) {
+        CCLOG("Failed to load SpriteFrame 'BossYellow_0.png'.");
+    }
+    if (!SpriteFrameCache::getInstance()->getSpriteFrameByName("BossYellow_1.png")) {
+        CCLOG("Failed to load SpriteFrame 'BossYellow_1.png'.");
     }
 }
 //单个怪兽生产函数
@@ -378,6 +385,7 @@ void GameManager::loadMonsterWaveConfig(const std::string& filename, const std::
 void GameManager::produceMonsterWave(const WaveConfig& waveConfig) {
     // 每一波怪物的生成函数
     float delay = 0;
+    CCLOG("%d   %d", waveIndex,AllWaveNum);
     for (int i = 0; i < waveConfig.count; ++i) {
         // 生成一个 0 到 2 秒之间的随机时间
         delay += cocos2d::RandomHelper::random_real(waveConfig.spawnInterval[0], waveConfig.spawnInterval[1]);
