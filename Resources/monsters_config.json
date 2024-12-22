@@ -1,6 +1,6 @@
 {
 "BossSheep": {
-    "spriteFrameName": "BossYellow_0.png",
+    "spriteFrameName": "BossSheep_0.png",
     "health": 2000,
     "speed": 70,
     "damage": 2,

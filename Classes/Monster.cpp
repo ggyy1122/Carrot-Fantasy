@@ -19,7 +19,7 @@ Monster* Monster::create(const std::string& monsterName, const std::vector<Vec2>
         {
        monster=new (std::nothrow) BossYellow();//使用new运算符分配内存，创建一个BossYellow对象
         }
-        if (monsterName == "BossSheep")
+        else if (monsterName == "BossSheep")
         {
             monster = new (std::nothrow) BossSheep();//使用new运算符分配内存，创建一个BossYellow对象
         }

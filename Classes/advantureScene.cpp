@@ -34,7 +34,7 @@ bool advanturescene::init() {
 	Size screenSize = Director::getInstance()->getWinSize();    //获取屏幕大小
 
 	//添加提示词
-	auto topLabel = Label::createWithSystemFont(StringUtils::format("Fuck you"), "Arial", 32);
+	auto topLabel = Label::createWithSystemFont(StringUtils::format("Hello World"), "Arial", 32);
 	topLabel->setColor(Color3B::WHITE);
 	topLabel->setPosition(screenSize.width * 0.49, screenSize.height * 0.95);
 	this->addChild(topLabel, 2);
