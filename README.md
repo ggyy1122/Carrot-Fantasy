@@ -27,8 +27,24 @@
 ##### 1.3 小组分工
 
 - 官奕
+  * Tiled地图设计
+  * 存档功能实现与数据配置文件制作
+  * 怪兽类设计
+  * 怪兽动画制作
+  * 怪兽出现逻辑的完成
 - 周慧星
+  * 游戏的进入界面、选关卡界面、游戏结束界面的制作
+  * 游戏暂停与二倍速功能制作
+  * 游戏UI界面制作
+  * 萝卜相关功能
+  * 炮塔打在目标上的特效制作
+  * 背景音乐系统设计
 - 于广淳
+  * 炮塔类逻辑的实现
+  * 四个炮塔的制作
+  * 攻击、建造、删除、升级时的音效
+  * 障碍物的制作
+  * 点击锁定功能的实现
 
 ##### 1.4 评分项完成度
 
@@ -66,7 +82,7 @@
 ###### 其他亮点 
 
 - [x] 游戏还原度高
-   
+  
    * 全部使用原版游戏素材
    
    - 还原原版界面设计
@@ -276,6 +292,47 @@ Classes/
   > ```
 
 ##### 3.5炮塔设计
+
+在炮塔的实现中用到了多态和模板。多态体现在有一个基类Tower,而具体的炮塔Bottle,Sun,Plane,Shit作为其派生类，各个炮塔在建造、升级、拆除等方面共用一套逻辑，但在attack攻击方面具有不同的实现逻辑。多态使得可以用一种指针(Tower*)来操作各种类型的炮塔。
+
+> ```c++
+>   Tower* createTower(int index)
+> {
+>     switch (index) {
+>         case 0:return new Bottle(index);
+>         case 1:return new Sun(index);
+>         case 2:return new MyPlane(index);
+>         case 3:return new Shit(index);
+>         default:return nullptr;
+>     }
+> }
+> ```
+
+ 建造炮塔时根据鼠标点击位置获取将要建造的炮塔的编号，然后根据编号可以获取一个相应炮塔的对象，统一通过Tower*的指针来对其操作。 模板则是为配合选定攻击功能而使用，当选定目标后，无论目标是怪物还是场景障碍物元素，都在模板中是一套实现逻辑。
+
+> ```C++
+> void Bottle::attack(BaseLevelScene* my_scene, std::vector<Monster*>& monsters, char isTarget, Monster* tar_m, Obstacle* tar_o, int jiasu)
+> {
+>      //该函数实现炮塔的一次攻击(这里以瓶子的攻击为例)
+>     interval = 0;//间隔系数设为零，用于调控攻击间隔事件
+>     if (isTarget == 1) {//isTarget为1代表有怪兽被锁定
+>         if (AttackSprite(tar_m, my_scene,jiasu))//则传入tar_m这个怪兽对象指针
+>             return;//如果打了，返回，否则往下走
+>     }
+>     if (isTarget == 2) {//代表有障碍物被锁定
+>         if (AttackSprite(tar_o, my_scene,jiasu))//则传入tar_o这个障碍物对象指针
+>             return;//如果打了，返回，否则往下走
+>     }
+>     int size = monsters.size();//如果没有攻击锁定的对象，那么就攻击怪兽中在范围内且位置靠前的
+>     for (auto it = monsters.begin(); it != monsters.end(); it++) {
+>         if ((*it)->health <= 0) continue;
+>         if (AttackSprite((*it), my_scene,jiasu))//传入怪兽对象指针
+>             break;
+>     }
+> }
+> template<class T>//模板函数，表示攻击某个对象
+> bool Bottle::AttackSprite(T* sp, BaseLevelScene* my_scene, int jiasu){...}
+> ```
 
 ##### 3.6音乐系统
 
