@@ -7,7 +7,7 @@
 * 项目选题 ： 保卫萝⼘
 * 项目成员 ：官奕、于广淳、周慧星
 * 项目Github地址：
-[[CattotFantasy 项目](https://github.com/xing05188/CattotFantasy)]()
+[CattotFantasy 项目](https://github.com/xing05188/CattotFantasy)
 * 项目进度时间线：
 
 ## 项目开发文档
